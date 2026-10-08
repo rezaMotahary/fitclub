@@ -16,6 +16,7 @@
 | [github-workflow.md](./github-workflow.md) | اتصال GitHub + push همیشگی + نسخه‌بندی |
 | [testing.md](./testing.md) | تست اجباری برای هر فیچر + گزارش بعد از تغییر مهم |
 | [adr/](./adr/) | Architecture Decision Records |
+| [prompts/complete-project-docs.md](./prompts/complete-project-docs.md) | پرامپت چت جدید برای تکمیل کامل مستندات |
 
 ## پروتوتایپ مرجع
 

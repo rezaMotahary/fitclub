@@ -23,9 +23,10 @@
 | GitHub | `git@github.com:rezaMotahary/fitclub.git` — قانون sync در `docs/github-workflow.md` |
 | تست | قانون الزامی در `docs/testing.md` — هر فیچر + گزارش بعد از تغییر مهم |
 | داده نمونه | قانون در `docs/sample-data.md` |
-| هویت | FitClub · RTL · شمسی · سه نقش — `docs/project-identity.md` |
+| هویت | FitClub همه‌جا · RTL · شمسی · سه نقش — `docs/project-identity.md` |
 | نسخه فعلی | `0.1.0` (اسکلت اولیه) |
-| فیچر واقعی (auth، حضور، مالی) | هنوز شروع نشده — بعد از توضیحات مالک |
+| تکمیل داک منطق | پرامپت آماده: `docs/prompts/complete-project-docs.md` |
+| فیچر واقعی (auth، حضور، مالی) | بعد از تکمیل business-rules و داک‌های منطق |
 
 ## سبک همکاری (الزامی)
 
