@@ -25,6 +25,7 @@
 4. **زبان ساده:** گزارش پیشرفت به فارسی ساده؛ از اصطلاحات سنگین بدون نیاز پرهیز کن.
 5. **کار را خودت انجام بده:** نصب، اسکلت، باگ فنی، تنظیم env — تا جایی که ممکن است بدون درگیر کردن مالک.
 6. **GitHub همیشه به‌روز:** بعد از هر تغییر → commit + push. نسخه‌بندی وقتی نقطهٔ عطف است. جزئیات: `docs/github-workflow.md`
+7. **تست برای هر فیچر:** پوشش قوی؛ بعد از تغییر مهم تست را اجرا کن و نتیجه را به مالک گزارش بده. جزئیات: `docs/testing.md`
 
 ---
 
@@ -49,3 +50,4 @@
 - دامنه محصول: `docs/product-overview.md`
 - قانون Cursor: `.cursor/rules/vibe-coding.mdc`
 - GitHub و نسخه: `docs/github-workflow.md` · `.cursor/rules/github-sync.mdc`
+- تست: `docs/testing.md` · `.cursor/rules/testing.mdc`

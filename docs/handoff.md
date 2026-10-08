@@ -19,6 +19,7 @@
 | PostgreSQL روی سیستم | ✅ نصب شد (17.11) — DB/user `fitsteel` آماده |
 | سبک همکاری | ✅ `docs/collaboration.md` + rule وایب‌کودینگ |
 | GitHub | `git@github.com:rezaMotahary/fitclub.git` — قانون sync در `docs/github-workflow.md` |
+| تست | قانون الزامی در `docs/testing.md` — هر فیچر + گزارش بعد از تغییر مهم |
 | نسخه فعلی | `0.1.0` (اسکلت اولیه) |
 | فیچر واقعی (auth، حضور، مالی) | هنوز شروع نشده — بعد از توضیحات مالک |
 

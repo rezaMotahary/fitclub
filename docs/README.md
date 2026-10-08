@@ -11,6 +11,7 @@
 | [handoff.md](./handoff.md) | حافظهٔ سشن بعد — از اینجا ادامه ساخت اپ |
 | [collaboration.md](./collaboration.md) | سبک همکاری vibe coding — الزامی |
 | [github-workflow.md](./github-workflow.md) | اتصال GitHub + push همیشگی + نسخه‌بندی |
+| [testing.md](./testing.md) | تست اجباری برای هر فیچر + گزارش بعد از تغییر مهم |
 | [adr/](./adr/) | Architecture Decision Records |
 
 ## پروتوتایپ مرجع
