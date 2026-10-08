@@ -1,0 +1,156 @@
+// FitSteel domain model — initial skeleton
+// Source: docs/product-overview.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MEMBER
+  SECRETARY
+  ADMIN
+  TRAINER
+}
+
+enum SessionGender {
+  MEN
+  WOMEN
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  SUSPENDED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD_READER
+  CARD_TRANSFER
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+}
+
+enum AttendanceResult {
+  SUCCESS
+  REJECTED_WEEKLY_CAP
+  REJECTED_EXPIRED
+  REJECTED_DEBT
+  REJECTED_OTHER
+}
+
+model User {
+  id           String        @id @default(cuid())
+  phone        String?       @unique
+  email        String?       @unique
+  passwordHash String?
+  role         Role
+  fullName     String
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  member       Member?
+  staffProfile StaffProfile?
+  checkIns     Attendance[]  @relation("RecordedBy")
+}
+
+model Member {
+  id             String         @id @default(cuid())
+  membershipCode String         @unique
+  userId         String         @unique
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  birthDate      DateTime?
+  sessionGender  SessionGender
+  joinedAt       DateTime       @default(now())
+  debtAmount     Int            @default(0) // toman
+  coachName      String?
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  subscriptions  Subscription[]
+  attendances    Attendance[]
+  payments       Payment[]
+}
+
+model StaffProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shiftLabel String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Plan {
+  id              String         @id @default(cuid())
+  name            String
+  daysPerWeek     Int
+  priceToman      Int
+  durationDays    Int            @default(30)
+  isActive        Boolean        @default(true)
+  sortOrder       Int            @default(0)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  subscriptions   Subscription[]
+}
+
+model Subscription {
+  id            String             @id @default(cuid())
+  memberId      String
+  member        Member             @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  planId        String
+  plan          Plan               @relation(fields: [planId], references: [id])
+  status        SubscriptionStatus @default(ACTIVE)
+  startsAt      DateTime
+  endsAt        DateTime
+  autoRenewHint Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([memberId, status])
+  @@index([endsAt])
+}
+
+model Attendance {
+  id              String            @id @default(cuid())
+  memberId        String
+  member          Member            @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  checkInAt       DateTime
+  checkOutAt      DateTime?
+  durationMinutes Int?
+  result          AttendanceResult  @default(SUCCESS)
+  rejectReason    String?
+  recordedById    String?
+  recordedBy      User?             @relation("RecordedBy", fields: [recordedById], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([memberId, checkInAt])
+  @@index([checkInAt])
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  memberId    String
+  member      Member        @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  amountToman Int
+  method      PaymentMethod
+  status      PaymentStatus @default(CONFIRMED)
+  title       String
+  paidAt      DateTime      @default(now())
+  note        String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([memberId, paidAt])
+}

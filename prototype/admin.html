@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>فیت‌استیل | پنل مدیریت</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <a class="brand" href="index.html">FIT<span>STEEL</span></a>
+      <nav class="side-nav" aria-label="منوی پنل مدیریت">
+        <a class="active" href="admin.html">نمای کلی</a>
+        <a href="#finance">مالی</a>
+        <a href="#plans">اشتراک‌ها</a>
+        <a href="#members">اعضا</a>
+        <a href="#logs">ورود/خروج</a>
+        <a href="#staff">پرسنل</a>
+        <a href="secretary.html">منشی</a>
+      </nav>
+    </aside>
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <h1>پنل مدیریت باشگاه</h1>
+          <p>نمای یکجا از اعضا، حضور، اشتراک، مالی و عملکرد روزانه</p>
+        </div>
+        <button class="btn btn-primary">خروجی گزارش ماه</button>
+      </div>
+
+      <div class="stats">
+        <article class="stat">
+          <div class="label">اعضای فعال</div>
+          <div class="value">246</div>
+        </article>
+        <article class="stat">
+          <div class="label">حضور امروز</div>
+          <div class="value">67</div>
+        </article>
+        <article class="stat">
+          <div class="label">درآمد ماه</div>
+          <div class="value" style="font-size:1.25rem;margin-top:14px">۱۸۶ میلیون</div>
+        </article>
+        <article class="stat">
+          <div class="label">اشتراک در حال انقضا</div>
+          <div class="value warn">14</div>
+        </article>
+      </div>
+
+      <div class="two-col" id="finance">
+        <section class="panel">
+          <h3>روند مالی ۳۰ روز اخیر</h3>
+          <div class="chart-fake"></div>
+          <div class="kv" style="margin-top:14px">
+            <div><span>اوج فروش</span><strong>۱ تا ۵ هر ماه (تمدیدها)</strong></div>
+            <div><span>کم‌فروش‌ترین روز</span><strong>جمعه‌ها</strong></div>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>خلاصه مالی اسفند</h3>
+          <div class="kv">
+            <div><span>درآمد اشتراک‌ها</span><strong>۱۶۲ میلیون</strong></div>
+            <div><span>برنامه مربی / پیکرسنجی</span><strong>۱۴ میلیون</strong></div>
+            <div><span>بوفه و سایر</span><strong>۱۰ میلیون</strong></div>
+            <div><span>هزینه اجاره و قبوض</span><strong>۴۸ میلیون</strong></div>
+            <div><span>حقوق پرسنل</span><strong>۲۳ میلیون</strong></div>
+            <div><span>سود تقریبی ماه</span><strong>۱۱۵ میلیون</strong></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="three-col" id="plans">
+        <section class="panel">
+          <h3>توزیع پلن‌ها</h3>
+          <div class="kv">
+            <div><span>۲ روز در هفته</span><strong>۵۴ عضو</strong></div>
+            <div><span>۳ روز در هفته</span><strong>۱۱۲ عضو</strong></div>
+            <div><span>۴ روز در هفته</span><strong>۴۸ عضو</strong></div>
+            <div><span>هر روز</span><strong>۳۲ عضو</strong></div>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>عملکرد حضور</h3>
+          <div class="kv">
+            <div><span>نرخ تمدید</span><strong>۸۴٪</strong></div>
+            <div><span>میانگین حضور هفتگی</span><strong>۲.۷ روز</strong></div>
+            <div><span>اوج ساعت آقایان</span><strong>۱۹ تا ۲۱</strong></div>
+            <div><span>اوج ساعت بانوان</span><strong>۰۹ تا ۱۱</strong></div>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>هشدارهای مدیریتی</h3>
+          <div class="timeline">
+            <div class="timeline-item">
+              <span class="when">فوری</span>
+              <span>۱۴ اشتراک تا ۷ روز دیگر تمام می‌شود</span>
+              <span class="badge warn">تمدید</span>
+            </div>
+            <div class="timeline-item">
+              <span class="when">مالی</span>
+              <span>۹ عضو بدهکار بیش از ۳ روز</span>
+              <span class="badge danger">بدهی</span>
+            </div>
+            <div class="timeline-item">
+              <span class="when">عملیات</span>
+              <span>کمد ۱۴ نیاز به تعمیر دارد</span>
+              <span class="badge warn">نگهداری</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel" id="members">
+        <h3>اعضا، اشتراک و وضعیت مالی</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>عضو</th>
+              <th>سانس</th>
+              <th>پلن</th>
+              <th>مانده اشتراک</th>
+              <th>آخرین ورود</th>
+              <th>وضعیت مالی</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="عضو">سارا کریمی</td>
+              <td data-label="سانس">بانوان</td>
+              <td data-label="پلن">۳ روز</td>
+              <td data-label="مانده اشتراک">۱۸ روز</td>
+              <td data-label="آخرین ورود">امروز</td>
+              <td data-label="وضعیت مالی"><span class="badge ok">تسویه</span></td>
+            </tr>
+            <tr>
+              <td data-label="عضو">علی رضایی</td>
+              <td data-label="سانس">آقایان</td>
+              <td data-label="پلن">۴ روز</td>
+              <td data-label="مانده اشتراک">۶ روز</td>
+              <td data-label="آخرین ورود">دیروز</td>
+              <td data-label="وضعیت مالی"><span class="badge warn">نزدیک انقضا</span></td>
+            </tr>
+            <tr>
+              <td data-label="عضو">مریم احمدی</td>
+              <td data-label="سانس">بانوان</td>
+              <td data-label="پلن">هر روز</td>
+              <td data-label="مانده اشتراک">۲۲ روز</td>
+              <td data-label="آخرین ورود">امروز</td>
+              <td data-label="وضعیت مالی"><span class="badge ok">تسویه</span></td>
+            </tr>
+            <tr>
+              <td data-label="عضو">حسین نوری</td>
+              <td data-label="سانس">آقایان</td>
+              <td data-label="پلن">۲ روز</td>
+              <td data-label="مانده اشتراک">۳ روز</td>
+              <td data-label="آخرین ورود">۳ روز پیش</td>
+              <td data-label="وضعیت مالی"><span class="badge danger">بدهکار ۴۵۰ هزار</span></td>
+            </tr>
+            <tr>
+              <td data-label="عضو">الهام جعفری</td>
+              <td data-label="سانس">بانوان</td>
+              <td data-label="پلن">۳ روز</td>
+              <td data-label="مانده اشتراک">۰ روز</td>
+              <td data-label="آخرین ورود">۵ روز پیش</td>
+              <td data-label="وضعیت مالی"><span class="badge danger">منقضی</span></td>
+            </tr>
+            <tr>
+              <td data-label="عضو">کیان مرادی</td>
+              <td data-label="سانس">آقایان</td>
+              <td data-label="پلن">هر روز</td>
+              <td data-label="مانده اشتراک">۲۵ روز</td>
+              <td data-label="آخرین ورود">امروز</td>
+              <td data-label="وضعیت مالی"><span class="badge ok">تسویه</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <div class="two-col">
+        <section class="panel" id="logs">
+          <h3>آخرین ورود و خروج‌ها</h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>عضو</th>
+                <th>ورود</th>
+                <th>خروج</th>
+                <th>مدت</th>
+                <th>ثبت‌کننده</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="عضو">سارا کریمی</td>
+                <td data-label="ورود">۰۷:۴۵</td>
+                <td data-label="خروج">—</td>
+                <td data-label="مدت">در حال حضور</td>
+                <td data-label="ثبت‌کننده">منشی صبح</td>
+              </tr>
+              <tr>
+                <td data-label="عضو">کیان مرادی</td>
+                <td data-label="ورود">۱۶:۲۰</td>
+                <td data-label="خروج">۱۷:۰۵</td>
+                <td data-label="مدت">۴۵ دقیقه</td>
+                <td data-label="ثبت‌کننده">منشی عصر</td>
+              </tr>
+              <tr>
+                <td data-label="عضو">علی رضایی</td>
+                <td data-label="ورود">۱۰:۱۵</td>
+                <td data-label="خروج">۱۱:۴۰</td>
+                <td data-label="مدت">۸۵ دقیقه</td>
+                <td data-label="ثبت‌کننده">منشی صبح</td>
+              </tr>
+              <tr>
+                <td data-label="عضو">نازنین موسوی</td>
+                <td data-label="ورود">۰۷:۲۰</td>
+                <td data-label="خروج">۰۸:۲۵</td>
+                <td data-label="مدت">۶۵ دقیقه</td>
+                <td data-label="ثبت‌کننده">منشی صبح</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+        <section class="panel">
+          <h3>اعضای نزدیک به انقضا (۷ روز)</h3>
+          <div class="timeline">
+            <div class="timeline-item">
+              <span class="when">۲ روز</span>
+              <span>علی رضایی · پلن ۴ روزه</span>
+              <span class="badge warn">پیگیری</span>
+            </div>
+            <div class="timeline-item">
+              <span class="when">۳ روز</span>
+              <span>حسین نوری · بدهکار هم هست</span>
+              <span class="badge danger">بحرانی</span>
+            </div>
+            <div class="timeline-item">
+              <span class="when">۵ روز</span>
+              <span>شیدا رستمی · پلن ۳ روزه</span>
+              <span class="badge warn">پیگیری</span>
+            </div>
+            <div class="timeline-item">
+              <span class="when">۶ روز</span>
+              <span>پویا کامرانی · پلن هر روز</span>
+              <span class="badge warn">پیگیری</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel" id="staff">
+        <h3>پرسنل و شیفت‌ها</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>نام</th>
+              <th>نقش</th>
+              <th>شیفت</th>
+              <th>وضعیت امروز</th>
+              <th>یادداشت</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="نام">مریم صالحی</td>
+              <td data-label="نقش">منشی</td>
+              <td data-label="شیفت">صبح بانوان</td>
+              <td data-label="وضعیت امروز"><span class="badge ok">حاضر</span></td>
+              <td data-label="یادداشت">ثبت ۲۸ ورود تا الان</td>
+            </tr>
+            <tr>
+              <td data-label="نام">سعید اکبری</td>
+              <td data-label="نقش">منشی</td>
+              <td data-label="شیفت">عصر آقایان</td>
+              <td data-label="وضعیت امروز"><span class="badge warn">هنوز شروع نشده</span></td>
+              <td data-label="یادداشت">شیفت از ۱۵:۰۰</td>
+            </tr>
+            <tr>
+              <td data-label="نام">رضا مرادی</td>
+              <td data-label="نقش">مربی</td>
+              <td data-label="شیفت">عصر و شب</td>
+              <td data-label="وضعیت امروز"><span class="badge warn">شیفت بعدی</span></td>
+              <td data-label="یادداشت">۴ برنامه اختصاصی فعال</td>
+            </tr>
+            <tr>
+              <td data-label="نام">نیلوفر کاظمی</td>
+              <td data-label="نقش">مربی</td>
+              <td data-label="شیفت">صبح بانوان</td>
+              <td data-label="وضعیت امروز"><span class="badge ok">حاضر</span></td>
+              <td data-label="یادداشت">۲ آنالیز بدن امروز</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

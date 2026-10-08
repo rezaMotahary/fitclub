@@ -1,0 +1,45 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# build / cache
+dist/
+build/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+
+# env & secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# logs & debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# IDE / OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Prisma
+api/prisma/migrations/**/migration_lock.toml
+# keep migrations folder content; ignore generated client if checked in wrongly
+api/src/generated/
+
+# test / coverage
+coverage/
+.nyc_output/
+
+# misc
+*.pem
+.vercel

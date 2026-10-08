@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>فیت‌استیل | پنل اعضا</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <a class="brand" href="index.html">FIT<span>STEEL</span></a>
+      <nav class="side-nav" aria-label="منوی پنل اعضا">
+        <a class="active" href="member.html">داشبورد من</a>
+        <a href="#attendance">سوابق حضور</a>
+        <a href="#payments">پرداخت‌ها</a>
+        <a href="#profile">اطلاعات شخصی</a>
+        <a href="index.html">سایت</a>
+      </nav>
+    </aside>
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <h1>سلام، سارا کریمی</h1>
+          <p>فقط اطلاعات حساب خودتان را می‌بینید · سانس بانوان</p>
+        </div>
+        <span class="badge ok">اشتراک فعال</span>
+      </div>
+
+      <div class="alert-box">
+        از سقف هفتگی ۳ روزه، ۱ روز مجاز باقی مانده. پیشنهاد تمدید خودکار از ۱۴ روز قبل از انقضا فعال است.
+      </div>
+
+      <div class="stats">
+        <article class="stat fade-in">
+          <div class="label">روز باقی‌مانده اشتراک</div>
+          <div class="value ok">۱۸</div>
+        </article>
+        <article class="stat fade-in d2">
+          <div class="label">حضور هفته جاری</div>
+          <div class="value">۲</div>
+        </article>
+        <article class="stat fade-in d3">
+          <div class="label">روز مجاز باقی‌مانده هفته</div>
+          <div class="value warn">۱</div>
+        </article>
+        <article class="stat fade-in d4">
+          <div class="label">پلن فعلی</div>
+          <div class="value" style="font-size:1.15rem;margin-top:14px">۳ روز / هفته</div>
+        </article>
+      </div>
+
+      <div class="two-col">
+        <section class="panel">
+          <h3>تقویم حضور این هفته</h3>
+          <div class="week-dots" aria-label="حضور هفتگی">
+            <span class="done">ش</span>
+            <span>ی</span>
+            <span class="done">د</span>
+            <span>س</span>
+            <span>چ</span>
+            <span>پ</span>
+            <span class="off">ج</span>
+          </div>
+          <div class="kv" style="margin-top:16px">
+            <div><span>شنبه ۱۲ اسفند</span><strong>۰۸:۱۰ تا ۰۹:۲۵</strong></div>
+            <div><span>دوشنبه ۱۴ اسفند</span><strong>۰۷:۴۵ تا ۰۹:۰۵</strong></div>
+            <div><span>باقی‌مانده مجاز</span><strong>۱ روز تا جمعه</strong></div>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>اعلان‌ها</h3>
+          <div class="timeline">
+            <div class="timeline-item">
+              <span class="when">امروز</span>
+              <span>یادآوری سقف هفتگی: ۱ جلسه باقی مانده</span>
+              <span class="badge warn">مهم</span>
+            </div>
+            <div class="timeline-item">
+              <span class="when">دیروز</span>
+              <span>حضور شما توسط منشی شیفت صبح ثبت شد</span>
+              <span class="badge ok">ثبت شد</span>
+            </div>
+            <div class="timeline-item">
+              <span class="when">۳ روز پیش</span>
+              <span>پرداخت اشتراک ماه اسفند تأیید شد</span>
+              <span class="badge ok">مالی</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel" id="attendance">
+        <h3>سوابق حضور ۳۰ روز اخیر</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>تاریخ</th>
+              <th>ورود</th>
+              <th>خروج</th>
+              <th>مدت</th>
+              <th>ثبت‌کننده</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="تاریخ">۱۴۰۴/۱۲/۱۴</td>
+              <td data-label="ورود">۰۷:۴۵</td>
+              <td data-label="خروج">۰۹:۰۵</td>
+              <td data-label="مدت">۸۰ دقیقه</td>
+              <td data-label="ثبت‌کننده">منشی صبح</td>
+            </tr>
+            <tr>
+              <td data-label="تاریخ">۱۴۰۴/۱۲/۱۲</td>
+              <td data-label="ورود">۰۸:۱۰</td>
+              <td data-label="خروج">۰۹:۲۵</td>
+              <td data-label="مدت">۷۵ دقیقه</td>
+              <td data-label="ثبت‌کننده">منشی صبح</td>
+            </tr>
+            <tr>
+              <td data-label="تاریخ">۱۴۰۴/۱۲/۰۹</td>
+              <td data-label="ورود">۰۷:۳۰</td>
+              <td data-label="خروج">۰۸:۵۵</td>
+              <td data-label="مدت">۸۵ دقیقه</td>
+              <td data-label="ثبت‌کننده">منشی صبح</td>
+            </tr>
+            <tr>
+              <td data-label="تاریخ">۱۴۰۴/۱۲/۰۷</td>
+              <td data-label="ورود">۰۸:۰۰</td>
+              <td data-label="خروج">۰۹:۱۰</td>
+              <td data-label="مدت">۷۰ دقیقه</td>
+              <td data-label="ثبت‌کننده">منشی صبح</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <div class="profile-grid" id="profile">
+        <section class="panel">
+          <div class="avatar">س ک</div>
+          <h3>اطلاعات شخصی</h3>
+          <div class="kv">
+            <div><span>نام</span><strong>سارا کریمی</strong></div>
+            <div><span>کد عضویت</span><strong>FS-1042</strong></div>
+            <div><span>موبایل</span><strong>۰۹۱۲۱۲۳۴۵۶۷</strong></div>
+            <div><span>تاریخ تولد</span><strong>۱۳۷۵/۰۳/۲۱</strong></div>
+            <div><span>سانس</span><strong>بانوان</strong></div>
+            <div><span>مربی مسئول</span><strong>نیلوفر کاظمی</strong></div>
+            <div><span>تاریخ عضویت</span><strong>۱۴۰۴/۰۶/۱۲</strong></div>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>جزئیات اشتراک</h3>
+          <div class="kv">
+            <div><span>وضعیت</span><span class="badge ok">فعال</span></div>
+            <div><span>پلن</span><strong>۳ روز در هفته</strong></div>
+            <div><span>شروع دوره</span><strong>۱۴۰۴/۱۲/۰۱</strong></div>
+            <div><span>پایان دوره</span><strong>۱۴۰۵/۰۱/۰۱</strong></div>
+            <div><span>سقف هفتگی</span><strong>۳ روز</strong></div>
+            <div><span>مصرف این ماه</span><strong>۹ از ۱۲ جلسه</strong></div>
+            <div><span>آخرین حضور</span><strong>دیروز — ۰۷:۴۵</strong></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel" id="payments">
+        <h3>سوابق پرداخت</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>تاریخ</th>
+              <th>بابت</th>
+              <th>مبلغ</th>
+              <th>روش</th>
+              <th>وضعیت</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="تاریخ">۱۴۰۴/۱۲/۰۱</td>
+              <td data-label="بابت">اشتراک ۳ روزه · اسفند</td>
+              <td data-label="مبلغ">۱٬۱۹۰٬۰۰۰ تومان</td>
+              <td data-label="روش">کارت به کارت</td>
+              <td data-label="وضعیت"><span class="badge ok">تأیید شده</span></td>
+            </tr>
+            <tr>
+              <td data-label="تاریخ">۱۴۰۴/۱۱/۰۱</td>
+              <td data-label="بابت">اشتراک ۳ روزه · بهمن</td>
+              <td data-label="مبلغ">۱٬۱۹۰٬۰۰۰ تومان</td>
+              <td data-label="روش">نقدی در پذیرش</td>
+              <td data-label="وضعیت"><span class="badge ok">تأیید شده</span></td>
+            </tr>
+            <tr>
+              <td data-label="تاریخ">۱۴۰۴/۱۰/۱۸</td>
+              <td data-label="بابت">پیکرسنجی + برنامه مربی</td>
+              <td data-label="مبلغ">۳۵۰٬۰۰۰ تومان</td>
+              <td data-label="روش">کارت‌خوان</td>
+              <td data-label="وضعیت"><span class="badge ok">تأیید شده</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

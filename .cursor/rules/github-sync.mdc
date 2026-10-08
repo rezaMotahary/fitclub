@@ -1,0 +1,14 @@
+---
+description: همیشه GitHub را به‌روز نگه‌دار؛ commit/push خودکار و نسخه‌بندی وقتی لازم است
+alwaysApply: true
+---
+
+# GitHub Sync — فیت‌استیل
+
+ریموت: `git@github.com:rezaMotahary/fitclub.git`
+
+- بعد از هر تغییر معنادار در پروژه (حتی کوچک): commit کن و به GitHub push کن.
+- منتظر دستور تکراری «کامیت/پوش کن» از مالک نمان؛ این کار پیش‌فرض است.
+- هرگز `.env` و اسرار را commit نکن؛ از `.env.example` استفاده کن.
+- وقتی نقطهٔ عطف محصولی رسیدی (اسکلت، فیچر جدید، ریلیز): `VERSION` را بالا ببر، tag بزن (`vX.Y.Z`) و tag را push کن.
+- مرجع کامل: `docs/github-workflow.md`
