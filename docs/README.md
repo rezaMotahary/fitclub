@@ -8,6 +8,12 @@
 |------|--------|
 | [project-identity.md](./project-identity.md) | نام پروژه، RTL، شمسی، نقش‌ها |
 | [product-overview.md](./product-overview.md) | دامنه محصول، نقش‌ها و قابلیت‌ها (بر اساس پروتوتایپ) |
+| [business-rules.md](./business-rules.md) | قوانین کسب‌وکار — منبع حقیقت منطق باشگاه |
+| [user-roles-permissions.md](./user-roles-permissions.md) | ماتریس دسترسی عضو / منشی / مدیر |
+| [domain-glossary.md](./domain-glossary.md) | واژه‌نامه ساده |
+| [user-flows.md](./user-flows.md) | جریان‌های اصلی قدم‌به‌قدم |
+| [mvp-scope.md](./mvp-scope.md) | هست / نیست نسخه اول |
+| [open-questions.md](./open-questions.md) | سؤال‌های باز؛ تا جواب نیاید حدس زده نمی‌شود |
 | [dev-environment.md](./dev-environment.md) | وضعیت نصب ابزارها + راهنمای نصب PostgreSQL |
 | [handoff.md](./handoff.md) | حافظهٔ سشن بعد — از اینجا ادامه ساخت اپ |
 | [collaboration.md](./collaboration.md) | سبک همکاری vibe coding — الزامی |
