@@ -60,3 +60,4 @@
 - داده نمونه: `docs/sample-data.md`
 - هویت پروژه: `docs/project-identity.md`
 - خواندن خودکار داک: `.cursor/rules/always-read-docs.mdc`
+- مدیر پروژه / PM: `docs/project-manager.md` · `docs/prompts/project-manager-chat.md`

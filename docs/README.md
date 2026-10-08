@@ -22,7 +22,9 @@
 | [github-workflow.md](./github-workflow.md) | اتصال GitHub + push همیشگی + نسخه‌بندی |
 | [testing.md](./testing.md) | تست اجباری برای هر فیچر + گزارش بعد از تغییر مهم |
 | [adr/](./adr/) | Architecture Decision Records |
-| [prompts/complete-project-docs.md](./prompts/complete-project-docs.md) | پرامپت چت جدید برای تکمیل کامل مستندات (بدون تکرار مسیر/«داک بخوان») |
+| [project-manager.md](./project-manager.md) | نقش چت مدیر پروژه / پروداکت منیجر |
+| [prompts/complete-project-docs.md](./prompts/complete-project-docs.md) | پرامپت تکمیل کامل مستندات منطق |
+| [prompts/project-manager-chat.md](./prompts/project-manager-chat.md) | پرامپت شروع چت اختصاصی مدیر پروژه |
 
 ## پروتوتایپ مرجع
 
