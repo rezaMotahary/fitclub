@@ -17,9 +17,9 @@
 | ADR استک | Accepted — `docs/adr/0003-technology-stack.md` |
 | اسکلت `web/` (Next.js) | ✅ آماده — RTL، مسیرهای `/` `/member` `/secretary` `/admin` |
 | اسکلت `api/` (NestJS + Prisma) | ✅ آماده — ماژول‌ها، health، schema دامنه |
-| schema Prisma | ✅ نوشته شده — هنوز migrate نزده (بعد از ثبت توضیحات کسب‌وکار) |
+| schema Prisma | ✅ نوشته شده + migrate اولیه (`init`) اعمال شد |
 | PostgreSQL روی سیستم | ✅ نصب شد (17.11) — سرویس Running؛ `psql` ممکن است در PATH نباشد (مسیر کامل در `dev-environment.md`) |
-| DB/user `fitsteel` + migrate | ⏳ هنوز تأیید / migrate نشده |
+| DB/user `fitsteel` + migrate + seed | ✅ دیتابیس/یوزر تأیید؛ migrate؛ seed پایه (پلن‌ها، منشی، مدیر، اعضای `FS-…`)؛ `/api/health` → `database: "up"` |
 | سبک همکاری | ✅ `docs/collaboration.md` + rule وایب‌کودینگ |
 | GitHub | `git@github.com:rezaMotahary/fitclub.git` — قانون sync در `docs/github-workflow.md` |
 | تست | قانون الزامی در `docs/testing.md` — هر فیچر + گزارش بعد از تغییر مهم |
@@ -30,7 +30,7 @@
 | چت مدیر پروژه | فعال — پرامپت: `docs/prompts/project-manager-chat.md` · نقش: `docs/project-manager.md` |
 | سؤال باز | فقط قیمت، ساعت، و تماس واقعی — `docs/open-questions.md` (مانع ساخت نیست) |
 | واژه‌نامه / جریان / دسترسی / محدوده | هم‌تراز با قانون‌های قفل‌شده |
-| فیچر واقعی (auth، حضور، مالی) | هنوز ساخته نشده؛ بعد از migrate از Auth شروع می‌شود |
+| فیچر واقعی (auth، حضور، مالی) | هنوز ساخته نشده؛ مرحلهٔ بعد: Auth پایه |
 
 ## سبک همکاری (الزامی)
 
@@ -85,8 +85,8 @@ fitclub/
 
 منطق باشگاه برای ساخت هسته در `docs/business-rules.md` کامل است. قیمت، ساعت سانس، و اطلاعات تماس را سخت‌کد نکن؛ دادهٔ نمونه باشند و مدیر قیمت و ساعت را عوض کند. پرداخت آنلاین، ثبت‌نام سایت، مهمان، گزارش هزینه، یادداشت شیفت، و پنل مربی را نساز.
 
-1. **الان → اتصال DB** — تأیید یوزر/دیتابیس `fitsteel`، migrate اولیه، seed نمونهٔ پایه، `/api/health` سبز
-2. **Auth پایه** — نقش‌های Member / Secretary / Admin + گارد Nest + ورود پرسنل (session) و اسکلت OTP عضو
+1. ~~اتصال DB~~ ✅ — یوزر/دیتابیس `fitsteel`، migrate، seed پایه، `/api/health` سبز
+2. **الان → Auth پایه** — نقش‌های Member / Secretary / Admin + گارد Nest + ورود پرسنل (session) و اسکلت OTP عضو
 3. **Members + Plans + Subscriptions** — هسته دامنه
 4. **Attendance** — قوانین سقف هفتگی / انقضا / بدهی (منشی)
 5. **فرانت پنل منشی** — اولویت عملیاتی اول (جستجو + ورود/خروج)
@@ -108,14 +108,12 @@ npm run dev
 # http://localhost:3000
 ```
 
-## وقتی کاربر گفت Postgres نصب شد
+## اتصال DB (انجام‌شده ۲۰۲۶-۱۰-۰۸)
 
-1. `psql --version` و سرویس Running را چک کن
-2. دیتابیس/یوزر `fitsteel` را بساز (اگر نبود) — دستورها در `docs/dev-environment.md`
-3. `api/.env` را با `DATABASE_URL` واقعی تأیید کن
-4. `npx prisma migrate dev --name init` بزن
-5. `npm run start:dev` و `/api/health` → `database: "up"`
-6. ساخت فیچرها را از Auth / Members شروع کن
+- یوزر و دیتابیس `fitsteel` آماده؛ `api/.env` با `DATABASE_URL` لوکال (commit نشود)
+- برای `prisma migrate dev` یوزر `fitsteel` باید `CREATEDB` داشته باشد (سایهٔ Prisma)
+- seed: `cd api` → `npx prisma db seed` (پلن‌های نمونهٔ پروتوتایپ، کاوه احمدی/مدیر، مریم صالحی/منشی، اعضای `FS-1042`…)
+- health: `http://localhost:3001/api/health` → `database: "up"`
 
 ## ارجاعات مهم
 

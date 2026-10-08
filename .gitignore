@@ -31,9 +31,7 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
-# Prisma
-api/prisma/migrations/**/migration_lock.toml
-# keep migrations folder content; ignore generated client if checked in wrongly
+# Prisma — keep migrations (including migration_lock.toml) in git
 api/src/generated/
 
 # test / coverage

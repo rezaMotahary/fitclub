@@ -122,6 +122,8 @@ psql -U postgres
 CREATE USER fitsteel WITH PASSWORD 'fitsteel_dev';
 CREATE DATABASE fitsteel OWNER fitsteel;
 GRANT ALL PRIVILEGES ON DATABASE fitsteel TO fitsteel;
+-- لازم برای prisma migrate dev (سایهٔ دیتابیس)
+ALTER USER fitsteel CREATEDB;
 \q
 ```
 
@@ -168,7 +170,7 @@ npx prisma init
 - [x] NestJS CLI
 - [x] PostgreSQL 17 — سرویس Running (`17.11`)
 - [ ] `psql` در PATH سیستم (اختیاری؛ مسیر کامل بالا کار می‌کند)
-- [ ] دیتابیس و یوزر `fitsteel` تأیید / ساخته شده
-- [ ] `npx prisma migrate dev` زده شده و `/api/health` → `database: "up"`
+- [x] دیتابیس و یوزر `fitsteel` تأیید / ساخته شده (+ `CREATEDB` برای migrate)
+- [x] `npx prisma migrate dev --name init` + seed پایه؛ `/api/health` → `database: "up"`
 
-مرحلهٔ بعد ساخت اپ: اتصال DB + migrate + seed نمونه — جزئیات در `docs/handoff.md`.
+مرحلهٔ بعد ساخت اپ: **Auth پایه** — جزئیات در `docs/handoff.md`.
