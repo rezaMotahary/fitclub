@@ -13,9 +13,9 @@
 | NestJS CLI | توصیه می‌شود | نصب شد | `@nestjs/cli` → `12.0.8` |
 | TypeScript (global) | اختیاری | نصب شد | `7.0.2` |
 | ts-node (global) | اختیاری | نصب شد | همراه Nest tooling |
-| PostgreSQL | بله | **نصب نیست** | باید دستی نصب شود (پایین) |
-| psql (CLI) | بله | **نصب نیست** | همراه PostgreSQL می‌آید |
-| pgAdmin | اختیاری | **نصب نیست** | همراه نصب‌کننده PostgreSQL |
+| PostgreSQL | بله | **نصب است** | `17.11` — سرویس `postgresql-x64-17` Running |
+| psql (CLI) | بله | نصب است؛ ممکن است در PATH نباشد | مسیر کامل: `C:\Program Files\PostgreSQL\17\bin\psql.exe` |
+| pgAdmin | اختیاری | همراه نصب‌کننده | در صورت نیاز از منوی Start |
 | Docker | اختیاری | نصب نیست | برای این پروژه فعلاً لازم نیست |
 | Prisma CLI | پروژه‌ای | نیاز به global ندارد | با `npx prisma` داخل پروژه API |
 | Next.js | پروژه‌ای | نیاز به global ندارد | با `npx create-next-app` ساخته می‌شود |
@@ -166,8 +166,9 @@ npx prisma init
 - [x] Node.js + npm
 - [x] Git
 - [x] NestJS CLI
-- [ ] PostgreSQL 17 + `psql` در PATH
-- [ ] دیتابیس `fitsteel` ساخته شده
-- [ ] سرویس PostgreSQL Running
+- [x] PostgreSQL 17 — سرویس Running (`17.11`)
+- [ ] `psql` در PATH سیستم (اختیاری؛ مسیر کامل بالا کار می‌کند)
+- [ ] دیتابیس و یوزر `fitsteel` تأیید / ساخته شده
+- [ ] `npx prisma migrate dev` زده شده و `/api/health` → `database: "up"`
 
-بعد از نصب PostgreSQL، بگو تا اتصال را با هم تست کنیم و اسکلت Next + Nest را بسازیم.
+مرحلهٔ بعد ساخت اپ: اتصال DB + migrate + seed نمونه — جزئیات در `docs/handoff.md`.
