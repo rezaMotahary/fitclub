@@ -2,6 +2,8 @@
 
 آخرین به‌روزرسانی: 2026-10-08
 
+نام پروژه: **فیت‌کلاب (FitClub)** — `docs/project-identity.md`
+
 این سند **الزامی** است. هر توضیح مهمی که مالک پروژه می‌دهد باید در `docs/` ثبت شود تا در سشن‌های بعدی فراموش نشود.
 
 ---
@@ -26,6 +28,8 @@
 5. **کار را خودت انجام بده:** نصب، اسکلت، باگ فنی، تنظیم env — تا جایی که ممکن است بدون درگیر کردن مالک.
 6. **GitHub همیشه به‌روز:** بعد از هر تغییر → commit + push. نسخه‌بندی وقتی نقطهٔ عطف است. جزئیات: `docs/github-workflow.md`
 7. **تست برای هر فیچر:** پوشش قوی؛ بعد از تغییر مهم تست را اجرا کن و نتیجه را به مالک گزارش بده. جزئیات: `docs/testing.md`
+8. **ابهام = سؤال از مالک:** با اطمینان زیر ~۹۰٪ خودت تصمیم نگیر. جزئیات: `docs/decision-policy.md`
+9. **دادهٔ نمونه اجباری:** صفحه خالی ممنوع؛ هر فیچر seed/نمونه داشته باشد. جزئیات: `docs/sample-data.md`
 
 ---
 
@@ -51,3 +55,6 @@
 - قانون Cursor: `.cursor/rules/vibe-coding.mdc`
 - GitHub و نسخه: `docs/github-workflow.md` · `.cursor/rules/github-sync.mdc`
 - تست: `docs/testing.md` · `.cursor/rules/testing.mdc`
+- تصمیم‌گیری: `docs/decision-policy.md`
+- داده نمونه: `docs/sample-data.md`
+- هویت پروژه: `docs/project-identity.md`

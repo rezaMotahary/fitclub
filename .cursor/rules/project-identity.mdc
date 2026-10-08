@@ -1,0 +1,11 @@
+---
+description: نام پروژه فیت‌کلاب؛ RTL فارسی؛ تقویم شمسی؛ نقش‌های عضو/منشی/مدیر
+alwaysApply: true
+---
+
+# Project Identity — فیت‌کلاب
+
+- نام پروژه: **FitClub / فیت‌کلاب** (نه نام دیگر برای پروژه).
+- UI فارسی و RTL؛ همه تاریخ‌ها شمسی.
+- نقش‌های فعلی: Member, Secretary, Admin فقط.
+- مرجع: `docs/project-identity.md`

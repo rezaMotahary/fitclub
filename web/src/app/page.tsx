@@ -11,13 +11,13 @@ export default function HomePage() {
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-10 px-6 py-16">
       <div className="space-y-4">
         <p className="font-[family-name:var(--font-display)] text-sm tracking-[0.2em] text-accent">
-          FITSTEEL
+          FITCLUB
         </p>
         <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
           اسکلت اولیه وب آماده است
         </h1>
         <p className="max-w-2xl text-muted">
-          این صفحه فقط نقطه شروع Next.js برای فیت‌استیل است. در سشن بعد UI را از
+          این صفحه فقط نقطه شروع Next.js برای فیت‌کلاب است. در سشن بعد UI را از
           پروتوتایپ Cyan Night به اینجا منتقل می‌کنیم و به API متصل می‌شویم.
         </p>
       </div>

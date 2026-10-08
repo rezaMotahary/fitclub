@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 export class AppService {
   getHello(): { name: string; docs: string } {
     return {
-      name: 'FitSteel API',
+      name: 'FitClub API',
       docs: 'See /api/health and docs/handoff.md',
     };
   }

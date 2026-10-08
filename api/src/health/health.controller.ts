@@ -17,7 +17,7 @@ export class HealthController {
 
     return {
       status: 'ok',
-      service: 'fitsteel-api',
+      service: 'fitclub-api',
       database,
       timestamp: new Date().toISOString(),
     };

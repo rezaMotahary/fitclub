@@ -22,6 +22,6 @@ async function bootstrap() {
 
   const port = Number(process.env.PORT ?? 3001);
   await app.listen(port);
-  console.log(`FitSteel API listening on http://localhost:${port}/api`);
+  console.log(`FitClub API listening on http://localhost:${port}/api`);
 }
 await bootstrap();

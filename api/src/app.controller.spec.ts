@@ -15,9 +15,9 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return FitSteel API info', () => {
+    it('should return FitClub API info', () => {
       expect(appController.getHello()).toEqual({
-        name: 'FitSteel API',
+        name: 'FitClub API',
         docs: 'See /api/health and docs/handoff.md',
       });
     });

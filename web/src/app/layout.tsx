@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "فیت‌استیل | FitSteel",
-  description: "باشگاه بدنسازی فیت‌استیل — سعادت‌آباد",
+  title: "فیت‌کلاب | FitClub",
+  description: "فیت‌کلاب — مدیریت باشگاه بدنسازی",
 };
 
 export default function RootLayout({
