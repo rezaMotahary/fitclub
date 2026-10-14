@@ -15,12 +15,12 @@ import {
   verifySecret,
 } from './auth-crypto.js';
 import {
+  DEFAULT_OTP_DEV_CODE,
   OTP_MAX_ATTEMPTS,
   OTP_TTL_MINUTES,
   SESSION_TTL_DAYS,
 } from './auth.constants.js';
 import type { AuthUser, PublicAuthUser } from './auth.types.js';
-import { SAMPLE_OTP_DEV_CODE } from '../../prisma/sample-credentials.js';
 
 type UserWithMember = User & {
   member: {
@@ -159,7 +159,7 @@ export class AuthService {
     const fromEnv = this.config.get<string>('OTP_DEV_CODE');
     if (fromEnv && fromEnv.trim()) return fromEnv.trim();
     const nodeEnv = this.config.get<string>('NODE_ENV') ?? 'development';
-    if (nodeEnv !== 'production') return SAMPLE_OTP_DEV_CODE;
+    if (nodeEnv !== 'production') return DEFAULT_OTP_DEV_CODE;
     return null;
   }
 

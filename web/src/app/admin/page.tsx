@@ -1,10 +1,10 @@
+import type { Metadata } from "next";
+import { AuthGate } from "@/components/AuthGate";
+
+export const metadata: Metadata = {
+  title: "پنل مدیریت | فیت‌کلاب",
+};
+
 export default function AdminPage() {
-  return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-2xl font-bold">پنل مدیریت</h1>
-      <p className="mt-2 text-muted">
-        اسکلت مسیر `/admin` — پیاده‌سازی از روی `prototype/admin.html` در سشن‌های بعدی.
-      </p>
-    </main>
-  );
+  return <AuthGate panel="admin" title="پنل مدیریت" />;
 }
