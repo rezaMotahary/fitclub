@@ -715,6 +715,14 @@ input {
   color: var(--text);
 }
 
+/* Persian RTL page + English email/password: keep ! and / on the correct side */
+.ltr-isolate {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+  text-align: left;
+}
+
 @media (max-width: 1200px) {
   .topbar {
     flex-wrap: wrap;

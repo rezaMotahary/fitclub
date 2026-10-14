@@ -28,13 +28,22 @@ export default function HowToOpenPage() {
 
         <div className="sample-box">
           <p>
-            <strong>منشی:</strong> secretary@fitclub.local / FitClubSecretary1!
+            <strong>منشی:</strong>{" "}
+            <span className="ltr-isolate" dir="ltr">
+              secretary@fitclub.local / FitClubSecretary1!
+            </span>
           </p>
           <p>
-            <strong>مدیر:</strong> admin@fitclub.local / FitClubAdmin1!
+            <strong>مدیر:</strong>{" "}
+            <span className="ltr-isolate" dir="ltr">
+              admin@fitclub.local / FitClubAdmin1!
+            </span>
           </p>
           <p>
-            <strong>عضو:</strong> موبایل ۰۹۱۲۱۲۳۴۵۶۷ — کد: ۱۲۳۴۵۶
+            <strong>عضو:</strong>{" "}
+            <span className="ltr-isolate" dir="ltr">
+              09121234567 — OTP 123456
+            </span>
           </p>
         </div>
 

@@ -7,5 +7,6 @@ alwaysApply: true
 
 - نام پروژه: **FitClub / فیت‌کلاب** (نه نام دیگر برای پروژه).
 - UI فارسی و RTL؛ همه تاریخ‌ها شمسی.
+- فارسی+انگلیسی مخلوط (ایمیل، رمز، OTP، URL): مقدار لاتین را با `dir="ltr"` / `ltr-isolate` جدا کن تا علامت‌هایی مثل `!` جابه‌جا نشوند.
 - نقش‌های فعلی: Member, Secretary, Admin فقط.
 - مرجع: `docs/project-identity.md`
