@@ -12,6 +12,11 @@ import {
 } from '@prisma/client';
 import { hashSecret } from '../src/auth/auth-crypto.js';
 import {
+  addIranDays,
+  dayStringToUtcNoon,
+  todayIran,
+} from '../src/common/iran-date.js';
+import {
   SAMPLE_ARCHIVED_MEMBER_PHONE,
   SAMPLE_STAFF_PASSWORDS,
 } from './sample-credentials.js';
@@ -26,11 +31,8 @@ const SAMPLE_PLANS = [
   { name: 'هر روز در هفته', daysPerWeek: 7, priceToman: 1_790_000, sortOrder: 4 },
 ] as const;
 
-function daysFromNow(days: number): Date {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() + days);
-  return d;
+function dayFromToday(offsetDays: number): Date {
+  return dayStringToUtcNoon(addIranDays(todayIran(), offsetDays));
 }
 
 async function main() {
@@ -190,8 +192,8 @@ async function main() {
 
   for (const m of members) {
     const plan = planByDays[m.daysPerWeek];
-    const startsAt = daysFromNow(m.startsOffsetDays);
-    const endsAt = daysFromNow(m.startsOffsetDays + 29);
+    const startsAt = dayFromToday(m.startsOffsetDays);
+    const endsAt = dayFromToday(m.startsOffsetDays + 29);
 
     await prisma.user.create({
       data: {

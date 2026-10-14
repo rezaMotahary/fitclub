@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { AuthGate } from "@/components/AuthGate";
+import { StaffDesk } from "@/components/StaffDesk";
 
 export const metadata: Metadata = {
   title: "پنل منشی | فیت‌کلاب",
 };
 
 export default function SecretaryPage() {
-  return <AuthGate panel="secretary" title="پنل منشی" />;
+  return <StaffDesk panel="secretary" title="پنل منشی" />;
 }

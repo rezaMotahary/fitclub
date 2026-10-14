@@ -1,5 +1,12 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module.js';
+import { MembersController } from './members.controller.js';
+import { MembersService } from './members.service.js';
 
-/** Placeholder — implement in next session (CRUD + search for secretary). */
-@Module({})
+@Module({
+  imports: [AuthModule],
+  controllers: [MembersController],
+  providers: [MembersService],
+  exports: [MembersService],
+})
 export class MembersModule {}

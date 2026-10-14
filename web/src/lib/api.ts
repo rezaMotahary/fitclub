@@ -2,6 +2,8 @@ import type {
   AuthMeResponse,
   MemberOtpRequestResponse,
   MemberOtpVerifyResponse,
+  MemberSummary,
+  PlanPublic,
   StaffLoginResponse,
 } from "./types";
 
@@ -101,4 +103,27 @@ export function fetchMe() {
 
 export function logout() {
   return apiFetch<{ ok: boolean }>("/auth/logout", { method: "POST" });
+}
+
+export function fetchPlans(includeInactive = false) {
+  const q = includeInactive ? "?all=true" : "";
+  return apiFetch<PlanPublic[]>(`/plans${q}`);
+}
+
+export function searchMembers(q: string, includeArchived = false) {
+  const params = new URLSearchParams();
+  if (q) params.set("q", q);
+  if (includeArchived) params.set("includeArchived", "true");
+  const qs = params.toString();
+  return apiFetch<MemberSummary[]>(`/members${qs ? `?${qs}` : ""}`);
+}
+
+export function archiveMember(id: string) {
+  return apiFetch<MemberSummary>(`/members/${id}/archive`, { method: "POST" });
+}
+
+export function activateMember(id: string) {
+  return apiFetch<MemberSummary>(`/members/${id}/activate`, {
+    method: "POST",
+  });
 }

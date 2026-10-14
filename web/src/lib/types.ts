@@ -27,3 +27,29 @@ export type MemberOtpRequestResponse = {
 export type MemberOtpVerifyResponse = {
   user: PublicAuthUser;
 };
+
+export type PlanPublic = {
+  id: string;
+  name: string;
+  daysPerWeek: number;
+  weeklyCap: number;
+  priceToman: number;
+  durationDays: number;
+  isActive: boolean;
+  sortOrder: number;
+  priceLabel: string;
+};
+
+export type MemberSummary = {
+  id: string;
+  membershipCode: string;
+  fullName: string;
+  phone: string | null;
+  sessionGender: "MEN" | "WOMEN";
+  isArchived: boolean;
+  coachName: string | null;
+  debtAmount: number;
+  currentPlanName: string | null;
+  currentPhase: "current" | "upcoming" | "expired" | null;
+  subscriptionEndsOn: string | null;
+};
