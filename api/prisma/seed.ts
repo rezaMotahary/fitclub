@@ -1,6 +1,8 @@
 /**
  * Sample seed for FitClub — prototype prices & people only (not official tariffs).
  * Run: npx prisma db seed
+ *
+ * Sample staff passwords / OTP: see prisma/sample-credentials.ts and docs/.env.example
  */
 import {
   PrismaClient,
@@ -8,6 +10,11 @@ import {
   SessionGender,
   SubscriptionStatus,
 } from '@prisma/client';
+import { hashSecret } from '../src/auth/auth-crypto.js';
+import {
+  SAMPLE_ARCHIVED_MEMBER_PHONE,
+  SAMPLE_STAFF_PASSWORDS,
+} from './sample-credentials.js';
 
 const prisma = new PrismaClient();
 
@@ -28,6 +35,8 @@ function daysFromNow(days: number): Date {
 
 async function main() {
   // Idempotent: clear domain tables in FK-safe order
+  await prisma.otpChallenge.deleteMany();
+  await prisma.session.deleteMany();
   await prisma.attendance.deleteMany();
   await prisma.payment.deleteMany();
   await prisma.subscription.deleteMany();
@@ -35,6 +44,12 @@ async function main() {
   await prisma.staffProfile.deleteMany();
   await prisma.user.deleteMany();
   await prisma.plan.deleteMany();
+
+  await prisma.clubSettings.upsert({
+    where: { id: 'default' },
+    create: { id: 'default' },
+    update: {},
+  });
 
   const plans = await Promise.all(
     SAMPLE_PLANS.map((p) =>
@@ -54,11 +69,17 @@ async function main() {
     plans.map((p) => [p.daysPerWeek, p]),
   ) as Record<number, (typeof plans)[number]>;
 
+  const adminPasswordHash = await hashSecret(SAMPLE_STAFF_PASSWORDS.admin);
+  const secretaryPasswordHash = await hashSecret(
+    SAMPLE_STAFF_PASSWORDS.secretary,
+  );
+
   const admin = await prisma.user.create({
     data: {
       fullName: 'کاوه احمدی',
       phone: '09120000001',
       email: 'admin@fitclub.local',
+      passwordHash: adminPasswordHash,
       role: Role.ADMIN,
       staffProfile: { create: { shiftLabel: 'مدیریت' } },
     },
@@ -69,6 +90,7 @@ async function main() {
       fullName: 'مریم صالحی',
       phone: '09120000002',
       email: 'secretary@fitclub.local',
+      passwordHash: secretaryPasswordHash,
       role: Role.SECRETARY,
       staffProfile: { create: { shiftLabel: 'صبح بانوان' } },
     },
@@ -83,6 +105,7 @@ async function main() {
     startsOffsetDays: number;
     debtAmount: number;
     coachName?: string;
+    isArchived?: boolean;
   };
 
   const members: MemberSeed[] = [
@@ -152,6 +175,17 @@ async function main() {
       startsOffsetDays: -3,
       debtAmount: 0,
     },
+    {
+      // Archived — must not be able to OTP-login to member panel
+      code: 'FS-1099',
+      fullName: 'عضو آرشیو نمونه',
+      phone: SAMPLE_ARCHIVED_MEMBER_PHONE,
+      gender: SessionGender.WOMEN,
+      daysPerWeek: 3,
+      startsOffsetDays: -20,
+      debtAmount: 0,
+      isArchived: true,
+    },
   ];
 
   for (const m of members) {
@@ -164,18 +198,25 @@ async function main() {
         fullName: m.fullName,
         phone: m.phone,
         role: Role.MEMBER,
+        isActive: !m.isArchived,
         member: {
           create: {
             membershipCode: m.code,
             sessionGender: m.gender,
             debtAmount: m.debtAmount,
             coachName: m.coachName,
+            isArchived: m.isArchived ?? false,
             subscriptions: {
               create: {
                 planId: plan.id,
                 status: SubscriptionStatus.ACTIVE,
                 startsAt,
                 endsAt,
+                priceToman: plan.priceToman,
+                amountPaidToman:
+                  m.debtAmount > 0
+                    ? Math.max(0, plan.priceToman - m.debtAmount)
+                    : plan.priceToman,
               },
             },
           },
@@ -186,9 +227,13 @@ async function main() {
 
   console.log('FitClub seed complete:', {
     plans: plans.length,
-    admin: admin.fullName,
-    secretary: secretary.fullName,
+    admin: { name: admin.fullName, email: 'admin@fitclub.local' },
+    secretary: {
+      name: secretary.fullName,
+      email: 'secretary@fitclub.local',
+    },
     members: members.length,
+    note: 'Sample passwords in prisma/sample-credentials.ts (local only)',
   });
 }
 

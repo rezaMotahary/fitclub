@@ -173,4 +173,4 @@ npx prisma init
 - [x] دیتابیس و یوزر `fitsteel` تأیید / ساخته شده (+ `CREATEDB` برای migrate)
 - [x] `npx prisma migrate dev --name init` + seed پایه؛ `/api/health` → `database: "up"`
 
-مرحلهٔ بعد ساخت اپ: **Auth پایه** — جزئیات در `docs/handoff.md`.
+Auth پایه آماده است. مرحلهٔ بعد: **Members + Plans + Subscriptions** — جزئیات در `docs/handoff.md`.

@@ -1,6 +1,6 @@
 # Handoff — آماده‌سازی برای سشن ساخت اپ
 
-آخرین به‌روزرسانی: 2026-10-08
+آخرین به‌روزرسانی: 2026-10-14
 
 پروژه: **فیت‌کلاب (FitClub)**
 
@@ -17,20 +17,21 @@
 | ADR استک | Accepted — `docs/adr/0003-technology-stack.md` |
 | اسکلت `web/` (Next.js) | ✅ آماده — RTL، مسیرهای `/` `/member` `/secretary` `/admin` |
 | اسکلت `api/` (NestJS + Prisma) | ✅ آماده — ماژول‌ها، health، schema دامنه |
-| schema Prisma | ✅ نوشته شده + migrate اولیه (`init`) اعمال شد |
+| schema Prisma | ✅ هم‌تراز DB (Session / OtpChallenge / isArchived / …) |
 | PostgreSQL روی سیستم | ✅ نصب شد (17.11) — سرویس Running؛ `psql` ممکن است در PATH نباشد (مسیر کامل در `dev-environment.md`) |
-| DB/user `fitsteel` + migrate + seed | ✅ دیتابیس/یوزر تأیید؛ migrate؛ seed پایه (پلن‌ها، منشی، مدیر، اعضای `FS-…`)؛ `/api/health` → `database: "up"` |
+| DB/user `fitsteel` + migrate + seed | ✅ دیتابیس/یوزر تأیید؛ migrate؛ seed با رمز نمونهٔ پرسنل + عضو OTP و عضو آرشیو |
+| Auth پایه | ✅ پرسنل: شناسه+رمز + cookie httpOnly؛ عضو: اسکلت OTP (بدون SMS واقعی؛ `OTP_DEV_CODE`)؛ RBAC؛ آرشیو → ورود پنل ممنوع |
 | سبک همکاری | ✅ `docs/collaboration.md` + rule وایب‌کودینگ |
 | GitHub | `git@github.com:rezaMotahary/fitclub.git` — قانون sync در `docs/github-workflow.md` |
 | تست | قانون الزامی در `docs/testing.md` — هر فیچر + گزارش بعد از تغییر مهم |
-| داده نمونه | قانون در `docs/sample-data.md` |
+| داده نمونه | قانون در `docs/sample-data.md` · رمزها در `docs/.env.example` |
 | هویت | FitClub همه‌جا · RTL · شمسی · سه نقش — `docs/project-identity.md` |
-| نسخه فعلی | `0.1.0` (اسکلت اولیه) |
+| نسخه فعلی | `0.2.0` (Auth پایه) |
 | قوانین کسب‌وکار | کامل برای ساخت هسته: `docs/business-rules.md` |
 | چت مدیر پروژه | فعال — پرامپت: `docs/prompts/project-manager-chat.md` · نقش: `docs/project-manager.md` |
 | سؤال باز | فقط قیمت، ساعت، و تماس واقعی — `docs/open-questions.md` (مانع ساخت نیست) |
 | واژه‌نامه / جریان / دسترسی / محدوده | هم‌تراز با قانون‌های قفل‌شده |
-| فیچر واقعی (auth، حضور، مالی) | هنوز ساخته نشده؛ **مرحلهٔ بعد: Auth پایه** (تأیید مالک: اتصال DB انجام شد — ۱۴۰۴/۰۷/۱۶) |
+| فیچر واقعی بعدی | **Members + Plans + Subscriptions** (بعد از Auth) |
 
 ## سبک همکاری (الزامی)
 
@@ -86,8 +87,8 @@ fitclub/
 منطق باشگاه برای ساخت هسته در `docs/business-rules.md` کامل است. قیمت، ساعت سانس، و اطلاعات تماس را سخت‌کد نکن؛ دادهٔ نمونه باشند و مدیر قیمت و ساعت را عوض کند. پرداخت آنلاین، ثبت‌نام سایت، مهمان، گزارش هزینه، یادداشت شیفت، و پنل مربی را نساز.
 
 1. ~~اتصال DB~~ ✅ — یوزر/دیتابیس `fitsteel`، migrate، seed پایه، `/api/health` سبز
-2. **الان → Auth پایه** — نقش‌های Member / Secretary / Admin + گارد Nest + ورود پرسنل (session/cookie) + اسکلت OTP عضو (پیامک واقعی بعداً؛ در توسعه می‌توان کد را لاگ/ثابت توسعه گذاشت)
-3. **Members + Plans + Subscriptions** — هسته دامنه (بعد از Auth)
+2. ~~Auth پایه~~ ✅ — نقش‌ها + گارد RBAC + ورود پرسنل (cookie httpOnly) + اسکلت OTP عضو (`OTP_DEV_CODE` / لاگ؛ بدون SMS واقعی)
+3. **الان → Members + Plans + Subscriptions** — هسته دامنه
 4. **Attendance** — قوانین سقف هفتگی / انقضا / بدهی (منشی)
 5. **فرانت پنل منشی** — اولویت عملیاتی اول (جستجو + ورود/خروج)
 6. **فرانت سایت عمومی** — پورت از `prototype/index.html`
