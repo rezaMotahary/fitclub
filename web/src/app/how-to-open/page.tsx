@@ -11,21 +11,19 @@ export default function HowToOpenPage() {
       <div className="auth-card" style={{ width: "min(560px, 100%)" }}>
         <p className="brand-mark">FITCLUB</p>
         <h1>چطور پروژه را باز کنم؟</h1>
-        <p className="auth-lead">دو پنجره ترمینال کافی است.</p>
+        <p className="auth-lead">
+          لازم نیست ترمینال یا دستور فنی بزنی. اگر صفحه باز نشد، در چت پروژه بگو
+          «سایت را روشن کن» تا عامل خودش انجام دهد.
+        </p>
 
         <ol className="howto-list">
           <li>
-            در پوشه <code>api</code> بزنید: <code>npm run start:dev</code>
-          </li>
-          <li>
-            در پوشه <code>web</code> بزنید: <code>npm run dev</code>
-          </li>
-          <li>
-            مرورگر را باز کنید:{" "}
+            این آدرس را در مرورگر باز کن:{" "}
             <a href="http://localhost:3000">
               <code>http://localhost:3000</code>
             </a>
           </li>
+          <li>برای ورود، از حساب‌های نمونه زیر استفاده کن.</li>
         </ol>
 
         <div className="sample-box">
@@ -36,7 +34,7 @@ export default function HowToOpenPage() {
             <strong>مدیر:</strong> admin@fitclub.local / FitClubAdmin1!
           </p>
           <p>
-            <strong>عضو:</strong> موبایل ۰۹۱۲۱۲۳۴۵۶۷ — کد OTP: ۱۲۳۴۵۶
+            <strong>عضو:</strong> موبایل ۰۹۱۲۱۲۳۴۵۶۷ — کد: ۱۲۳۴۵۶
           </p>
         </div>
 
