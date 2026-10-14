@@ -7,6 +7,8 @@
 | فایل | موضوع |
 |------|--------|
 | [project-identity.md](./project-identity.md) | نام پروژه، RTL، شمسی، نقش‌ها |
+| [visual-assets.md](./visual-assets.md) | اختیار جنریت عکس / لوگو برای زیباتر شدن UI |
+| [pwa.md](./pwa.md) | هدف PWA — یادآوری، پیاده‌سازی و تست در مرحله مناسب |
 | [product-overview.md](./product-overview.md) | دامنه محصول، نقش‌ها و قابلیت‌ها (بر اساس پروتوتایپ) |
 | [business-rules.md](./business-rules.md) | قوانین کسب‌وکار — منبع حقیقت منطق باشگاه |
 | [user-roles-permissions.md](./user-roles-permissions.md) | ماتریس دسترسی عضو / منشی / مدیر |

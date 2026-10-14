@@ -15,7 +15,7 @@
 | پروتوتایپ UI | آماده در `prototype/` (Cyan Night) |
 | مستندات دامنه | `docs/product-overview.md` |
 | ADR استک | Accepted — `docs/adr/0003-technology-stack.md` |
-| اسکلت `web/` (Next.js) | ✅ آماده — RTL، مسیرهای `/` `/member` `/secretary` `/admin` |
+| اسکلت `web/` (Next.js) | ✅ آماده — RTL؛ سایت عمومی + ورودها + خوش‌آمد نقش‌ها |
 | اسکلت `api/` (NestJS + Prisma) | ✅ آماده — ماژول‌ها، health، schema دامنه |
 | schema Prisma | ✅ هم‌تراز DB (Session / OtpChallenge / isArchived / …) |
 | PostgreSQL روی سیستم | ✅ نصب شد (17.11) — سرویس Running؛ `psql` ممکن است در PATH نباشد (مسیر کامل در `dev-environment.md`) |
@@ -26,13 +26,15 @@
 | تست | قانون الزامی در `docs/testing.md` — هر فیچر + گزارش بعد از تغییر مهم |
 | داده نمونه | قانون در `docs/sample-data.md` · رمزها در `docs/.env.example` |
 | هویت | FitClub همه‌جا · RTL · شمسی · سه نقش — `docs/project-identity.md` |
-| نسخه فعلی | `0.2.0` (Auth پایه) |
+| تصاویر / لوگو | اختیار کامل جنریت برای عامل — `docs/visual-assets.md` |
+| PWA | هدف تأییدشده؛ هنوز پیاده نشده — یادآوری در مرحله مناسب — `docs/pwa.md` |
+| نسخه فعلی | `0.3.0` (سایت عمومی + ورود قابل‌کلیک) |
 | قوانین کسب‌وکار | کامل برای ساخت هسته: `docs/business-rules.md` |
 | چت مدیر پروژه | فعال — پرامپت: `docs/prompts/project-manager-chat.md` · نقش: `docs/project-manager.md` |
 | سؤال باز | فقط قیمت، ساعت، و تماس واقعی — `docs/open-questions.md` (مانع ساخت نیست) |
 | واژه‌نامه / جریان / دسترسی / محدوده | هم‌تراز با قانون‌های قفل‌شده |
-| صفحهٔ قابل‌دیدن در مرورگر | ⏳ اسکلت خالی است — مالک هنوز UI واقعی برای تست دستی ندارد (نیاز تأییدشده ۱۴۰۴/۰۷/۲۲) |
-| فیچر واقعی بعدی | **الان: سایت عمومی + ورود قابل‌کلیک** تا مالک در مرورگر ببیند؛ بعد Members/Plans/Subscriptions |
+| صفحهٔ قابل‌دیدن در مرورگر | ✅ سایت عمومی Cyan Night در `/` + ورود پرسنل/عضو + خوش‌آمد نقش‌ها — `http://localhost:3000` · راهنما: `/how-to-open` |
+| فیچر واقعی بعدی | **Members + Plans + Subscriptions** — هسته دامنه API؛ بعد Attendance و پنل منشی کامل |
 
 ## سبک همکاری (الزامی)
 
@@ -46,7 +48,8 @@ RTL + تاریخ شمسی + نقش‌های عضو/منشی/مدیر. → `docs/
 
 ## تصمیم‌های قفل‌شده
 
-1. فقط وب ریسپانسیو (بدون اپ native؛ PWA بعداً اختیاری)
+1. فقط وب ریسپانسیو (بدون اپ native). **PWA هدف محصول است** — وقتی مرحله مناسب رسید یادآوری + پیاده + تست (`docs/pwa.md` · ADR-0004)
+1b. تصاویر/لوگو: عامل اختیار کامل جنریت دارد (`docs/visual-assets.md`)
 2. یک باشگاه (فیت‌کلاب)، نه SaaS چندشعبه‌ای در MVP
 3. فرانت: Next.js + TS + Tailwind — پورت `3000`
 4. بک‌اند: NestJS + Prisma — پورت `3001`، prefix `/api`
@@ -89,8 +92,8 @@ fitclub/
 
 1. ~~اتصال DB~~ ✅ — یوزر/دیتابیس `fitsteel`، migrate، seed پایه، `/api/health` سبز
 2. ~~Auth پایه~~ ✅ — نقش‌ها + گارد RBAC + ورود پرسنل (cookie httpOnly) + اسکلت OTP عضو (`OTP_DEV_CODE` / لاگ؛ بدون SMS واقعی) — تأیید مالک ۱۴۰۴/۰۷/۲۲
-3. **الان → قابل دیدن در مرورگر** — سایت عمومی از پروتوتایپ + صفحات ورود منشی/مدیر/عضو وصل به Auth + بعد از ورود یک صفحهٔ سادهٔ «وارد شدید» برای هر نقش (هنوز حضور/مالی کامل نه)
-4. **Members + Plans + Subscriptions** — هسته دامنه API
+3. ~~قابل دیدن در مرورگر~~ ✅ — سایت عمومی از پروتوتایپ + `/login/staff` + `/login/member` + خوش‌آمد `/member` `/secretary` `/admin` — ۱۴۰۴/۰۷/۲۲
+4. **الان → Members + Plans + Subscriptions** — هسته دامنه API
 5. **Attendance** — قوانین سقف هفتگی / انقضا / بدهی (منشی)
 6. **فرانت پنل منشی کامل** — جستجو + ورود/خروج واقعی
 7. **فرانت پنل عضو و ادمین** — پر کردن داشبوردها از دادهٔ واقعی
@@ -127,16 +130,36 @@ npm run dev
 - عضو: `POST /api/auth/member/otp/request` و `.../verify`؛ توسعه با `OTP_DEV_CODE` (پیش‌فرض `123456`)
 - `GET /api/auth/me` · `POST /api/auth/logout` · RBAC
 - حساب‌های نمونه: `docs/sample-data.md` و `docs/.env.example`
-- UI ورود هنوز ساخته نشده → مرحلهٔ بعد
 
-## چطور الان چیزی ببینی؟ (موقت)
+## سایت عمومی + ورود وب (انجام‌شده ۲۰۲۶-۱۰-۱۴)
 
-تا صفحهٔ واقعی وب آماده شود، طرح ظاهری را از فایل‌های پروتوتایپ باز کن:
+- `/` — سایت عمومی Cyan Night با برند فیت‌کلاب (قیمت/ساعت/تماس نمونه)
+- `/login/staff` — ورود منشی/مدیر → API + cookie
+- `/login/member` — موبایل + OTP (کد توسعه `123456`)
+- `/member` `/secretary` `/admin` — صفحهٔ سادهٔ «وارد شدید»؛ بدون لاگین → هدایت به ورود
+- راهنمای کوتاه: `/how-to-open` و بخش زیر
 
-- `prototype/index.html` — سایت عمومی
-- `prototype/member.html` · `secretary.html` · `admin.html` — پنل‌ها (فقط طرح، هنوز به سیستم واقعی وصل نیست)
+## چطور باز کنم؟ (برای مالک)
 
-آدرس واقعی اپ بعد از مرحلهٔ «قابل دیدن»: `http://localhost:3000`
+```powershell
+# ۱) API
+cd D:\vibe-coding\fitclub\api
+npm run start:dev
+
+# ۲) Web
+cd D:\vibe-coding\fitclub\web
+npm run dev
+```
+
+بعد در مرورگر: **http://localhost:3000**
+
+| نقش | ورود |
+|-----|------|
+| منشی | `secretary@fitclub.local` / `FitClubSecretary1!` → `/login/staff` |
+| مدیر | `admin@fitclub.local` / `FitClubAdmin1!` → `/login/staff` |
+| عضو | موبایل `09121234567` + کد `123456` → `/login/member` |
+
+پروتوتایپ HTML هنوز در `prototype/` برای مرجع ظاهری باقی است.
 
 ## ارجاعات مهم
 
