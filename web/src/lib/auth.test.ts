@@ -99,9 +99,11 @@ describe("mobile normalize", () => {
     expect(isValidIranMobile(normalizeIranMobile("۰۸۱۲۱۲۳۴۵۶۷"))).toBe(false);
   });
 
-  it("clamps long input so endless digits cannot be typed", () => {
-    expect(clampIranMobileInput("0912123456789012345")).toBe("091212345678");
-    expect(clampIranMobileInput("۰۹۱۲۱۲۳۴۵۶۷۸۹۰۱۲۳۴۵")).toHaveLength(12);
+  it("clamps local numbers to 11 digits and allows +98 up to 12", () => {
+    expect(clampIranMobileInput("0912123456789012345")).toBe("09121234567");
+    expect(clampIranMobileInput("۰۹۱۲۱۲۳۴۵۶۷۸۹۰۱۲۳۴۵")).toBe("۰۹۱۲۱۲۳۴۵۶۷");
+    expect(clampIranMobileInput("912123456789")).toBe("9121234567");
+    expect(clampIranMobileInput("98912123456789")).toBe("989121234567");
     expect(clampIranMobileInput("+98 912 123 4567")).toBe("+98 912 123 4567");
   });
 

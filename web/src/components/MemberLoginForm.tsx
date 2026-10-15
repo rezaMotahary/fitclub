@@ -22,11 +22,12 @@ export function MemberLoginForm() {
   const [info, setInfo] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
-  async function onRequestOtp(e: FormEvent) {
+  async function onRequestOtp(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setInfo(null);
-    const normalized = normalizeIranMobile(phone);
+    const formPhone = String(new FormData(e.currentTarget).get("phone") ?? phone);
+    const normalized = normalizeIranMobile(formPhone);
     if (!isValidIranMobile(normalized)) {
       setError("شماره موبایل را مثل ۰۹۱۲۱۲۳۴۵۶۷ وارد کنید.");
       return;
@@ -48,12 +49,13 @@ export function MemberLoginForm() {
     }
   }
 
-  async function onVerify(e: FormEvent) {
+  async function onVerify(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setPending(true);
     try {
-      await verifyMemberOtp(phone, code.trim());
+      const formCode = String(new FormData(e.currentTarget).get("code") ?? code);
+      await verifyMemberOtp(phone, formCode.trim());
       router.replace("/member");
     } catch (err) {
       if (err instanceof ApiError) {

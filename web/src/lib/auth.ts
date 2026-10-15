@@ -59,13 +59,13 @@ export function toAsciiDigits(raw: string): string {
 }
 
 /**
- * Limit typing/paste for mobile fields: keep + / spaces / dashes,
- * stop after 12 digits (covers 98xxxxxxxxxx), and cap raw length.
+ * Limit typing/paste for mobile fields: keep + / spaces / dashes.
+ * Local Iranian mobile → max 11 digits (`09xxxxxxxxx`);
+ * `98…` / `+98…` → max 12 digits; bare `9xxxxxxxxx` → max 10.
  */
 export function clampIranMobileInput(raw: string): string {
-  const MAX_DIGITS = 12;
   let out = "";
-  let digitCount = 0;
+  let digits = "";
 
   for (const ch of raw) {
     if (out.length >= IRAN_MOBILE_INPUT_MAX_LEN) break;
@@ -80,11 +80,18 @@ export function clampIranMobileInput(raw: string): string {
     }
 
     const ascii = toAsciiDigits(ch);
-    if (/^\d$/.test(ascii)) {
-      if (digitCount >= MAX_DIGITS) continue;
-      out += ch;
-      digitCount += 1;
-    }
+    if (!/^\d$/.test(ascii)) continue;
+
+    const next = digits + ascii;
+    const maxDigits = next.startsWith("98")
+      ? 12
+      : next.startsWith("0")
+        ? 11
+        : 10;
+
+    if (next.length > maxDigits) continue;
+    digits = next;
+    out += ch;
   }
 
   return out;

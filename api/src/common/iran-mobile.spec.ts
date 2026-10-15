@@ -34,12 +34,13 @@ describe('normalizeIranMobile', () => {
 });
 
 describe('clampIranMobileInput', () => {
-  it('stops after 12 digits even if more are typed', () => {
-    expect(clampIranMobileInput('0912123456789012345')).toBe('091212345678');
-    expect(clampIranMobileInput('۰۹۱۲۱۲۳۴۵۶۷۸۹۰۱۲')).toHaveLength(12);
+  it('stops local 09… numbers at 11 digits', () => {
+    expect(clampIranMobileInput('0912123456789012345')).toBe('09121234567');
+    expect(clampIranMobileInput('۰۹۱۲۱۲۳۴۵۶۷۸۹۰۱۲')).toBe('۰۹۱۲۱۲۳۴۵۶۷');
   });
 
-  it('keeps +98 and spaces within a reasonable raw length', () => {
+  it('allows 12 digits only for 98… / +98…', () => {
+    expect(clampIranMobileInput('98912123456789')).toBe('989121234567');
     expect(clampIranMobileInput('+98 912 123 4567')).toBe('+98 912 123 4567');
   });
 });
