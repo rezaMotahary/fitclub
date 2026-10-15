@@ -1,5 +1,10 @@
 import type {
+  AttendanceEligibilityResponse,
+  AttendanceInsideResponse,
+  AttendanceRecord,
+  AttendanceTodayResponse,
   AuthMeResponse,
+  CheckInResponse,
   MemberOtpRequestResponse,
   MemberOtpVerifyResponse,
   MemberSummary,
@@ -126,4 +131,48 @@ export function activateMember(id: string) {
   return apiFetch<MemberSummary>(`/members/${id}/activate`, {
     method: "POST",
   });
+}
+
+export function fetchAttendanceEligibility(memberId: string) {
+  return apiFetch<AttendanceEligibilityResponse>(
+    `/attendance/eligibility/${memberId}`,
+  );
+}
+
+export function fetchAttendanceToday() {
+  return apiFetch<AttendanceTodayResponse>("/attendance/today");
+}
+
+export function fetchAttendanceInside() {
+  return apiFetch<AttendanceInsideResponse>("/attendance/inside");
+}
+
+export function attendanceCheckIn(memberId: string) {
+  return apiFetch<CheckInResponse>("/attendance/check-in", {
+    method: "POST",
+    body: { memberId },
+  });
+}
+
+export function attendanceCheckOut(params: {
+  memberId?: string;
+  attendanceId?: string;
+}) {
+  return apiFetch<{ ok: boolean; attendance: AttendanceRecord }>(
+    "/attendance/check-out",
+    {
+      method: "POST",
+      body: params,
+    },
+  );
+}
+
+export function voidAttendance(id: string, reason?: string) {
+  return apiFetch<{ ok: boolean; attendance: AttendanceRecord }>(
+    `/attendance/${id}/void`,
+    {
+      method: "POST",
+      body: reason ? { reason } : {},
+    },
+  );
 }

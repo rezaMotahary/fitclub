@@ -5,6 +5,7 @@
  * Sample staff passwords / OTP: see prisma/sample-credentials.ts and docs/.env.example
  */
 import {
+  AttendanceResult,
   PrismaClient,
   Role,
   SessionGender,
@@ -16,6 +17,8 @@ import {
   dayStringToUtcNoon,
   todayIran,
 } from '../src/common/iran-date.js';
+import { weekContaining } from '../src/common/attendance-week.js';
+import { iranWallDateTime } from '../src/common/session-schedule.js';
 import {
   SAMPLE_ARCHIVED_MEMBER_PHONE,
   SAMPLE_STAFF_PASSWORDS,
@@ -190,12 +193,14 @@ async function main() {
     },
   ];
 
+  const memberIdsByCode: Record<string, string> = {};
+
   for (const m of members) {
     const plan = planByDays[m.daysPerWeek];
     const startsAt = dayFromToday(m.startsOffsetDays);
     const endsAt = dayFromToday(m.startsOffsetDays + 29);
 
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         fullName: m.fullName,
         phone: m.phone,
@@ -224,6 +229,105 @@ async function main() {
           },
         },
       },
+      include: { member: true },
+    });
+    if (user.member) {
+      memberIdsByCode[m.code] = user.member.id;
+    }
+  }
+
+  // --- Sample attendances for secretary desk scenarios ---
+  const today = todayIran();
+  const week = weekContaining(today);
+
+  // Weekly cap full (پلن ۲ روز): دو روز بستهٔ معتبر قبل از امروز در همین هفته
+  const capMemberId = memberIdsByCode['FS-1045'];
+  if (capMemberId) {
+    const pastDaysInWeek: string[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = addIranDays(week.startDay, i);
+      if (d < today) pastDaysInWeek.push(d);
+    }
+    for (const day of pastDaysInWeek.slice(0, 2)) {
+      const checkInAt = iranWallDateTime(day, '16:00');
+      const checkOutAt = iranWallDateTime(day, '17:10');
+      await prisma.attendance.create({
+        data: {
+          memberId: capMemberId,
+          checkInAt,
+          checkOutAt,
+          durationMinutes: 70,
+          result: AttendanceResult.SUCCESS,
+          recordedById: secretary.id,
+          closedAutomatically: false,
+        },
+      });
+    }
+  }
+
+  // حضور باطل‌شدهٔ امروز (مریم احمدی) — رکورد می‌ماند
+  const voidMemberId = memberIdsByCode['FS-1043'];
+  if (voidMemberId) {
+    const checkInAt = iranWallDateTime(today, '08:00');
+    const checkOutAt = iranWallDateTime(today, '09:05');
+    await prisma.attendance.create({
+      data: {
+        memberId: voidMemberId,
+        checkInAt,
+        checkOutAt,
+        durationMinutes: 65,
+        result: AttendanceResult.SUCCESS,
+        recordedById: secretary.id,
+        voidedAt: iranWallDateTime(today, '09:30'),
+        voidedById: secretary.id,
+        voidReason: 'ثبت اشتباه — نمونه seed',
+      },
+    });
+  }
+
+  // خروج خودکار آخر سانس (پویا) — ساعت پایان سانس آقایان نمونه ۲۳:۰۰
+  const autoMemberId = memberIdsByCode['FS-1048'];
+  if (autoMemberId) {
+    const day = addIranDays(today, -1);
+    const checkInAt = iranWallDateTime(day, '16:00');
+    const checkOutAt = iranWallDateTime(day, '23:00');
+    await prisma.attendance.create({
+      data: {
+        memberId: autoMemberId,
+        checkInAt,
+        checkOutAt,
+        durationMinutes: 420,
+        result: AttendanceResult.SUCCESS,
+        recordedById: secretary.id,
+        closedAutomatically: true,
+      },
+    });
+  }
+
+  // حضور باز نمونه (سارا) — اگر سانس بانوان تمام شده باشد، API با ساعت پایان می‌بندد
+  const openMemberId = memberIdsByCode['FS-1042'];
+  if (openMemberId) {
+    await prisma.attendance.create({
+      data: {
+        memberId: openMemberId,
+        checkInAt: iranWallDateTime(today, '08:15'),
+        result: AttendanceResult.SUCCESS,
+        recordedById: secretary.id,
+      },
+    });
+  }
+
+  // تلاش ردشدهٔ نمونه در لاگ امروز (علی — بدهی روز ۱۶)
+  const debtMemberId = memberIdsByCode['FS-1046'];
+  if (debtMemberId) {
+    await prisma.attendance.create({
+      data: {
+        memberId: debtMemberId,
+        checkInAt: iranWallDateTime(today, '16:20'),
+        result: AttendanceResult.REJECTED_DEBT,
+        rejectReason: 'از روز ۱۵ ماندهٔ شهریه تسویه نشده؛ ورود بسته است',
+        recordedById: secretary.id,
+      },
     });
   }
 
@@ -235,6 +339,13 @@ async function main() {
       email: 'secretary@fitclub.local',
     },
     members: members.length,
+    attendanceSamples: {
+      weeklyCapFull: 'FS-1045',
+      voidedToday: 'FS-1043',
+      autoClosed: 'FS-1048',
+      openOrAutoClosable: 'FS-1042',
+      debtRejectedLog: 'FS-1046',
+    },
     note: 'Sample passwords in prisma/sample-credentials.ts (local only)',
   });
 }

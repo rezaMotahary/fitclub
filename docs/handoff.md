@@ -15,13 +15,14 @@
 | پروتوتایپ UI | آماده در `prototype/` (Cyan Night) |
 | مستندات دامنه | `docs/product-overview.md` |
 | ADR استک | Accepted — `docs/adr/0003-technology-stack.md` |
-| اسکلت `web/` (Next.js) | ✅ آماده — RTL؛ سایت عمومی + ورودها + پنل منشی/مدیر با لیست اعضا/پلن |
+| اسکلت `web/` (Next.js) | ✅ آماده — RTL؛ سایت عمومی + ورودها + پنل منشی (حضور) / مدیر (اعضا/پلن) |
 | اسکلت `api/` (NestJS + Prisma) | ✅ آماده — ماژول‌ها، health، schema دامنه |
 | schema Prisma | ✅ هم‌تراز DB (Session / OtpChallenge / isArchived / …) |
 | PostgreSQL روی سیستم | ✅ نصب شد (17.11) — سرویس Running؛ `psql` ممکن است در PATH نباشد (مسیر کامل در `dev-environment.md`) |
 | DB/user `fitsteel` + migrate + seed | ✅ دیتابیس/یوزر تأیید؛ migrate؛ seed با رمز نمونهٔ پرسنل + عضو OTP و عضو آرشیو |
 | Auth پایه | ✅ پرسنل: شناسه+رمز + cookie httpOnly؛ عضو: اسکلت OTP (بدون SMS واقعی؛ `OTP_DEV_CODE`)؛ RBAC؛ آرشیو → ورود پنل ممنوع |
 | Members + Plans + Subscriptions | ✅ تأیید مالک ۱۴۰۴/۰۷/۲۳ — API + پنل ساده منشی/مدیر (لیست اعضا/پلن؛ آرشیو؛ فروش/تمدید) |
+| Attendance (حضور) | ✅ پیاده ۱۴۰۴/۰۷/۲۳ — API + پنل منشی؛ در انتظار QA |
 | سبک همکاری | ✅ `docs/collaboration.md` + rule وایب‌کودینگ |
 | GitHub | `git@github.com:rezaMotahary/fitclub.git` — قانون sync در `docs/github-workflow.md` |
 | تست | قانون الزامی در `docs/testing.md` — هر فیچر + گزارش بعد از تغییر مهم |
@@ -29,18 +30,18 @@
 | هویت | FitClub همه‌جا · RTL · شمسی · سه نقش — `docs/project-identity.md` |
 | تصاویر / لوگو | اختیار کامل جنریت برای عامل — `docs/visual-assets.md` |
 | PWA | هدف تأییدشده؛ هنوز پیاده نشده — یادآوری در مرحله مناسب — `docs/pwa.md` |
-| نسخه فعلی | `0.5.0` (تم روشن و تاریک) |
+| نسخه فعلی | `0.6.0` (Attendance / حضور منشی) |
 | قوانین کسب‌وکار | کامل برای ساخت هسته: `docs/business-rules.md` |
 | چت مدیر پروژه | فعال — پرامپت: `docs/prompts/project-manager-chat.md` · نقش: `docs/project-manager.md` |
 | چت QA | الزامی از ۱۴۰۴/۰۷/۲۳ — پرامپت: `docs/prompts/qa-chat.md` · نقش: `docs/qa.md`؛ فقط بعد از تأیید QA به PM برای مرحله بعد برگرد |
 | سؤال باز | فقط قیمت، ساعت، و تماس واقعی — `docs/open-questions.md` (مانع ساخت نیست) |
 | واژه‌نامه / جریان / دسترسی / محدوده | هم‌تراز با قانون‌های قفل‌شده |
-| صفحهٔ قابل‌دیدن در مرورگر | ✅ سایت عمومی + ورود + پنل منشی/مدیر (اعضا/پلن) — `http://localhost:3000` · راهنما: `/how-to-open` |
+| صفحهٔ قابل‌دیدن در مرورگر | ✅ سایت عمومی + ورود + پنل منشی (حضور) / مدیر — `http://localhost:3000` · راهنما: `/how-to-open` |
 | قانون «بدون ترمینال برای مالک» | ✅ ثبت شد ۱۴۰۴/۰۷/۲۲ — عامل روشن می‌کند؛ مالک فقط لینک باز می‌کند |
 | تم روشن / تاریک | ✅ تأیید مالک ۱۴۰۴/۰۷/۲۳ — روز/شب همه‌جا؛ یادآوری انتخاب؛ هیرو روشن — `docs/theme.md` |
 | باگ باز | **KI-002** تاریخ انقضا میلادی به‌جای شمسی — بعد از Attendance فیکس شود — `docs/known-issues.md` |
 | جریان تحویل | PM → برنامه‌نویس → **QA** → فقط با جملهٔ «QA تأیید کرد: …» برگرد به PM |
-| فیچر واقعی بعدی | ادامهٔ **Attendance** → QA → سپس **فیکس KI-002 تاریخ شمسی** → QA |
+| فیچر واقعی بعدی | **الان → QA برای Attendance**؛ بعد از تأیید → **فیکس KI-002 تاریخ شمسی** → QA |
 
 ## سبک همکاری (الزامی)
 
@@ -105,7 +106,7 @@ fitclub/
 4. ~~Members + Plans + Subscriptions~~ ✅ — API + پنل ساده منشی/مدیر — تأیید مالک ۱۴۰۴/۰۷/۲۳
 5. ~~تم روشن و تاریک~~ ✅ — تأیید مالک؛ در صورت فرصت QA جدا روی تم هم خوب است — `docs/theme.md`
 6. ~~فیکس KI-001 موبایل~~ ✅ — تأیید QA ۱۴۰۴/۰۷/۲۳ (رقم فارسی + انگلیسی) — `docs/known-issues.md`
-7. **الان → Attendance** — API + پنل منشی: جستجو، ورود/خروج، رد با دلیل، لاگ امروز، بستن خودکار آخر سانس، ابطال همان‌روز — طبق `docs/business-rules.md` → سپس QA
+7. ~~Attendance~~ ✅ — API + پنل منشی (جستجو، ورود/خروج، رد با دلیل، لاگ امروز، بستن خودکار، ابطال همان‌روز) — **در انتظار QA**
 8. **فیکس KI-002 تاریخ شمسی** — انقضای اشتراک و همهٔ تاریخ‌های UI شمسی شوند — `docs/known-issues.md` → سپس QA
 9. **فرانت پنل منشی کامل‌تر / عضو و ادمین** — پر کردن داشبوردها از دادهٔ واقعی حضور → سپس QA
 10. **Payments** — ثبت دستی پرداخت پذیرش در MVP → سپس QA
@@ -154,7 +155,8 @@ npm run dev
 - `/login/staff` — ورود منشی/مدیر → API + cookie
 - `/login/member` — موبایل + OTP (کد توسعه `123456`)
 - `/member` — خوش‌آمد عضو؛ بدون لاگین → هدایت به ورود
-- `/secretary` `/admin` — لیست پلن‌های نمونه + جستجوی اعضا + آرشیو/فعال‌سازی (حضور کامل هنوز نیست)
+- `/secretary` — حضور منشی: جستجو، وضعیت، ورود/خروج، تایمر، لاگ امروز، ابطال
+- `/admin` — پلن‌ها + اعضا + آرشیو؛ مشاهدهٔ حضور از مسیر منشی (بدون دکمهٔ ورود/خروج)
 - راهنمای کوتاه: `/how-to-open` و بخش زیر
 
 ## Members + Plans + Subscriptions (انجام‌شده ۲۰۲۶-۱۰-۱۴)
@@ -164,6 +166,16 @@ npm run dev
 - `POST /api/subscriptions/sell` · `POST /api/subscriptions/renew` — قوانین نصف شهریه، شروع امروز/فردا، تمدید بدون فاصله، تخفیف تمدید زودتر از تنظیمات مدیر
 - منطق خالص: `api/src/common/iran-date.ts` · `subscription-pricing.ts` · `subscription-period.ts`
 - تست واحد + e2e: `npm test` و `npm run test:e2e` داخل `api/`
+
+## Attendance (انجام‌شده ۲۰۲۶-۱۰-۱۵)
+
+- `GET /api/attendance/eligibility/:memberId` · `GET /api/attendance/today` · `GET /api/attendance/inside`
+- `POST /api/attendance/check-in` · `POST /api/attendance/check-out` — فقط منشی
+- `POST /api/attendance/:id/void` — منشی و مدیر تا پایان همان روز ایران
+- `POST /api/attendance/auto-close` — خروج با **ساعت پایان سانس** (نه ساعت دیرکرد سیستم)
+- منطق خالص: `attendance-eligibility.ts` · `attendance-week.ts` · `session-schedule.ts`
+- پنل: `http://localhost:3000/secretary`
+- seed: سقف پر، بدهی روز ۱۶، حضور باز، باطل‌شده، بستن خودکار — `docs/sample-data.md`
 
 ## چطور باز کنم؟ (برای مالک)
 

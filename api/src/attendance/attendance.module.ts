@@ -1,5 +1,12 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module.js';
+import { AttendanceController } from './attendance.controller.js';
+import { AttendanceService } from './attendance.service.js';
 
-/** Placeholder — check-in/out rules (weekly cap, debt, expiry). */
-@Module({})
+@Module({
+  imports: [AuthModule],
+  controllers: [AttendanceController],
+  providers: [AttendanceService],
+  exports: [AttendanceService],
+})
 export class AttendanceModule {}

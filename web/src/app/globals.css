@@ -1047,7 +1047,7 @@ textarea.ltr-isolate {
   }
 }
 
-/* Staff desk — members / plans (no full attendance yet) */
+/* Staff desk — members / plans / attendance */
 .desk-shell {
   min-height: 100vh;
   padding: 28px 18px 48px;
@@ -1057,6 +1057,10 @@ textarea.ltr-isolate {
   max-width: 960px;
   margin: 0 auto;
   position: relative;
+}
+
+.desk-shell-wide {
+  max-width: 1100px;
 }
 
 .desk-top {
@@ -1187,6 +1191,248 @@ textarea.ltr-isolate {
   }
 
   .desk-member {
+    flex-direction: column;
+  }
+}
+
+/* Attendance desk */
+.att-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 8px 0 6px;
+}
+
+.att-stat {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.att-stat .label {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.att-stat .value {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.att-stat .value.ok {
+  color: var(--ok);
+}
+
+.att-stat .value.warn {
+  color: var(--warn);
+}
+
+.att-section h2 {
+  margin-bottom: 4px;
+}
+
+.att-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 280px) 1fr;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.att-member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 420px;
+  overflow: auto;
+}
+
+.att-member-chip {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.att-member-chip:hover {
+  border-color: var(--accent-ring);
+}
+
+.att-member-chip.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.att-result {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  min-height: 180px;
+}
+
+.att-result-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.att-result h3 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+}
+
+.att-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.att-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+}
+
+.att-badge.ok {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 40%, var(--line));
+}
+
+.att-badge.danger {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--line));
+}
+
+.att-timer-block {
+  text-align: center;
+  min-width: 140px;
+}
+
+.att-timer {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  direction: ltr;
+}
+
+.att-actions {
+  margin-top: 16px;
+}
+
+.att-deny {
+  margin: 0;
+  color: var(--danger);
+}
+
+.att-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.att-live {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.att-live-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.att-live-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.att-live-actions strong {
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
+}
+
+.att-pulse {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ok);
+  margin-left: 8px;
+  box-shadow: 0 0 0 0 var(--accent-glow);
+  animation: att-pulse 1.6s ease-out infinite;
+}
+
+@keyframes att-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--accent-glow);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.att-log {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  max-height: 420px;
+  overflow: auto;
+}
+
+.att-log-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.att-log-row p {
+  margin: 4px 0 0;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 860px) {
+  .att-layout,
+  .att-two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .att-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .att-result-head {
     flex-direction: column;
   }
 }
