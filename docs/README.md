@@ -27,8 +27,10 @@
 | [testing.md](./testing.md) | تست اجباری برای هر فیچر + گزارش بعد از تغییر مهم |
 | [adr/](./adr/) | Architecture Decision Records |
 | [project-manager.md](./project-manager.md) | نقش چت مدیر پروژه / پروداکت منیجر |
+| [qa.md](./qa.md) | نقش چت QA — تست فیچر قبل از مرحله بعد |
 | [prompts/complete-project-docs.md](./prompts/complete-project-docs.md) | پرامپت تکمیل کامل مستندات منطق |
 | [prompts/project-manager-chat.md](./prompts/project-manager-chat.md) | پرامپت شروع چت اختصاصی مدیر پروژه |
+| [prompts/qa-chat.md](./prompts/qa-chat.md) | پرامپت شروع چت اختصاصی QA |
 
 ## پروتوتایپ مرجع
 
