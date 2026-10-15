@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { ApiError, staffLogin } from "@/lib/api";
 import { panelPathForRole } from "@/lib/auth";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function StaffLoginForm() {
   const router = useRouter();
@@ -36,8 +37,11 @@ export function StaffLoginForm() {
 
   return (
     <main className="auth-shell">
+      <ThemeToggle className="theme-toggle-float" />
       <div className="auth-card">
-        <p className="brand-mark">FITCLUB</p>
+        <div className="auth-card-top">
+          <p className="brand-mark">FITCLUB</p>
+        </div>
         <h1>ورود پرسنل</h1>
         <p className="auth-lead">برای منشی و مدیر باشگاه</p>
 
@@ -47,6 +51,8 @@ export function StaffLoginForm() {
             <input
               name="identifier"
               autoComplete="username"
+              dir="ltr"
+              className="ltr-isolate"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               placeholder="secretary@fitclub.local"
@@ -59,6 +65,8 @@ export function StaffLoginForm() {
               name="password"
               type="password"
               autoComplete="current-password"
+              dir="ltr"
+              className="ltr-isolate"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -72,8 +80,18 @@ export function StaffLoginForm() {
         </form>
 
         <div className="auth-hint">
-          <p>نمونه منشی: secretary@fitclub.local</p>
-          <p>نمونه مدیر: admin@fitclub.local</p>
+          <p>
+            نمونه منشی:{" "}
+            <span className="ltr-isolate" dir="ltr">
+              secretary@fitclub.local
+            </span>
+          </p>
+          <p>
+            نمونه مدیر:{" "}
+            <span className="ltr-isolate" dir="ltr">
+              admin@fitclub.local
+            </span>
+          </p>
           <p>رمزها در راهنمای «چطور باز کنم» آمده است.</p>
         </div>
 

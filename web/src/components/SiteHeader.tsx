@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ThemeToggle } from "./ThemeToggle";
 
 type NavItem = {
   href: string;
@@ -35,15 +36,18 @@ export function SiteHeader() {
         <Link className="brand" href="/" onClick={closeMenu}>
           FIT<span>CLUB</span>
         </Link>
-        <button
-          className={`menu-toggle${open ? " is-open" : ""}`}
-          type="button"
-          aria-label="منو"
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span />
-        </button>
+        <div className="topbar-actions">
+          <ThemeToggle className="theme-toggle-mobile" />
+          <button
+            className={`menu-toggle${open ? " is-open" : ""}`}
+            type="button"
+            aria-label="منو"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span />
+          </button>
+        </div>
       </div>
       <nav className={`nav${open ? " open" : ""}`} id="mainNav">
         {navItems.map((item) => (
@@ -57,6 +61,7 @@ export function SiteHeader() {
           </Link>
         ))}
       </nav>
+      <ThemeToggle className="theme-toggle-desktop" />
     </header>
   );
 }

@@ -13,6 +13,7 @@ import {
 } from "@/lib/api";
 import { roleLabel } from "@/lib/auth";
 import type { MemberSummary, PlanPublic, PublicAuthUser } from "@/lib/types";
+import { ThemeToggle } from "./ThemeToggle";
 
 function formatToman(n: number): string {
   return `${n.toLocaleString("fa-IR")} تومان`;
@@ -119,6 +120,7 @@ export function StaffDesk({
   if (!user && !error) {
     return (
       <main className="auth-shell">
+        <ThemeToggle className="theme-toggle-float" />
         <div className="auth-card">
           <p className="auth-muted">در حال بارگذاری پنل…</p>
         </div>
@@ -138,7 +140,8 @@ export function StaffDesk({
             </p>
           ) : null}
         </div>
-        <div className="cta-row">
+        <div className="desk-actions">
+          <ThemeToggle />
           <button type="button" className="btn btn-ghost" onClick={onLogout}>
             خروج
           </button>

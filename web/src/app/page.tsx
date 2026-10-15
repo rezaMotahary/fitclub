@@ -333,7 +333,7 @@ export default function HomePage() {
         </div>
         <div>
           <Link href="/how-to-open">چطور باز کنم؟</Link>
-          <span> · Cyan Night</span>
+          <span> · تم روز و شب</span>
         </div>
       </footer>
     </>

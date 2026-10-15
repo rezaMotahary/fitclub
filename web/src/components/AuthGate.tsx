@@ -6,6 +6,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { ApiError, fetchMe, logout } from "@/lib/api";
 import { canAccessPanel, loginPathForPanel, roleLabel } from "@/lib/auth";
 import type { PublicAuthUser } from "@/lib/types";
+import { ThemeToggle } from "./ThemeToggle";
 
 type Panel = "member" | "secretary" | "admin";
 
@@ -64,6 +65,7 @@ export function AuthGate({ panel, title, children }: AuthGateProps) {
   if (status === "loading") {
     return (
       <main className="auth-shell">
+        <ThemeToggle className="theme-toggle-float" />
         <div className="auth-card">
           <p className="auth-muted">در حال بررسی ورود…</p>
         </div>
@@ -74,6 +76,7 @@ export function AuthGate({ panel, title, children }: AuthGateProps) {
   if (status === "error" || !user) {
     return (
       <main className="auth-shell">
+        <ThemeToggle className="theme-toggle-float" />
         <div className="auth-card">
           <h1>{title}</h1>
           <p className="auth-error">{error ?? "ورود لازم است."}</p>
@@ -96,18 +99,38 @@ export function AuthGate({ panel, title, children }: AuthGateProps) {
 
   return (
     <main className="auth-shell">
+      <ThemeToggle className="theme-toggle-float" />
       <div className="auth-card welcome-card">
-        <p className="brand-mark">FITCLUB</p>
+        <div className="auth-card-top">
+          <p className="brand-mark">FITCLUB</p>
+        </div>
         <h1>وارد شدید — خوش آمدید</h1>
         <p className="auth-lead">
           {user.fullName}
           <span className="welcome-role">{roleLabel(user.role)}</span>
         </p>
         {user.membershipCode ? (
-          <p className="auth-muted">کد عضویت: {user.membershipCode}</p>
+          <p className="auth-muted">
+            کد عضویت:{" "}
+            <span className="ltr-isolate" dir="ltr">
+              {user.membershipCode}
+            </span>
+          </p>
         ) : null}
-        {user.email ? <p className="auth-muted">{user.email}</p> : null}
-        {user.phone ? <p className="auth-muted">{user.phone}</p> : null}
+        {user.email ? (
+          <p className="auth-muted">
+            <span className="ltr-isolate" dir="ltr">
+              {user.email}
+            </span>
+          </p>
+        ) : null}
+        {user.phone ? (
+          <p className="auth-muted">
+            <span className="ltr-isolate" dir="ltr">
+              {user.phone}
+            </span>
+          </p>
+        ) : null}
         <p className="auth-note">
           داشبورد کامل حضور و مالی هنوز آماده نیست. فعلاً فقط تأیید ورود است.
         </p>

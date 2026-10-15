@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { ApiError, requestMemberOtp, verifyMemberOtp } from "@/lib/api";
 import { isValidIranMobile, normalizeIranMobile } from "@/lib/auth";
+import { ThemeToggle } from "./ThemeToggle";
 
 type Step = "phone" | "code";
 
@@ -66,8 +67,11 @@ export function MemberLoginForm() {
 
   return (
     <main className="auth-shell">
+      <ThemeToggle className="theme-toggle-float" />
       <div className="auth-card">
-        <p className="brand-mark">FITCLUB</p>
+        <div className="auth-card-top">
+          <p className="brand-mark">FITCLUB</p>
+        </div>
         <h1>ورود اعضا</h1>
         <p className="auth-lead">با موبایل و کد یک‌بارمصرف</p>
 
@@ -79,6 +83,8 @@ export function MemberLoginForm() {
                 name="phone"
                 inputMode="tel"
                 autoComplete="tel"
+                dir="ltr"
+                className="ltr-isolate"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="09121234567"
@@ -92,13 +98,21 @@ export function MemberLoginForm() {
           </form>
         ) : (
           <form className="auth-form" onSubmit={onVerify}>
-            <p className="auth-muted">کد برای {phone} ارسال شد.</p>
+            <p className="auth-muted">
+              کد برای{" "}
+              <span className="ltr-isolate" dir="ltr">
+                {phone}
+              </span>{" "}
+              ارسال شد.
+            </p>
             <label className="auth-field">
               <span>کد ۶ رقمی</span>
               <input
                 name="code"
                 inputMode="numeric"
                 autoComplete="one-time-code"
+                dir="ltr"
+                className="ltr-isolate"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="123456"
@@ -129,8 +143,18 @@ export function MemberLoginForm() {
         )}
 
         <div className="auth-hint">
-          <p>نمونه عضو: ۰۹۱۲۱۲۳۴۵۶۷</p>
-          <p>کد توسعه: ۱۲۳۴۵۶</p>
+          <p>
+            نمونه عضو:{" "}
+            <span className="ltr-isolate" dir="ltr">
+              09121234567
+            </span>
+          </p>
+          <p>
+            کد توسعه:{" "}
+            <span className="ltr-isolate" dir="ltr">
+              123456
+            </span>
+          </p>
         </div>
 
         <div className="cta-row auth-links">
