@@ -68,3 +68,22 @@ export function normalizeIranMobile(raw: string): string {
 export function isValidIranMobile(phone: string): boolean {
   return /^09\d{9}$/.test(phone);
 }
+
+/** OTP / numeric codes: Persian+English digits → ASCII, max length. */
+export function normalizeOtpCode(raw: string, length = 6): string {
+  return toAsciiDigits(raw).replace(/\D/g, '').slice(0, length);
+}
+
+/** Keep typing Persian/English digits for OTP; stop at `length`. */
+export function clampOtpInput(raw: string, length = 6): string {
+  let out = '';
+  let digitCount = 0;
+  for (const ch of raw) {
+    const ascii = toAsciiDigits(ch);
+    if (!/^\d$/.test(ascii)) continue;
+    if (digitCount >= length) break;
+    out += ch;
+    digitCount += 1;
+  }
+  return out;
+}

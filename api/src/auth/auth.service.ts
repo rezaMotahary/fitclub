@@ -9,6 +9,7 @@ import { Role, type User } from '@prisma/client';
 import {
   isValidIranMobile,
   normalizeIranMobile,
+  normalizeOtpCode,
 } from '../common/iran-mobile.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
@@ -212,9 +213,10 @@ export class AuthService {
 
   async verifyMemberOtp(
     rawPhone: string,
-    code: string,
+    rawCode: string,
   ): Promise<{ user: PublicAuthUser; token: string; expiresAt: Date }> {
     const phone = normalizeIranMobile(rawPhone);
+    const code = normalizeOtpCode(rawCode);
     const user = await this.prisma.user.findUnique({
       where: { phone },
       include: { member: true },

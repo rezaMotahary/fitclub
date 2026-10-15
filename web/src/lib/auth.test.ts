@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   canAccessPanel,
   clampIranMobileInput,
+  clampOtpInput,
   isValidIranMobile,
   loginPathForPanel,
   normalizeIranMobile,
+  normalizeOtpCode,
   panelPathForRole,
   roleLabel,
   toAsciiDigits,
@@ -112,5 +114,18 @@ describe("mobile normalize", () => {
     expect(isValidIranMobile("0912123456")).toBe(false);
     expect(isValidIranMobile("08121234567")).toBe(false);
     expect(isValidIranMobile("۰۹۱۲۱۲۳۴۵۶۷")).toBe(false);
+  });
+});
+
+describe("otp normalize", () => {
+  it("accepts Persian and English OTP digits", () => {
+    expect(normalizeOtpCode("123456")).toBe("123456");
+    expect(normalizeOtpCode("۱۲۳۴۵۶")).toBe("123456");
+    expect(normalizeOtpCode("١٢٣٤٥٦")).toBe("123456");
+  });
+
+  it("clamps OTP input to 6 digits in either script", () => {
+    expect(clampOtpInput("123456789")).toBe("123456");
+    expect(clampOtpInput("۱۲۳۴۵۶۷۸۹")).toBe("۱۲۳۴۵۶");
   });
 });

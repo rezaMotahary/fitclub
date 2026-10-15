@@ -6,8 +6,10 @@ import { useState, type FormEvent } from "react";
 import { ApiError, requestMemberOtp, verifyMemberOtp } from "@/lib/api";
 import {
   clampIranMobileInput,
+  clampOtpInput,
   isValidIranMobile,
   normalizeIranMobile,
+  normalizeOtpCode,
 } from "@/lib/auth";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -55,7 +57,13 @@ export function MemberLoginForm() {
     setPending(true);
     try {
       const formCode = String(new FormData(e.currentTarget).get("code") ?? code);
-      await verifyMemberOtp(phone, formCode.trim());
+      const normalizedCode = normalizeOtpCode(formCode);
+      if (normalizedCode.length !== 6) {
+        setError("کد ۶ رقمی را وارد کنید (رقم فارسی یا انگلیسی).");
+        setPending(false);
+        return;
+      }
+      await verifyMemberOtp(phone, normalizedCode);
       router.replace("/member");
     } catch (err) {
       if (err instanceof ApiError) {
@@ -120,11 +128,9 @@ export function MemberLoginForm() {
                 dir="ltr"
                 className="ltr-isolate"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => setCode(clampOtpInput(e.target.value))}
                 placeholder="123456"
                 required
-                minLength={6}
-                maxLength={6}
               />
             </label>
             {info ? <p className="auth-info">{info}</p> : null}
