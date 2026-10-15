@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   canAccessPanel,
+  clampIranMobileInput,
   isValidIranMobile,
   loginPathForPanel,
   normalizeIranMobile,
   panelPathForRole,
   roleLabel,
+  toAsciiDigits,
 } from "./auth";
 import type { PublicAuthUser } from "./types";
 
@@ -73,15 +75,40 @@ describe("canAccessPanel", () => {
 });
 
 describe("mobile normalize", () => {
-  it("normalizes common Iranian formats", () => {
+  it("converts Persian and Arabic-Indic digits to ASCII", () => {
+    expect(toAsciiDigits("۰۱۲۳۴۵۶۷۸۹")).toBe("0123456789");
+    expect(toAsciiDigits("٠١٢٣٤٥٦٧٨٩")).toBe("0123456789");
+  });
+
+  it("normalizes common Iranian formats (English)", () => {
     expect(normalizeIranMobile("0912 123 4567")).toBe("09121234567");
     expect(normalizeIranMobile("9121234567")).toBe("09121234567");
     expect(normalizeIranMobile("+98 912 123 4567")).toBe("09121234567");
+    expect(normalizeIranMobile("989121234567")).toBe("09121234567");
   });
 
-  it("validates 09xxxxxxxxx", () => {
+  it("normalizes Persian digits to 09xxxxxxxxx", () => {
+    expect(normalizeIranMobile("۰۹۱۲۱۲۳۴۵۶۷")).toBe("09121234567");
+    expect(normalizeIranMobile("+۹۸ ۹۱۲ ۱۲۳ ۴۵۶۷")).toBe("09121234567");
+    expect(normalizeIranMobile("۹۱۲۱۲۳۴۵۶۷")).toBe("09121234567");
+  });
+
+  it("rejects wrong shapes after normalize", () => {
+    expect(isValidIranMobile(normalizeIranMobile("08121234567"))).toBe(false);
+    expect(isValidIranMobile(normalizeIranMobile("0912123456"))).toBe(false);
+    expect(isValidIranMobile(normalizeIranMobile("۰۸۱۲۱۲۳۴۵۶۷"))).toBe(false);
+  });
+
+  it("clamps long input so endless digits cannot be typed", () => {
+    expect(clampIranMobileInput("0912123456789012345")).toBe("091212345678");
+    expect(clampIranMobileInput("۰۹۱۲۱۲۳۴۵۶۷۸۹۰۱۲۳۴۵")).toHaveLength(12);
+    expect(clampIranMobileInput("+98 912 123 4567")).toBe("+98 912 123 4567");
+  });
+
+  it("validates standard 09xxxxxxxxx only", () => {
     expect(isValidIranMobile("09121234567")).toBe(true);
     expect(isValidIranMobile("0912123456")).toBe(false);
     expect(isValidIranMobile("08121234567")).toBe(false);
+    expect(isValidIranMobile("۰۹۱۲۱۲۳۴۵۶۷")).toBe(false);
   });
 });

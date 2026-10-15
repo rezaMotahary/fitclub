@@ -4,8 +4,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { ApiError, staffLogin } from "@/lib/api";
-import { panelPathForRole } from "@/lib/auth";
+import {
+  isValidIranMobile,
+  normalizeIranMobile,
+  panelPathForRole,
+} from "@/lib/auth";
 import { ThemeToggle } from "./ThemeToggle";
+
+function resolveStaffIdentifier(raw: string): string {
+  const trimmed = raw.trim();
+  if (trimmed.includes("@")) return trimmed;
+  const phone = normalizeIranMobile(trimmed);
+  return isValidIranMobile(phone) ? phone : trimmed;
+}
 
 export function StaffLoginForm() {
   const router = useRouter();
@@ -19,7 +30,7 @@ export function StaffLoginForm() {
     setError(null);
     setPending(true);
     try {
-      const res = await staffLogin(identifier.trim(), password);
+      const res = await staffLogin(resolveStaffIdentifier(identifier), password);
       router.replace(panelPathForRole(res.user.role));
     } catch (err) {
       if (err instanceof ApiError) {

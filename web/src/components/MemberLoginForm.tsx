@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { ApiError, requestMemberOtp, verifyMemberOtp } from "@/lib/api";
-import { isValidIranMobile, normalizeIranMobile } from "@/lib/auth";
+import {
+  clampIranMobileInput,
+  isValidIranMobile,
+  normalizeIranMobile,
+} from "@/lib/auth";
 import { ThemeToggle } from "./ThemeToggle";
 
 type Step = "phone" | "code";
@@ -86,7 +90,7 @@ export function MemberLoginForm() {
                 dir="ltr"
                 className="ltr-isolate"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setPhone(clampIranMobileInput(e.target.value))}
                 placeholder="09121234567"
                 required
               />

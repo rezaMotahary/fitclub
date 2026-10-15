@@ -13,6 +13,11 @@ import {
   tuitionDebt,
 } from '../common/subscription-period.js';
 import { todayIran } from '../common/iran-date.js';
+import {
+  isValidIranMobile,
+  normalizeIranMobile,
+  toAsciiDigits,
+} from '../common/iran-mobile.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { CreateMemberDto } from './dto/create-member.dto.js';
 
@@ -66,9 +71,10 @@ export class MembersService {
     };
 
     if (q) {
-      const digits = q.replace(/\D/g, '');
+      const asciiQ = toAsciiDigits(q);
+      const digits = asciiQ.replace(/\D/g, '');
       where.OR = [
-        { membershipCode: { contains: q, mode: 'insensitive' } },
+        { membershipCode: { contains: asciiQ, mode: 'insensitive' } },
         { user: { fullName: { contains: q, mode: 'insensitive' } } },
         ...(digits.length >= 3
           ? [{ user: { phone: { contains: digits } } }]
@@ -96,7 +102,10 @@ export class MembersService {
   }
 
   async create(dto: CreateMemberDto) {
-    const phone = dto.phone.trim();
+    const phone = normalizeIranMobile(dto.phone);
+    if (!isValidIranMobile(phone)) {
+      throw new BadRequestException('موبایل باید ۱۱ رقم و با ۰۹ شروع شود');
+    }
     const existing = await this.prisma.user.findUnique({ where: { phone } });
     if (existing) {
       throw new ConflictException('این موبایل قبلاً ثبت شده است');

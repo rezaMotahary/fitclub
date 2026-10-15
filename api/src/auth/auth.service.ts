@@ -6,6 +6,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Role, type User } from '@prisma/client';
+import {
+  isValidIranMobile,
+  normalizeIranMobile,
+} from '../common/iran-mobile.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
   createSessionToken,
@@ -130,9 +134,11 @@ export class AuthService {
     password: string,
   ): Promise<{ user: PublicAuthUser; token: string; expiresAt: Date }> {
     const trimmed = identifier.trim();
+    const phoneCandidate = normalizeIranMobile(trimmed);
+    const phone = isValidIranMobile(phoneCandidate) ? phoneCandidate : trimmed;
     const user = await this.prisma.user.findFirst({
       where: {
-        OR: [{ email: trimmed }, { phone: trimmed }],
+        OR: [{ email: trimmed }, { phone }],
         role: { in: [Role.SECRETARY, Role.ADMIN] },
       },
       include: { member: true },
@@ -163,7 +169,8 @@ export class AuthService {
     return null;
   }
 
-  async requestMemberOtp(phone: string): Promise<{ ok: true; expiresInSec: number }> {
+  async requestMemberOtp(rawPhone: string): Promise<{ ok: true; expiresInSec: number }> {
+    const phone = normalizeIranMobile(rawPhone);
     const user = await this.prisma.user.findUnique({
       where: { phone },
       include: { member: true },
@@ -204,9 +211,10 @@ export class AuthService {
   }
 
   async verifyMemberOtp(
-    phone: string,
+    rawPhone: string,
     code: string,
   ): Promise<{ user: PublicAuthUser; token: string; expiresAt: Date }> {
+    const phone = normalizeIranMobile(rawPhone);
     const user = await this.prisma.user.findUnique({
       where: { phone },
       include: { member: true },

@@ -11,7 +11,7 @@ import {
   logout,
   searchMembers,
 } from "@/lib/api";
-import { roleLabel } from "@/lib/auth";
+import { roleLabel, toAsciiDigits } from "@/lib/auth";
 import type { MemberSummary, PlanPublic, PublicAuthUser } from "@/lib/types";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -79,7 +79,8 @@ export function StaffDesk({
     setError(null);
     setNote(null);
     try {
-      await loadMembers(query.trim());
+      // رقم فارسی در جستجوی موبایل مثل انگلیسی کار کند
+      await loadMembers(toAsciiDigits(query.trim()));
       setNote("نتیجه جستجو به‌روز شد.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "جستجو ناموفق بود");
@@ -100,7 +101,7 @@ export function StaffDesk({
         await archiveMember(m.id);
         setNote(`${m.fullName} آرشیو شد.`);
       }
-      await loadMembers(query.trim());
+      await loadMembers(toAsciiDigits(query.trim()));
     } catch (err) {
       setError(err instanceof Error ? err.message : "عملیات ناموفق بود");
     } finally {
