@@ -17,6 +17,7 @@
 | [user-flows.md](./user-flows.md) | جریان‌های اصلی قدم‌به‌قدم |
 | [mvp-scope.md](./mvp-scope.md) | هست / نیست نسخه اول |
 | [open-questions.md](./open-questions.md) | سؤال‌های باز؛ تا جواب نیاید حدس زده نمی‌شود |
+| [known-issues.md](./known-issues.md) | باگ‌های گزارش‌شدهٔ مالک برای فیکس بعدی |
 | [dev-environment.md](./dev-environment.md) | وضعیت نصب ابزارها + راهنمای نصب PostgreSQL |
 | [handoff.md](./handoff.md) | حافظهٔ سشن بعد — از اینجا ادامه ساخت اپ |
 | [collaboration.md](./collaboration.md) | سبک همکاری vibe coding — الزامی |
