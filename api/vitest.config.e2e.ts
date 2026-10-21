@@ -7,5 +7,7 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['**/*.e2e-spec.ts'],
+    // Shared local Postgres — avoid cross-file races on seed members/payments
+    fileParallelism: false,
   },
 });

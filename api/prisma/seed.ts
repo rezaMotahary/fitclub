@@ -242,18 +242,52 @@ async function main() {
       const sub = user.member.subscriptions[0];
       if (sub && amountPaidToman > 0 && !(m.isArchived ?? false)) {
         // paidAt نزدیک امروز تا درآمد «ماه جاری» در نمای مدیر همیشه پر باشد
-        await prisma.payment.create({
-          data: {
-            memberId: user.member.id,
-            subscriptionId: sub.id,
-            amountToman: amountPaidToman,
-            method: PaymentMethod.CASH,
-            status: PaymentStatus.CONFIRMED,
-            title: `فروش اشتراک ${plan.name}`,
-            paidAt: dayFromToday(Math.max(m.startsOffsetDays, -10)),
-            note: 'پرداخت نمونه seed',
-          },
-        });
+        const basePaidAt = dayFromToday(Math.max(m.startsOffsetDays, -10));
+        if (m.debtAmount > 0) {
+          // بدهکار: فقط نصف (یا مانده) — برای تست قسط/تسویه در پذیرش
+          await prisma.payment.create({
+            data: {
+              memberId: user.member.id,
+              subscriptionId: sub.id,
+              amountToman: amountPaidToman,
+              method: PaymentMethod.CASH,
+              status: PaymentStatus.CONFIRMED,
+              title: `فروش اشتراک ${plan.name}`,
+              paidAt: basePaidAt,
+              note: 'پرداخت نصف نمونه — بدهی مانده',
+            },
+          });
+        } else {
+          // تسویه‌شدهٔ نمونه: دو قسط (نصف + تسویه) تا سوابق خالی نباشد
+          const half = Math.ceil(plan.priceToman / 2);
+          const rest = plan.priceToman - half;
+          await prisma.payment.create({
+            data: {
+              memberId: user.member.id,
+              subscriptionId: sub.id,
+              amountToman: half,
+              method: PaymentMethod.CASH,
+              status: PaymentStatus.CONFIRMED,
+              title: `فروش اشتراک ${plan.name}`,
+              paidAt: basePaidAt,
+              note: 'قسط اول نمونه seed',
+            },
+          });
+          if (rest > 0) {
+            await prisma.payment.create({
+              data: {
+                memberId: user.member.id,
+                subscriptionId: sub.id,
+                amountToman: rest,
+                method: PaymentMethod.CARD_READER,
+                status: PaymentStatus.CONFIRMED,
+                title: `تسویه شهریه ${plan.name}`,
+                paidAt: dayFromToday(Math.max(m.startsOffsetDays + 3, -5)),
+                note: 'تسویه ماندهٔ نمونه seed',
+              },
+            });
+          }
+        }
       }
     }
   }

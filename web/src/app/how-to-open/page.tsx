@@ -53,6 +53,15 @@ export default function HowToOpenPage() {
               09121234567 — OTP 123456
             </span>
           </p>
+          <p>
+            <strong>پرداخت پذیرش:</strong> بعد از ورود منشی یا مدیر برو به{" "}
+            <Link href="/secretary/payments">/secretary/payments</Link> یا{" "}
+            <Link href="/admin/payments">/admin/payments</Link> — عضو بدهکار
+            نمونه:{" "}
+            <span className="ltr-isolate" dir="ltr">
+              FS-1046
+            </span>
+          </p>
         </div>
 
         <div className="cta-row auth-links">

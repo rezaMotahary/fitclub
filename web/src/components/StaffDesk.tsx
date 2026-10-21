@@ -156,6 +156,12 @@ export function StaffDesk({
         </div>
         <div className="desk-actions">
           <ThemeToggle />
+          <Link
+            className="btn btn-ghost"
+            href={panel === "admin" ? "/admin/payments" : "/secretary/payments"}
+          >
+            پرداخت پذیرش
+          </Link>
           <button type="button" className="btn btn-ghost" onClick={onLogout}>
             خروج
           </button>
@@ -308,14 +314,28 @@ export function StaffDesk({
                     <p className="desk-ok-inline">بدهی شهریه ندارد</p>
                   )}
                 </div>
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  disabled={busy}
-                  onClick={() => void onToggleArchive(m)}
-                >
-                  {m.isArchived ? "فعال‌سازی" : "آرشیو"}
-                </button>
+                <div className="att-live-actions">
+                  {m.debtAmount > 0 ? (
+                    <Link
+                      className="btn btn-primary"
+                      href={
+                        panel === "admin"
+                          ? `/admin/payments`
+                          : `/secretary/payments`
+                      }
+                    >
+                      ثبت پرداخت
+                    </Link>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    disabled={busy}
+                    onClick={() => void onToggleArchive(m)}
+                  >
+                    {m.isArchived ? "فعال‌سازی" : "آرشیو"}
+                  </button>
+                </div>
               </article>
             ))
           )}

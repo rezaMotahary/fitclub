@@ -1197,6 +1197,27 @@ textarea.ltr-isolate {
   font-size: 0.92rem;
 }
 
+.pay-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.pay-field {
+  display: grid;
+  gap: 6px;
+  font-size: 0.92rem;
+}
+
+.pay-field input,
+.pay-field select {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--text);
+}
+
 @media (max-width: 640px) {
   .desk-top {
     flex-direction: column;

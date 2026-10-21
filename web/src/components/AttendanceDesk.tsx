@@ -249,6 +249,9 @@ export function AttendanceDesk() {
         </div>
         <div className="desk-actions">
           <ThemeToggle />
+          <Link className="btn btn-ghost" href="/secretary/payments">
+            پرداخت پذیرش
+          </Link>
           <button type="button" className="btn btn-ghost" onClick={onLogout}>
             خروج
           </button>

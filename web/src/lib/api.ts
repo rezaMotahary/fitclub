@@ -7,10 +7,13 @@ import type {
   AuthMeResponse,
   CheckInResponse,
   MemberDashboard,
+  MemberDetail,
   MemberOtpRequestResponse,
   MemberOtpVerifyResponse,
   MemberSummary,
+  PaymentPublic,
   PlanPublic,
+  RecordPaymentResponse,
   StaffLoginResponse,
 } from "./types";
 
@@ -185,4 +188,40 @@ export function fetchMemberDashboard() {
 
 export function fetchAdminOverview() {
   return apiFetch<AdminOverview>("/dashboard/admin");
+}
+
+export function fetchMember(id: string) {
+  return apiFetch<MemberDetail>(`/members/${id}`);
+}
+
+export function listPayments(params: {
+  memberId?: string;
+  q?: string;
+  method?: string;
+  limit?: number;
+} = {}) {
+  const search = new URLSearchParams();
+  if (params.memberId) search.set("memberId", params.memberId);
+  if (params.q) search.set("q", params.q);
+  if (params.method) search.set("method", params.method);
+  if (params.limit) search.set("limit", String(params.limit));
+  const qs = search.toString();
+  return apiFetch<PaymentPublic[]>(`/payments${qs ? `?${qs}` : ""}`);
+}
+
+export function listMyPayments() {
+  return apiFetch<PaymentPublic[]>("/payments/me");
+}
+
+export function recordReceptionPayment(body: {
+  memberId: string;
+  subscriptionId?: string;
+  amountToman: number;
+  method: "CASH" | "CARD_READER" | "CARD_TRANSFER";
+  note?: string;
+}) {
+  return apiFetch<RecordPaymentResponse>("/payments", {
+    method: "POST",
+    body,
+  });
 }

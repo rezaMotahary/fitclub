@@ -54,6 +54,74 @@ export type MemberSummary = {
   subscriptionEndsOn: string | null;
 };
 
+export type MemberSubscriptionPublic = {
+  id: string;
+  status: string;
+  phase: "current" | "upcoming" | "expired";
+  plan: {
+    id: string;
+    name: string;
+    daysPerWeek: number;
+    weeklyCap: number;
+  };
+  startsOn: string;
+  endsOn: string;
+  priceToman: number;
+  amountPaidToman: number;
+  discountPercentApplied: number;
+  debtToman: number;
+  remainingDays: number;
+  debtBlocksEntry: boolean;
+};
+
+export type MemberDetail = {
+  id: string;
+  membershipCode: string;
+  fullName: string;
+  phone: string | null;
+  email: string | null;
+  sessionGender: "MEN" | "WOMEN";
+  isArchived: boolean;
+  coachName: string | null;
+  notes: string | null;
+  debtAmount: number;
+  currentSubscription: MemberSubscriptionPublic | null;
+  upcomingSubscription: MemberSubscriptionPublic | null;
+};
+
+export type PaymentPublic = {
+  id: string;
+  memberId: string;
+  subscriptionId: string | null;
+  amountToman: number;
+  method: string;
+  status: string;
+  title: string;
+  paidAt: string;
+  note: string | null;
+  member?: {
+    membershipCode: string;
+    fullName: string;
+    phone: string | null;
+  };
+};
+
+export type RecordPaymentResponse = {
+  payment: PaymentPublic;
+  subscription: {
+    id: string;
+    priceToman: number;
+    amountPaidToman: number;
+    debtToman: number;
+    startsOn: string;
+    endsOn: string;
+    planName: string;
+  };
+  member: MemberDetail;
+  fullySettled: boolean;
+  debtBlocksEntry: boolean;
+};
+
 export type AttendanceResult =
   | "SUCCESS"
   | "REJECTED_WEEKLY_CAP"
