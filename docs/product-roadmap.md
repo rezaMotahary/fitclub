@@ -100,5 +100,6 @@
 
 - handoff: `docs/handoff.md`  
 - UI پنل‌ها: `docs/ui-ux-panels.md`  
-- سؤال باز آفر: `docs/open-questions.md`  
+- آفر/قیمت و آیندهٔ کد تخفیف: `docs/open-questions.md`  
+- بازبینی متن: `docs/copy-review.md`  
 - محدوده MVP: `docs/mvp-scope.md`  
