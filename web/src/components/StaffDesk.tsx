@@ -12,6 +12,7 @@ import {
   searchMembers,
 } from "@/lib/api";
 import { roleLabel, toAsciiDigits } from "@/lib/auth";
+import { formatJalaliDay } from "@/lib/jalali-date";
 import type { MemberSummary, PlanPublic, PublicAuthUser } from "@/lib/types";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -216,7 +217,7 @@ export function StaffDesk({
                   <p>
                     {m.currentPlanName ?? "بدون اشتراک جاری"}
                     {m.subscriptionEndsOn
-                      ? ` · پایان: ${m.subscriptionEndsOn}`
+                      ? ` · پایان: ${formatJalaliDay(m.subscriptionEndsOn)}`
                       : ""}
                   </p>
                   {m.debtAmount > 0 ? (

@@ -20,6 +20,7 @@ import {
   resultLabel,
 } from "@/lib/attendance-format";
 import { roleLabel, toAsciiDigits } from "@/lib/auth";
+import { formatJalaliDay } from "@/lib/jalali-date";
 import type {
   AttendanceEligibilityResponse,
   AttendanceInsideResponse,
@@ -341,8 +342,11 @@ export function AttendanceDesk() {
                       </span>
                     </h3>
                     <p className="auth-muted">
-                      {snapshot.member.currentPlanName ?? "بدون اشتراک جاری"} ·
-                      سانس {genderLabel(snapshot.member.sessionGender)} · مانده
+                      {snapshot.member.currentPlanName ?? "بدون اشتراک جاری"}
+                      {snapshot.member.subscriptionEndsOn
+                        ? ` · پایان: ${formatJalaliDay(snapshot.member.subscriptionEndsOn)}`
+                        : ""}{" "}
+                      · سانس {genderLabel(snapshot.member.sessionGender)} · مانده
                       هفته{" "}
                       {snapshot.weekly.remaining.toLocaleString("fa-IR")} از{" "}
                       {snapshot.weekly.weeklyCap.toLocaleString("fa-IR")}
@@ -480,7 +484,15 @@ export function AttendanceDesk() {
         </section>
 
         <section className="desk-section att-section" id="today">
-          <h2>لاگ امروز</h2>
+          <h2>
+            لاگ امروز
+            {today?.day ? (
+              <span className="auth-muted">
+                {" "}
+                · {formatJalaliDay(today.day)}
+              </span>
+            ) : null}
+          </h2>
           {!today || today.items.length === 0 ? (
             <p className="auth-muted">هنوز رکوردی برای امروز نیست.</p>
           ) : (
