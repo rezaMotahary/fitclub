@@ -161,3 +161,96 @@ export type CheckInResponse = {
   attendance: AttendanceRecord;
   member: AttendanceEligibilityResponse["member"];
 };
+
+export type MemberNotice = {
+  type: "expiry" | "expired" | "debt" | "weekly_cap" | "no_subscription";
+  message: string;
+};
+
+export type MemberDashboard = {
+  profile: {
+    id: string;
+    membershipCode: string;
+    fullName: string;
+    phone: string | null;
+    email: string | null;
+    sessionGender: "MEN" | "WOMEN";
+    coachName: string | null;
+    isArchived: boolean;
+  };
+  subscription: {
+    planName: string;
+    weeklyCap: number;
+    startsOn: string;
+    endsOn: string;
+    remainingDays: number | null;
+    phase: "current";
+    priceToman: number;
+    amountPaidToman: number;
+    debtToman: number;
+  } | null;
+  upcomingSubscription: {
+    planName: string;
+    weeklyCap: number;
+    startsOn: string;
+    endsOn: string;
+    phase: "upcoming";
+  } | null;
+  weekly: {
+    startDay: string;
+    endDay: string;
+    weeklyCap: number;
+    countedDays: string[];
+    usedDays: number;
+    remaining: number;
+    calendar: Array<{
+      day: string;
+      weekdayLabel: string;
+      counted: boolean;
+      isToday: boolean;
+    }>;
+  };
+  notices: MemberNotice[];
+  recentAttendance: Array<{
+    id: string;
+    checkInAt: string;
+    checkOutAt: string | null;
+    durationMinutes: number | null;
+    closedAutomatically: boolean;
+    isVoided: boolean;
+    isOpen: boolean;
+    recordedByName: string | null;
+  }>;
+  payments: Array<{
+    id: string;
+    title: string;
+    amountToman: number;
+    method: string;
+    status: string;
+    paidAt: string;
+    note: string | null;
+  }>;
+};
+
+export type AdminOverview = {
+  activeMembers: number;
+  attendanceToday: {
+    day: string;
+    checkInsToday: number;
+    insideNow: number;
+    rejectedToday: number;
+  };
+  expiringSoon: Array<{
+    id: string;
+    membershipCode: string;
+    fullName: string;
+    planName: string;
+    endsOn: string;
+    remainingDays: number;
+  }>;
+  receptionRevenueThisMonth: {
+    amountToman: number;
+    paymentCount: number;
+    monthLabel: string;
+  };
+};

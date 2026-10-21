@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { AuthGate } from "@/components/AuthGate";
+import { MemberDashboard } from "@/components/MemberDashboard";
 
 export const metadata: Metadata = {
   title: "پنل اعضا | فیت‌کلاب",
 };
 
 export default function MemberPage() {
-  return <AuthGate panel="member" title="پنل اعضا" />;
+  return <MemberDashboard />;
 }

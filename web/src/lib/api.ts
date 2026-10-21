@@ -1,10 +1,12 @@
 import type {
+  AdminOverview,
   AttendanceEligibilityResponse,
   AttendanceInsideResponse,
   AttendanceRecord,
   AttendanceTodayResponse,
   AuthMeResponse,
   CheckInResponse,
+  MemberDashboard,
   MemberOtpRequestResponse,
   MemberOtpVerifyResponse,
   MemberSummary,
@@ -175,4 +177,12 @@ export function voidAttendance(id: string, reason?: string) {
       body: reason ? { reason } : {},
     },
   );
+}
+
+export function fetchMemberDashboard() {
+  return apiFetch<MemberDashboard>("/dashboard/me");
+}
+
+export function fetchAdminOverview() {
+  return apiFetch<AdminOverview>("/dashboard/admin");
 }

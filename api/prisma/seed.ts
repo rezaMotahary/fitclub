@@ -6,6 +6,8 @@
  */
 import {
   AttendanceResult,
+  PaymentMethod,
+  PaymentStatus,
   PrismaClient,
   Role,
   SessionGender,
@@ -115,12 +117,13 @@ async function main() {
 
   const members: MemberSeed[] = [
     {
+      // ~۱۲ روز مانده → اعلان نزدیک انقضا در داشبورد عضو نمونه
       code: 'FS-1042',
       fullName: 'سارا کریمی',
       phone: '09121234567',
       gender: SessionGender.WOMEN,
       daysPerWeek: 3,
-      startsOffsetDays: -12,
+      startsOffsetDays: -18,
       debtAmount: 0,
       coachName: 'نیلوفر کاظمی',
     },
@@ -199,6 +202,10 @@ async function main() {
     const plan = planByDays[m.daysPerWeek];
     const startsAt = dayFromToday(m.startsOffsetDays);
     const endsAt = dayFromToday(m.startsOffsetDays + 29);
+    const amountPaidToman =
+      m.debtAmount > 0
+        ? Math.max(0, plan.priceToman - m.debtAmount)
+        : plan.priceToman;
 
     const user = await prisma.user.create({
       data: {
@@ -220,19 +227,34 @@ async function main() {
                 startsAt,
                 endsAt,
                 priceToman: plan.priceToman,
-                amountPaidToman:
-                  m.debtAmount > 0
-                    ? Math.max(0, plan.priceToman - m.debtAmount)
-                    : plan.priceToman,
+                amountPaidToman,
               },
             },
           },
         },
       },
-      include: { member: true },
+      include: {
+        member: { include: { subscriptions: true } },
+      },
     });
     if (user.member) {
       memberIdsByCode[m.code] = user.member.id;
+      const sub = user.member.subscriptions[0];
+      if (sub && amountPaidToman > 0 && !(m.isArchived ?? false)) {
+        // paidAt نزدیک امروز تا درآمد «ماه جاری» در نمای مدیر همیشه پر باشد
+        await prisma.payment.create({
+          data: {
+            memberId: user.member.id,
+            subscriptionId: sub.id,
+            amountToman: amountPaidToman,
+            method: PaymentMethod.CASH,
+            status: PaymentStatus.CONFIRMED,
+            title: `فروش اشتراک ${plan.name}`,
+            paidAt: dayFromToday(Math.max(m.startsOffsetDays, -10)),
+            note: 'پرداخت نمونه seed',
+          },
+        });
+      }
     }
   }
 
@@ -304,9 +326,28 @@ async function main() {
     });
   }
 
-  // حضور باز نمونه (سارا) — اگر سانس بانوان تمام شده باشد، API با ساعت پایان می‌بندد
+  // سارا (عضو OTP نمونه): حضور بسته‌شدهٔ هفته + حضور باز امروز برای داشبورد عضو
   const openMemberId = memberIdsByCode['FS-1042'];
   if (openMemberId) {
+    const saraPastDays: string[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = addIranDays(week.startDay, i);
+      if (d < today) saraPastDays.push(d);
+    }
+    for (const day of saraPastDays.slice(0, 2)) {
+      const checkInAt = iranWallDateTime(day, '09:00');
+      const checkOutAt = iranWallDateTime(day, '10:20');
+      await prisma.attendance.create({
+        data: {
+          memberId: openMemberId,
+          checkInAt,
+          checkOutAt,
+          durationMinutes: 80,
+          result: AttendanceResult.SUCCESS,
+          recordedById: secretary.id,
+        },
+      });
+    }
     await prisma.attendance.create({
       data: {
         memberId: openMemberId,

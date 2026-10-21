@@ -6,19 +6,22 @@ import {
   ApiError,
   activateMember,
   archiveMember,
+  fetchAdminOverview,
   fetchMe,
   fetchPlans,
   logout,
   searchMembers,
 } from "@/lib/api";
 import { roleLabel, toAsciiDigits } from "@/lib/auth";
+import { formatToman } from "@/lib/dashboard-format";
 import { formatJalaliDay } from "@/lib/jalali-date";
-import type { MemberSummary, PlanPublic, PublicAuthUser } from "@/lib/types";
+import type {
+  AdminOverview,
+  MemberSummary,
+  PlanPublic,
+  PublicAuthUser,
+} from "@/lib/types";
 import { ThemeToggle } from "./ThemeToggle";
-
-function formatToman(n: number): string {
-  return `${n.toLocaleString("fa-IR")} تومان`;
-}
 
 export function StaffDesk({
   panel,
@@ -35,6 +38,7 @@ export function StaffDesk({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [overview, setOverview] = useState<AdminOverview | null>(null);
 
   const loadPlans = useCallback(async () => {
     const list = await fetchPlans(panel === "admin");
@@ -57,7 +61,15 @@ export function StaffDesk({
         const me = await fetchMe();
         if (cancelled) return;
         setUser(me.user);
-        await Promise.all([loadPlans(), loadMembers("")]);
+        const tasks: Promise<unknown>[] = [loadPlans(), loadMembers("")];
+        if (panel === "admin") {
+          tasks.push(
+            fetchAdminOverview().then((o) => {
+              if (!cancelled) setOverview(o);
+            }),
+          );
+        }
+        await Promise.all(tasks);
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
@@ -72,7 +84,7 @@ export function StaffDesk({
     return () => {
       cancelled = true;
     };
-  }, [loadMembers, loadPlans]);
+  }, [loadMembers, loadPlans, panel]);
 
   async function onSearch(e: FormEvent) {
     e.preventDefault();
@@ -155,6 +167,74 @@ export function StaffDesk({
 
       {error ? <p className="auth-error desk-banner">{error}</p> : null}
       {note ? <p className="desk-ok desk-banner">{note}</p> : null}
+
+      {panel === "admin" && overview ? (
+        <section className="desk-section desk-section-first">
+          <h2>نمای کلی</h2>
+          <p className="auth-muted">
+            فقط درآمد پذیرش (شهریه و خدمات). اجاره، حقوق و بوفه در نسخهٔ اول
+            نیست.
+          </p>
+          <div className="dash-stats">
+            <article className="att-stat">
+              <div className="label">اعضای فعال</div>
+              <div className="value">
+                {overview.activeMembers.toLocaleString("fa-IR")}
+              </div>
+            </article>
+            <article className="att-stat">
+              <div className="label">حضور امروز</div>
+              <div className="value ok">
+                {overview.attendanceToday.checkInsToday.toLocaleString("fa-IR")}
+              </div>
+              <p className="dash-stat-hint">
+                الان داخل:{" "}
+                {overview.attendanceToday.insideNow.toLocaleString("fa-IR")} · رد
+                امروز:{" "}
+                {overview.attendanceToday.rejectedToday.toLocaleString("fa-IR")}
+              </p>
+            </article>
+            <article className="att-stat">
+              <div className="label">
+                درآمد پذیرش · {overview.receptionRevenueThisMonth.monthLabel}
+              </div>
+              <div className="value dash-stat-text">
+                {formatToman(overview.receptionRevenueThisMonth.amountToman)}
+              </div>
+              <p className="dash-stat-hint">
+                {overview.receptionRevenueThisMonth.paymentCount.toLocaleString(
+                  "fa-IR",
+                )}{" "}
+                پرداخت
+              </p>
+            </article>
+          </div>
+
+          <h3 className="dash-subhead">اشتراک نزدیک انقضا (۱۴ روز یا کمتر)</h3>
+          {overview.expiringSoon.length === 0 ? (
+            <p className="auth-muted">در این بازه کسی نیست.</p>
+          ) : (
+            <ul className="dash-list">
+              {overview.expiringSoon.map((m) => (
+                <li key={m.id} className="dash-list-item">
+                  <div>
+                    <strong>
+                      {m.fullName}{" "}
+                      <span className="desk-code">{m.membershipCode}</span>
+                    </strong>
+                    <p className="auth-muted">
+                      {m.planName} · پایان {formatJalaliDay(m.endsOn)}
+                    </p>
+                  </div>
+                  <span className="dash-list-meta warn">
+                    {m.remainingDays.toLocaleString("fa-IR")} روز
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : null}
 
       <section className="desk-section">
         <h2>پلن‌های نمونه</h2>
