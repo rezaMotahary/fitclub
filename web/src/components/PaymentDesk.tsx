@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import {
   ApiError,
   fetchMe,
@@ -25,6 +32,7 @@ import {
   paymentMethodLabel,
 } from "@/lib/dashboard-format";
 import { formatJalaliDateTime, formatJalaliDay } from "@/lib/jalali-date";
+import { createLatestGate, pickInitialMember } from "@/lib/member-select";
 import { defaultRenewPlanId } from "@/lib/renew-plan-default";
 import {
   minimumHalfTuition,
@@ -82,6 +90,9 @@ export function PaymentDesk({
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
 
+  const plansRef = useRef<PlanPublic[]>([]);
+  const selectGate = useRef(createLatestGate()).current;
+
   const loadRecent = useCallback(async () => {
     const list = await listPayments({
       method: filterMethod || undefined,
@@ -90,27 +101,28 @@ export function PaymentDesk({
     setRecent(list);
   }, [filterMethod]);
 
+  // Stable identity: boot must not re-run when plans change (KI-007).
   const selectMember = useCallback(
-    async (id: string, planList?: PlanPublic[]) => {
+    async (id: string) => {
+      const ticket = selectGate.begin();
       const [detail, pays] = await Promise.all([
         fetchMember(id),
         listPayments({ memberId: id, limit: 30 }),
       ]);
+      if (!selectGate.isLatest(ticket)) return;
       setSelected(detail);
       setHistory(pays);
       setAmountRaw("");
       setNote("");
       setRenewAmountRaw("");
-      // KI-007: پیش‌فرض فقط اینجا — انتخاب دستی کاربر دیگر ریست نمی‌شود
-      const list = planList ?? plans;
       setRenewPlanId(
         defaultRenewPlanId(
           detail.currentSubscription?.plan.id,
-          list.map((p) => p.id),
+          plansRef.current.map((p) => p.id),
         ),
       );
     },
-    [plans],
+    [selectGate],
   );
 
   useEffect(() => {
@@ -132,18 +144,13 @@ export function PaymentDesk({
         const [list, planList] = await Promise.all([
           searchMembers(""),
           fetchPlans(false),
-          loadRecent(),
         ]);
         if (cancelled) return;
+        plansRef.current = planList;
         setMembers(list);
         setPlans(planList);
-        // بدهکار یا نزدیک انقضا برای پر بودن صفحه
-        const debtor = list.find((m) => m.debtAmount > 0);
-        const nearExpiry = list.find(
-          (m) => m.membershipCode === "FS-1042" || m.currentPhase === "current",
-        );
-        const pick = debtor ?? nearExpiry ?? list[0];
-        if (pick) await selectMember(pick.id, planList);
+        const pick = pickInitialMember(list);
+        if (pick) await selectMember(pick.id);
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
@@ -158,13 +165,21 @@ export function PaymentDesk({
     return () => {
       cancelled = true;
     };
-  }, [loadRecent, panel, selectMember]);
+  }, [panel, selectMember]);
 
   useEffect(() => {
-    void loadRecent().catch(() => {
-      /* ignore until boot */
-    });
-  }, [loadRecent]);
+    let cancelled = false;
+    listPayments({ method: filterMethod || undefined, limit: 25 })
+      .then((list) => {
+        if (!cancelled) setRecent(list);
+      })
+      .catch(() => {
+        /* first load may race the auth redirect */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [filterMethod]);
 
   const debt =
     selected?.currentSubscription?.debtToman ?? selected?.debtAmount ?? 0;
@@ -518,7 +533,7 @@ export function PaymentDesk({
                     دورهٔ بعدی از قبل ثبت شده؛ تا شروع آن تمدید دوباره مجاز
                     نیست.
                   </p>
-                ) : !canRenewEarly ? (
+                ) : !canRenewEarly || !selected.currentSubscription ? (
                   <p className="auth-muted">
                     برای تمدید زودتر، عضوی با اشتراک جاری و بدون دورهٔ بعدی لازم
                     است (نمونه: سارا FS-1042).
