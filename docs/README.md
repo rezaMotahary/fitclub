@@ -16,6 +16,8 @@
 | [domain-glossary.md](./domain-glossary.md) | واژه‌نامه ساده |
 | [user-flows.md](./user-flows.md) | جریان‌های اصلی قدم‌به‌قدم |
 | [mvp-scope.md](./mvp-scope.md) | هست / نیست نسخه اول |
+| [product-roadmap.md](./product-roadmap.md) | نقشه راه + بازخورد مالک (مدیر / منشی / ظاهر) |
+| [ui-ux-panels.md](./ui-ux-panels.md) | بازنگری ظاهر و دسکتاپ پنل‌ها — تأیید نشده |
 | [open-questions.md](./open-questions.md) | سؤال‌های باز؛ تا جواب نیاید حدس زده نمی‌شود |
 | [known-issues.md](./known-issues.md) | باگ‌های گزارش‌شدهٔ مالک برای فیکس بعدی |
 | [dev-environment.md](./dev-environment.md) | وضعیت نصب ابزارها + راهنمای نصب PostgreSQL |
