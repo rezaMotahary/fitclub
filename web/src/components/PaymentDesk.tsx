@@ -25,6 +25,7 @@ import {
   paymentMethodLabel,
 } from "@/lib/dashboard-format";
 import { formatJalaliDateTime, formatJalaliDay } from "@/lib/jalali-date";
+import { defaultRenewPlanId } from "@/lib/renew-plan-default";
 import {
   minimumHalfTuition,
   previewRenewTuition,
@@ -89,17 +90,28 @@ export function PaymentDesk({
     setRecent(list);
   }, [filterMethod]);
 
-  const selectMember = useCallback(async (id: string) => {
-    const [detail, pays] = await Promise.all([
-      fetchMember(id),
-      listPayments({ memberId: id, limit: 30 }),
-    ]);
-    setSelected(detail);
-    setHistory(pays);
-    setAmountRaw("");
-    setNote("");
-    setRenewAmountRaw("");
-  }, []);
+  const selectMember = useCallback(
+    async (id: string, planList?: PlanPublic[]) => {
+      const [detail, pays] = await Promise.all([
+        fetchMember(id),
+        listPayments({ memberId: id, limit: 30 }),
+      ]);
+      setSelected(detail);
+      setHistory(pays);
+      setAmountRaw("");
+      setNote("");
+      setRenewAmountRaw("");
+      // KI-007: پیش‌فرض فقط اینجا — انتخاب دستی کاربر دیگر ریست نمی‌شود
+      const list = planList ?? plans;
+      setRenewPlanId(
+        defaultRenewPlanId(
+          detail.currentSubscription?.plan.id,
+          list.map((p) => p.id),
+        ),
+      );
+    },
+    [plans],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -125,14 +137,13 @@ export function PaymentDesk({
         if (cancelled) return;
         setMembers(list);
         setPlans(planList);
-        if (planList[0]) setRenewPlanId(planList[0].id);
         // بدهکار یا نزدیک انقضا برای پر بودن صفحه
         const debtor = list.find((m) => m.debtAmount > 0);
         const nearExpiry = list.find(
           (m) => m.membershipCode === "FS-1042" || m.currentPhase === "current",
         );
         const pick = debtor ?? nearExpiry ?? list[0];
-        if (pick) await selectMember(pick.id);
+        if (pick) await selectMember(pick.id, planList);
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
@@ -154,16 +165,6 @@ export function PaymentDesk({
       /* ignore until boot */
     });
   }, [loadRecent]);
-
-  useEffect(() => {
-    if (!selected || plans.length === 0) return;
-    const currentPlanId = selected.currentSubscription?.plan.id;
-    if (currentPlanId && plans.some((p) => p.id === currentPlanId)) {
-      setRenewPlanId(currentPlanId);
-    } else if (!renewPlanId) {
-      setRenewPlanId(plans[0].id);
-    }
-  }, [selected, plans, renewPlanId]);
 
   const debt =
     selected?.currentSubscription?.debtToman ?? selected?.debtAmount ?? 0;
