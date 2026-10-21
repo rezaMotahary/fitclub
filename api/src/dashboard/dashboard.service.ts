@@ -10,6 +10,7 @@ import {
   type PaymentMethod,
 } from '@prisma/client';
 import type { AuthUser } from '../auth/auth.types.js';
+import { resolveDurationMinutes } from '../common/attendance-duration.js';
 import {
   countedDaysFromAttendances,
   weekContaining,
@@ -176,7 +177,11 @@ export class DashboardService {
         id: r.id,
         checkInAt: r.checkInAt.toISOString(),
         checkOutAt: r.checkOutAt?.toISOString() ?? null,
-        durationMinutes: r.durationMinutes,
+        durationMinutes: resolveDurationMinutes({
+          checkInAt: r.checkInAt,
+          checkOutAt: r.checkOutAt,
+          storedMinutes: r.durationMinutes,
+        }),
         closedAutomatically: r.closedAutomatically,
         isVoided: Boolean(r.voidedAt),
         isOpen: r.result === AttendanceResult.SUCCESS && !r.checkOutAt && !r.voidedAt,

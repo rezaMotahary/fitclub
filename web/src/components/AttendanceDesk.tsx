@@ -14,6 +14,7 @@ import {
   searchMembers,
   voidAttendance,
 } from "@/lib/api";
+import { resolveDurationMinutes } from "@/lib/attendance-duration";
 import {
   formatClockFa,
   formatElapsed,
@@ -497,7 +498,13 @@ export function AttendanceDesk() {
             <p className="auth-muted">هنوز رکوردی برای امروز نیست.</p>
           ) : (
             <div className="att-log">
-              {today.items.map((row) => (
+              {today.items.map((row) => {
+                const visitMinutes = resolveDurationMinutes({
+                  checkInAt: row.checkInAt,
+                  checkOutAt: row.checkOutAt,
+                  storedMinutes: row.durationMinutes,
+                });
+                return (
                 <article key={row.id} className="att-log-row">
                   <div>
                     <strong>
@@ -514,8 +521,8 @@ export function AttendanceDesk() {
                       {row.isVoided && row.voidReason
                         ? ` · ${row.voidReason}`
                         : ""}
-                      {row.durationMinutes != null && !row.isVoided
-                        ? ` · ${row.durationMinutes.toLocaleString("fa-IR")} دقیقه`
+                      {visitMinutes != null && !row.isVoided
+                        ? ` · ${visitMinutes.toLocaleString("fa-IR")} دقیقه`
                         : ""}
                     </p>
                   </div>
@@ -530,7 +537,8 @@ export function AttendanceDesk() {
                     </button>
                   ) : null}
                 </article>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>

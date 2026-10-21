@@ -326,9 +326,9 @@ async function main() {
     });
   }
 
-  // سارا (عضو OTP نمونه): حضور بسته‌شدهٔ هفته + حضور باز امروز برای داشبورد عضو
-  const openMemberId = memberIdsByCode['FS-1042'];
-  if (openMemberId) {
+  // سارا (عضو OTP نمونه): حضورهای بسته‌شده با مدت سازگار (نه حضور باز — KI-003)
+  const saraMemberId = memberIdsByCode['FS-1042'];
+  if (saraMemberId) {
     const saraPastDays: string[] = [];
     for (let i = 0; i < 7; i++) {
       const d = addIranDays(week.startDay, i);
@@ -339,7 +339,7 @@ async function main() {
       const checkOutAt = iranWallDateTime(day, '10:20');
       await prisma.attendance.create({
         data: {
-          memberId: openMemberId,
+          memberId: saraMemberId,
           checkInAt,
           checkOutAt,
           durationMinutes: 80,
@@ -348,10 +348,17 @@ async function main() {
         },
       });
     }
+    const todayIn = iranWallDateTime(today, '08:15');
+    const todayOut = iranWallDateTime(today, '10:01');
     await prisma.attendance.create({
       data: {
-        memberId: openMemberId,
-        checkInAt: iranWallDateTime(today, '08:15'),
+        memberId: saraMemberId,
+        checkInAt: todayIn,
+        checkOutAt: todayOut,
+        durationMinutes: Math.max(
+          0,
+          Math.floor((todayOut.getTime() - todayIn.getTime()) / 60_000),
+        ),
         result: AttendanceResult.SUCCESS,
         recordedById: secretary.id,
       },
@@ -384,7 +391,7 @@ async function main() {
       weeklyCapFull: 'FS-1045',
       voidedToday: 'FS-1043',
       autoClosed: 'FS-1048',
-      openOrAutoClosable: 'FS-1042',
+      closedTodayConsistent: 'FS-1042',
       debtRejectedLog: 'FS-1046',
     },
     note: 'Sample passwords in prisma/sample-credentials.ts (local only)',

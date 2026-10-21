@@ -115,18 +115,13 @@ describe('Attendance (e2e)', () => {
 
   it('secretary can evaluate eligibility; admin can view but not check-in', async () => {
     const sara = await memberByCode('FS-1042');
-    // clear any open visit from seed so eligibility is clean
-    await prisma.attendance.updateMany({
+    // Remove open seed visits — never close with a fake durationMinutes (KI-003)
+    await prisma.attendance.deleteMany({
       where: {
         memberId: sara.id,
         checkOutAt: null,
         voidedAt: null,
         result: AttendanceResult.SUCCESS,
-      },
-      data: {
-        checkOutAt: new Date(),
-        durationMinutes: 1,
-        closedAutomatically: false,
       },
     });
 

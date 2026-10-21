@@ -17,6 +17,7 @@ import {
   evaluateEntryEligibility,
   type EligibilityResult,
 } from '../common/attendance-eligibility.js';
+import { resolveDurationMinutes } from '../common/attendance-duration.js';
 import {
   countedDaysFromAttendances,
   weekContaining,
@@ -492,7 +493,11 @@ export class AttendanceService {
       memberId: row.memberId,
       checkInAt: row.checkInAt.toISOString(),
       checkOutAt: row.checkOutAt?.toISOString() ?? null,
-      durationMinutes: row.durationMinutes,
+      durationMinutes: resolveDurationMinutes({
+        checkInAt: row.checkInAt,
+        checkOutAt: row.checkOutAt,
+        storedMinutes: row.durationMinutes,
+      }),
       result: row.result,
       rejectReason: row.rejectReason,
       closedAutomatically: row.closedAutomatically,

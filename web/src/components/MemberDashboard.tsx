@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ApiError, fetchMemberDashboard, logout } from "@/lib/api";
+import { resolveDurationMinutes } from "@/lib/attendance-duration";
 import {
   formatDurationMinutes,
   formatToman,
@@ -241,7 +242,13 @@ export function MemberDashboard() {
                 <span className="dash-list-meta">
                   {a.isOpen
                     ? "باز"
-                    : formatDurationMinutes(a.durationMinutes)}
+                    : formatDurationMinutes(
+                        resolveDurationMinutes({
+                          checkInAt: a.checkInAt,
+                          checkOutAt: a.checkOutAt,
+                          storedMinutes: a.durationMinutes,
+                        }),
+                      )}
                 </span>
               </li>
             ))}
