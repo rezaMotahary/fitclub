@@ -117,7 +117,8 @@ async function main() {
 
   const members: MemberSeed[] = [
     {
-      // ~۱۲ روز مانده → اعلان نزدیک انقضا در داشبورد عضو نمونه
+      // ~۱۲ روز مانده → اعلان نزدیک انقضا + تست تمدید زودتر در پذیرش (KI-006)
+      // بدون upcoming؛ منشی/مدیر در /secretary/payments یا /admin/payments تمدید می‌زنند
       code: 'FS-1042',
       fullName: 'سارا کریمی',
       phone: '09121234567',

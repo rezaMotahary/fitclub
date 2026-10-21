@@ -14,6 +14,7 @@ import type {
   PaymentPublic,
   PlanPublic,
   RecordPaymentResponse,
+  RenewSubscriptionResponse,
   StaffLoginResponse,
 } from "./types";
 
@@ -221,6 +222,19 @@ export function recordReceptionPayment(body: {
   note?: string;
 }) {
   return apiFetch<RecordPaymentResponse>("/payments", {
+    method: "POST",
+    body,
+  });
+}
+
+export function renewSubscription(body: {
+  memberId: string;
+  planId: string;
+  amountPaidToman: number;
+  paymentMethod?: "CASH" | "CARD_READER" | "CARD_TRANSFER";
+  startsOn?: string;
+}) {
+  return apiFetch<RenewSubscriptionResponse>("/subscriptions/renew", {
     method: "POST",
     body,
   });

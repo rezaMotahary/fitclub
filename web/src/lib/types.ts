@@ -122,6 +122,27 @@ export type RecordPaymentResponse = {
   debtBlocksEntry: boolean;
 };
 
+export type RenewSubscriptionResponse = {
+  subscription: {
+    id: string;
+    status: string;
+    phase: "current" | "upcoming" | "expired";
+    plan: {
+      id: string;
+      name: string;
+      daysPerWeek: number;
+      weeklyCap: number;
+    };
+    startsOn: string;
+    endsOn: string;
+    priceToman: number;
+    amountPaidToman: number;
+    discountPercentApplied: number;
+    debtToman: number;
+  };
+  member: MemberDetail;
+};
+
 export type AttendanceResult =
   | "SUCCESS"
   | "REJECTED_WEEKLY_CAP"

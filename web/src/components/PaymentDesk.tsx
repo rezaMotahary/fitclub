@@ -1,27 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   ApiError,
   fetchMe,
   fetchMember,
+  fetchPlans,
   listPayments,
   logout,
   recordReceptionPayment,
+  renewSubscription,
   searchMembers,
 } from "@/lib/api";
-import { clampTomanInput, parseTomanInput } from "@/lib/amount-input";
+import {
+  formatTomanGrouped,
+  formatTomanInputLive,
+  parseTomanInput,
+  tomanAmountInWords,
+} from "@/lib/amount-input";
 import { roleLabel, toAsciiDigits } from "@/lib/auth";
 import {
   formatToman,
   paymentMethodLabel,
 } from "@/lib/dashboard-format";
 import { formatJalaliDateTime, formatJalaliDay } from "@/lib/jalali-date";
+import {
+  minimumHalfTuition,
+  previewRenewTuition,
+} from "@/lib/renew-preview";
 import type {
   MemberDetail,
   MemberSummary,
   PaymentPublic,
+  PlanPublic,
   PublicAuthUser,
 } from "@/lib/types";
 import { ThemeToggle } from "./ThemeToggle";
@@ -33,6 +45,14 @@ const METHODS: { value: PayMethod; label: string }[] = [
   { value: "CARD_READER", label: "کارت‌خوان" },
   { value: "CARD_TRANSFER", label: "کارت‌به‌کارت" },
 ];
+
+function memberChipHint(m: MemberSummary): string {
+  if (m.debtAmount > 0) return `بدهی ${formatToman(m.debtAmount)}`;
+  if (m.currentPhase === "current" && m.subscriptionEndsOn) {
+    return `پایان ${formatJalaliDay(m.subscriptionEndsOn)}`;
+  }
+  return "بدون بدهی شهریه";
+}
 
 export function PaymentDesk({
   panel,
@@ -46,6 +66,7 @@ export function PaymentDesk({
   const [user, setUser] = useState<PublicAuthUser | null>(null);
   const [query, setQuery] = useState("");
   const [members, setMembers] = useState<MemberSummary[]>([]);
+  const [plans, setPlans] = useState<PlanPublic[]>([]);
   const [selected, setSelected] = useState<MemberDetail | null>(null);
   const [history, setHistory] = useState<PaymentPublic[]>([]);
   const [recent, setRecent] = useState<PaymentPublic[]>([]);
@@ -53,6 +74,9 @@ export function PaymentDesk({
   const [amountRaw, setAmountRaw] = useState("");
   const [method, setMethod] = useState<PayMethod>("CASH");
   const [note, setNote] = useState("");
+  const [renewPlanId, setRenewPlanId] = useState("");
+  const [renewAmountRaw, setRenewAmountRaw] = useState("");
+  const [renewMethod, setRenewMethod] = useState<PayMethod>("CASH");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
@@ -74,6 +98,7 @@ export function PaymentDesk({
     setHistory(pays);
     setAmountRaw("");
     setNote("");
+    setRenewAmountRaw("");
   }, []);
 
   useEffect(() => {
@@ -92,17 +117,22 @@ export function PaymentDesk({
           return;
         }
         setUser(me.user);
-        const [list] = await Promise.all([
+        const [list, planList] = await Promise.all([
           searchMembers(""),
+          fetchPlans(false),
           loadRecent(),
         ]);
         if (cancelled) return;
         setMembers(list);
-        // بدهکار نمونه برای پر بودن صفحه
+        setPlans(planList);
+        if (planList[0]) setRenewPlanId(planList[0].id);
+        // بدهکار یا نزدیک انقضا برای پر بودن صفحه
         const debtor = list.find((m) => m.debtAmount > 0);
-        if (debtor) {
-          await selectMember(debtor.id);
-        }
+        const nearExpiry = list.find(
+          (m) => m.membershipCode === "FS-1042" || m.currentPhase === "current",
+        );
+        const pick = debtor ?? nearExpiry ?? list[0];
+        if (pick) await selectMember(pick.id);
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
@@ -124,6 +154,44 @@ export function PaymentDesk({
       /* ignore until boot */
     });
   }, [loadRecent]);
+
+  useEffect(() => {
+    if (!selected || plans.length === 0) return;
+    const currentPlanId = selected.currentSubscription?.plan.id;
+    if (currentPlanId && plans.some((p) => p.id === currentPlanId)) {
+      setRenewPlanId(currentPlanId);
+    } else if (!renewPlanId) {
+      setRenewPlanId(plans[0].id);
+    }
+  }, [selected, plans, renewPlanId]);
+
+  const debt =
+    selected?.currentSubscription?.debtToman ?? selected?.debtAmount ?? 0;
+  const blocks = selected?.currentSubscription?.debtBlocksEntry ?? false;
+
+  const renewBlockedByUpcoming = Boolean(selected?.upcomingSubscription);
+  const canRenewEarly =
+    Boolean(selected) &&
+    !selected?.isArchived &&
+    Boolean(selected?.currentSubscription) &&
+    !renewBlockedByUpcoming;
+
+  const renewingEarly = Boolean(selected?.currentSubscription);
+
+  const selectedRenewPlan = plans.find((p) => p.id === renewPlanId) ?? null;
+  const renewPreview = useMemo(() => {
+    if (!selectedRenewPlan) return null;
+    return previewRenewTuition({
+      planPriceToman: selectedRenewPlan.priceToman,
+      renewingBeforeCurrentEnds: renewingEarly,
+    });
+  }, [selectedRenewPlan, renewingEarly]);
+
+  const payAmount = parseTomanInput(amountRaw);
+  const payWords = payAmount != null ? tomanAmountInWords(payAmount) : null;
+  const renewAmount = parseTomanInput(renewAmountRaw);
+  const renewWords =
+    renewAmount != null ? tomanAmountInWords(renewAmount) : null;
 
   async function onSearch(e: FormEvent) {
     e.preventDefault();
@@ -181,6 +249,48 @@ export function PaymentDesk({
     }
   }
 
+  async function onRenew(e: FormEvent) {
+    e.preventDefault();
+    if (!selected || !renewPlanId) return;
+    const amount = parseTomanInput(renewAmountRaw);
+    if (amount == null || amount < 1) {
+      setError("مبلغ تمدید را با رقم فارسی یا انگلیسی وارد کنید.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setOk(null);
+    try {
+      const res = await renewSubscription({
+        memberId: selected.id,
+        planId: renewPlanId,
+        amountPaidToman: amount,
+        paymentMethod: renewMethod,
+      });
+      setSelected(res.member);
+      setRenewAmountRaw("");
+      const startLabel = formatJalaliDay(res.subscription.startsOn);
+      const disc =
+        res.subscription.discountPercentApplied > 0
+          ? ` با تخفیف ${res.subscription.discountPercentApplied.toLocaleString("fa-IR")}٪`
+          : "";
+      setOk(
+        `تمدید ثبت شد${disc}. دورهٔ جدید از ${startLabel} شروع می‌شود (${res.subscription.plan.name}).`,
+      );
+      const [pays, list] = await Promise.all([
+        listPayments({ memberId: selected.id, limit: 30 }),
+        searchMembers(toAsciiDigits(query.trim())),
+        loadRecent(),
+      ]);
+      setHistory(pays);
+      setMembers(list);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "ثبت تمدید ناموفق بود");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function onLogout() {
     try {
       await logout();
@@ -189,10 +299,6 @@ export function PaymentDesk({
     }
     window.location.href = "/login/staff";
   }
-
-  const debt =
-    selected?.currentSubscription?.debtToman ?? selected?.debtAmount ?? 0;
-  const blocks = selected?.currentSubscription?.debtBlocksEntry ?? false;
 
   if (!user && !error) {
     return (
@@ -217,7 +323,7 @@ export function PaymentDesk({
             </p>
           ) : null}
           <p className="auth-muted">
-            فقط نقد / کارت‌خوان / کارت‌به‌کارت — بدون درگاه آنلاین.
+            قسط بدهی و تمدید اشتراک — فقط نقد / کارت‌خوان / کارت‌به‌کارت.
           </p>
         </div>
         <div className="desk-actions">
@@ -245,6 +351,13 @@ export function PaymentDesk({
       <div className="att-layout">
         <section className="desk-section desk-section-first">
           <h2>پیدا کردن عضو</h2>
+          <p className="auth-muted">
+            برای تمدید زودتر، عضو نزدیک انقضا مثل{" "}
+            <span className="ltr-isolate" dir="ltr">
+              FS-1042
+            </span>{" "}
+            (سارا) را انتخاب کنید.
+          </p>
           <form className="desk-search" onSubmit={onSearch}>
             <input
               value={query}
@@ -275,11 +388,7 @@ export function PaymentDesk({
                     {m.fullName}{" "}
                     <span className="desk-code">{m.membershipCode}</span>
                   </strong>
-                  <span className="auth-muted">
-                    {m.debtAmount > 0
-                      ? `بدهی ${formatToman(m.debtAmount)}`
-                      : "بدون بدهی شهریه"}
-                  </span>
+                  <span className="auth-muted">{memberChipHint(m)}</span>
                 </button>
               ))
             )}
@@ -287,7 +396,7 @@ export function PaymentDesk({
         </section>
 
         <section className="desk-section desk-section-first">
-          <h2>ثبت پرداخت</h2>
+          <h2>قسط / تسویه بدهی</h2>
           {!selected ? (
             <p className="auth-muted">یک عضو را انتخاب کنید.</p>
           ) : (
@@ -310,6 +419,13 @@ export function PaymentDesk({
                 ) : (
                   <p className="desk-warn">اشتراک جاری ندارد.</p>
                 )}
+                {selected.upcomingSubscription ? (
+                  <p className="desk-ok-inline">
+                    دورهٔ بعدی از{" "}
+                    {formatJalaliDay(selected.upcomingSubscription.startsOn)}{" "}
+                    ثبت شده — تمدید دوباره تا شروع آن مجاز نیست.
+                  </p>
+                ) : null}
                 {debt > 0 ? (
                   <p className="desk-warn">
                     مانده بدهی: {formatToman(debt)}
@@ -325,23 +441,31 @@ export function PaymentDesk({
               {debt > 0 && selected.currentSubscription ? (
                 <form className="pay-form" onSubmit={onPay}>
                   <label className="pay-field">
-                    <span>مبلغ (تومان)</span>
+                    <span>مبلغ قسط (تومان)</span>
                     <input
                       value={amountRaw}
                       onChange={(e) =>
-                        setAmountRaw(clampTomanInput(e.target.value))
+                        setAmountRaw(formatTomanInputLive(e.target.value))
                       }
                       inputMode="numeric"
                       dir="ltr"
                       className="ltr-isolate"
-                      placeholder="مثلاً ۴۴۵۰۰۰ یا 445000"
-                      aria-label="مبلغ پرداخت"
+                      placeholder="مثلاً ۳٬۵۰۰٬۰۰۰"
+                      aria-label="مبلغ پرداخت قسط"
                       disabled={busy}
                     />
+                    {payWords ? (
+                      <p className="pay-amount-words">{payWords}</p>
+                    ) : (
+                      <p className="pay-amount-words">
+                        رقم فارسی یا انگلیسی؛ جداکننده خودکار گذاشته می‌شود.
+                      </p>
+                    )}
                   </label>
                   <label className="pay-field">
                     <span>روش</span>
                     <select
+                      className="theme-select"
                       value={method}
                       onChange={(e) => setMethod(e.target.value as PayMethod)}
                       disabled={busy}
@@ -366,9 +490,7 @@ export function PaymentDesk({
                       type="button"
                       className="btn btn-ghost"
                       disabled={busy}
-                      onClick={() =>
-                        setAmountRaw(String(debt))
-                      }
+                      onClick={() => setAmountRaw(formatTomanGrouped(debt))}
                     >
                       کل مانده
                     </button>
@@ -377,11 +499,144 @@ export function PaymentDesk({
                       className="btn btn-primary"
                       disabled={busy}
                     >
-                      ثبت پرداخت
+                      ثبت قسط
                     </button>
                   </div>
                 </form>
               ) : null}
+
+              <div className="pay-renew-box">
+                <h3>تمدید اشتراک</h3>
+                <p className="auth-muted">
+                  جدا از قسط بدهی. اگر دوره هنوز تمام نشده، دورهٔ جدید از{" "}
+                  <strong>فردای روز پایان</strong> شروع می‌شود (بدون فاصله).
+                  تمدید خودکار نیست.
+                </p>
+                {renewBlockedByUpcoming ? (
+                  <p className="desk-warn">
+                    دورهٔ بعدی از قبل ثبت شده؛ تا شروع آن تمدید دوباره مجاز
+                    نیست.
+                  </p>
+                ) : !canRenewEarly ? (
+                  <p className="auth-muted">
+                    برای تمدید زودتر، عضوی با اشتراک جاری و بدون دورهٔ بعدی لازم
+                    است (نمونه: سارا FS-1042).
+                  </p>
+                ) : (
+                  <form className="pay-form" onSubmit={onRenew}>
+                    {renewPreview && selectedRenewPlan ? (
+                      <p className="auth-muted">
+                        شهریهٔ این تمدید: {formatToman(renewPreview.priceToman)}
+                        {renewPreview.discountPercent > 0
+                          ? ` (تخفیف تمدید زودتر ${renewPreview.discountPercent.toLocaleString("fa-IR")}٪ نمونه)`
+                          : ""}
+                        {" · "}
+                        حداقل نصف:{" "}
+                        {formatToman(minimumHalfTuition(renewPreview.priceToman))}
+                        {" · "}
+                        شروع پیش‌فرض: فردای{" "}
+                        {formatJalaliDay(selected.currentSubscription.endsOn)}
+                      </p>
+                    ) : null}
+                    <label className="pay-field">
+                      <span>پلن دورهٔ بعد</span>
+                      <select
+                        className="theme-select"
+                        value={renewPlanId}
+                        onChange={(e) => {
+                          setRenewPlanId(e.target.value);
+                          setRenewAmountRaw("");
+                        }}
+                        disabled={busy}
+                      >
+                        {plans.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} — {p.priceLabel}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="pay-field">
+                      <span>مبلغ پرداخت تمدید (تومان)</span>
+                      <input
+                        value={renewAmountRaw}
+                        onChange={(e) =>
+                          setRenewAmountRaw(formatTomanInputLive(e.target.value))
+                        }
+                        inputMode="numeric"
+                        dir="ltr"
+                        className="ltr-isolate"
+                        placeholder="حداقل نصف شهریهٔ تمدید"
+                        aria-label="مبلغ تمدید"
+                        disabled={busy}
+                      />
+                      {renewWords ? (
+                        <p className="pay-amount-words">{renewWords}</p>
+                      ) : (
+                        <p className="pay-amount-words">
+                          کمتر از نصف برای شروع دوره ثبت نمی‌شود.
+                        </p>
+                      )}
+                    </label>
+                    <label className="pay-field">
+                      <span>روش</span>
+                      <select
+                        className="theme-select"
+                        value={renewMethod}
+                        onChange={(e) =>
+                          setRenewMethod(e.target.value as PayMethod)
+                        }
+                        disabled={busy}
+                      >
+                        {METHODS.map((m) => (
+                          <option key={m.value} value={m.value}>
+                            {m.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <div className="att-actions">
+                      {renewPreview ? (
+                        <button
+                          type="button"
+                          className="btn btn-ghost"
+                          disabled={busy}
+                          onClick={() =>
+                            setRenewAmountRaw(
+                              formatTomanGrouped(renewPreview.priceToman),
+                            )
+                          }
+                        >
+                          مبلغ کامل
+                        </button>
+                      ) : null}
+                      {renewPreview ? (
+                        <button
+                          type="button"
+                          className="btn btn-ghost"
+                          disabled={busy}
+                          onClick={() =>
+                            setRenewAmountRaw(
+                              formatTomanGrouped(
+                                minimumHalfTuition(renewPreview.priceToman),
+                              ),
+                            )
+                          }
+                        >
+                          حداقل نصف
+                        </button>
+                      ) : null}
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={busy}
+                      >
+                        ثبت تمدید
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
 
               <h3 className="dash-subhead">سوابق این عضو</h3>
               {history.length === 0 ? (
@@ -419,6 +674,7 @@ export function PaymentDesk({
           }}
         >
           <select
+            className="theme-select"
             value={filterMethod}
             onChange={(e) => setFilterMethod(e.target.value)}
             aria-label="فیلتر روش پرداخت"

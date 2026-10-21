@@ -1210,12 +1210,55 @@ textarea.ltr-isolate {
 }
 
 .pay-field input,
-.pay-field select {
+.pay-field select,
+.theme-select {
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel);
   color: var(--text);
+}
+
+/* KI-004: native select/option readable in dark + light */
+.theme-select,
+.pay-field select {
+  color-scheme: light dark;
+  background-color: var(--panel);
+  color: var(--text);
+}
+
+[data-theme="dark"] .theme-select,
+[data-theme="dark"] .pay-field select {
+  color-scheme: dark;
+}
+
+[data-theme="light"] .theme-select,
+[data-theme="light"] .pay-field select {
+  color-scheme: light;
+}
+
+.theme-select option,
+.pay-field select option {
+  background-color: var(--panel);
+  color: var(--text);
+}
+
+.pay-amount-words {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.pay-renew-box {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+
+.pay-renew-box h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
 }
 
 @media (max-width: 640px) {
