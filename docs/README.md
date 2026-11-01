@@ -20,6 +20,7 @@
 | [ui-ux-panels.md](./ui-ux-panels.md) | بازنگری ظاهر و دسکتاپ پنل‌ها — تأیید نشده |
 | [copy-review.md](./copy-review.md) | بازبینی متن‌های فارسی قبل از تحویل نهایی |
 | [launch.md](./launch.md) | چه چیزهایی تا لانچ و سرور مانده |
+| [hosting.md](./hosting.md) | چه دامنه و سروری بخریم (اوبونتو، VPS کوچک آموزشی) |
 | [production-data.md](./production-data.md) | قانون دائمی: روی سرور داده پاک نشود؛ بدون فیک لوکال؛ فقط سه حساب تست |
 | [server-update.md](./server-update.md) | مسیر آپدیت سرور: بکاپ، migrate افزایشی، bootstrap، چک‌لیست env |
 | [security.md](./security.md) | گزارش امنیت قبل از لانچ + چک‌لیست امنیتی روز سرور |
