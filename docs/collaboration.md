@@ -1,6 +1,6 @@
 # سبک همکاری با مالک پروژه (Vibe Coding)
 
-آخرین به‌روزرسانی: 2026-10-14
+آخرین به‌روزرسانی: 2026-11-01
 
 نام پروژه: **فیت‌کلاب (FitClub)** — `docs/project-identity.md`
 
@@ -52,6 +52,7 @@
 19. **متن فارسی UI:** دور ۱۴۰۴/۰۷/۲۹ انجام شد. مالک ۱۴۰۴/۰۸/۱۰ گفت سنجش جمله‌ها با خودش است. → `docs/copy-review.md`
 20. **لینک پرسنل (۱۴۰۴/۰۸/۱۰):** آدرس پنل منشی و ادمین تصادفی و ثابت است و در گیت نیست. سایت اصلی و ورود عضو لینک پرسنل ندارند. مالک بعداً خواست همین لینک‌ها در صفحهٔ «چطور باز کنم؟» دیده شوند. متن ورود هر در جدا است: ورود منشی / ورود ادمین. → `docs/prompts/staff-secret-paths.md`
 21. **لوگوی نهایی (۱۴۰۴/۰۸/۱۰):** طرح الف، حرف F داخل C، در سایت و پنل‌ها. ظاهر را خود مالک اوکی گفت. → `docs/visual-assets.md`
+22. **داده روی سرور (۱۴۰۴/۰۸/۱۰):** روی محیط اصلی داده هرگز پاک نشود. seed لوکال (پاک‌کردن همه + داستان فیک) روی سرور ممنوع. فقط یک مدیر، یک منشی، یک عضو تست. آپدیت فقط چیز جدید اضافه کند. `DEMO_MODE` فقط یعنی کد `123456` و صفحهٔ راهنمای ورود؛ اجازهٔ پاک کردن داده نیست. → `docs/production-data.md`
 
 ---
 
@@ -79,7 +80,8 @@
 - GitHub و نسخه: `docs/github-workflow.md` · `.cursor/rules/github-sync.mdc`
 - تست: `docs/testing.md` · `.cursor/rules/testing.mdc`
 - تصمیم‌گیری: `docs/decision-policy.md`
-- داده نمونه: `docs/sample-data.md`
+- داده نمونه (لوکال): `docs/sample-data.md`
+- داده روی سرور: `docs/production-data.md` · `.cursor/rules/production-data.mdc`
 - هویت پروژه: `docs/project-identity.md`
 - تصاویر و لوگو: `docs/visual-assets.md` · `.cursor/rules/visual-assets.mdc`
 - PWA: `docs/pwa.md` · `.cursor/rules/pwa.mdc`
