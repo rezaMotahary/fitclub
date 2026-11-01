@@ -19,6 +19,10 @@ import {
   dayStringToUtcNoon,
   todayIran,
 } from '../src/common/iran-date.js';
+import {
+  iranMonthDayBounds,
+  lastNIranMonths,
+} from '../src/common/iran-month.js';
 import { weekContaining } from '../src/common/attendance-week.js';
 import { iranWallDateTime } from '../src/common/session-schedule.js';
 import {
@@ -291,6 +295,57 @@ async function main() {
         }
       }
     }
+  }
+
+  // Historical reception payments so admin revenue charts stay full
+  const chartMemberIds = [
+    memberIdsByCode['FS-1042'],
+    memberIdsByCode['FS-1043'],
+    memberIdsByCode['FS-1044'],
+    memberIdsByCode['FS-1047'],
+    memberIdsByCode['FS-1048'],
+  ].filter(Boolean);
+  const chartAmounts = [890_000, 1_190_000, 450_000, 725_000, 1_450_000, 300_000];
+  const chartMonths = lastNIranMonths(new Date(), 6);
+  let chartIndex = 0;
+  for (const month of chartMonths) {
+    const bounds = iranMonthDayBounds(month.year, month.month);
+    const offsets = [0, 3, 8, 12, 18, 24];
+    for (const offset of offsets) {
+      const day = addIranDays(bounds.fromDay, offset);
+      if (day > bounds.toDay || day > todayIran()) continue;
+      const memberId = chartMemberIds[chartIndex % chartMemberIds.length];
+      if (!memberId) continue;
+      await prisma.payment.create({
+        data: {
+          memberId,
+          amountToman: chartAmounts[chartIndex % chartAmounts.length],
+          method:
+            chartIndex % 2 === 0
+              ? PaymentMethod.CASH
+              : PaymentMethod.CARD_READER,
+          status: PaymentStatus.CONFIRMED,
+          title: 'خدمات پذیرش نمونه — نمودار درآمد',
+          paidAt: dayStringToUtcNoon(day),
+          note: 'پرداخت نمونه برای داشبورد مدیر',
+        },
+      });
+      chartIndex += 1;
+    }
+  }
+  const todayMemberId = memberIdsByCode['FS-1042'];
+  if (todayMemberId) {
+    await prisma.payment.create({
+      data: {
+        memberId: todayMemberId,
+        amountToman: 350_000,
+        method: PaymentMethod.CARD_TRANSFER,
+        status: PaymentStatus.CONFIRMED,
+        title: 'خدمات پذیرش نمونه — امروز',
+        paidAt: new Date(),
+        note: 'پرداخت امروز برای کارت درآمد داشبورد',
+      },
+    });
   }
 
   // --- Sample attendances for secretary desk scenarios ---

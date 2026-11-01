@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsInt,
@@ -7,6 +7,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { parseTomanAmount } from '../../payments/dto/toman-amount.js';
 
 export class UpdatePlanDto {
   @IsOptional()
@@ -16,7 +17,10 @@ export class UpdatePlanDto {
 
   /** Sample / admin tariff in toman — only admin may change. */
   @IsOptional()
-  @Type(() => Number)
+  @Transform(({ value }) => {
+    const parsed = parseTomanAmount(value);
+    return parsed ?? value;
+  })
   @IsInt()
   @Min(0)
   priceToman?: number;

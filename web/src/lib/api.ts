@@ -1,5 +1,6 @@
 import type {
   AdminOverview,
+  ClubSettings,
   AttendanceEligibilityResponse,
   AttendanceInsideResponse,
   AttendanceRecord,
@@ -17,6 +18,8 @@ import type {
   RenewSubscriptionResponse,
   StaffLoginResponse,
 } from "./types";
+import type { AdminOverviewQuery } from "./admin-overview";
+import { adminOverviewQueryString } from "./admin-overview";
 
 export function getApiBaseUrl(): string {
   return (
@@ -121,6 +124,24 @@ export function fetchPlans(includeInactive = false) {
   return apiFetch<PlanPublic[]>(`/plans${q}`);
 }
 
+export function updatePlan(id: string, body: { priceToman: number }) {
+  return apiFetch<PlanPublic>(`/plans/${id}`, {
+    method: "PATCH",
+    body,
+  });
+}
+
+export function fetchClubSettings() {
+  return apiFetch<ClubSettings>("/club-settings");
+}
+
+export function updateClubSettings(body: { earlyRenewalDiscountPercent: number }) {
+  return apiFetch<ClubSettings>("/club-settings", {
+    method: "PATCH",
+    body,
+  });
+}
+
 export function searchMembers(q: string, includeArchived = false) {
   const params = new URLSearchParams();
   if (q) params.set("q", q);
@@ -187,8 +208,9 @@ export function fetchMemberDashboard() {
   return apiFetch<MemberDashboard>("/dashboard/me");
 }
 
-export function fetchAdminOverview() {
-  return apiFetch<AdminOverview>("/dashboard/admin");
+export function fetchAdminOverview(query?: AdminOverviewQuery) {
+  const qs = query ? adminOverviewQueryString(query) : "";
+  return apiFetch<AdminOverview>(`/dashboard/admin${qs}`);
 }
 
 export function fetchMember(id: string) {

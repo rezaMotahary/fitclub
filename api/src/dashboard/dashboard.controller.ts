@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
@@ -6,6 +6,7 @@ import type { AuthUser } from '../auth/auth.types.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard.js';
 import { DashboardService } from './dashboard.service.js';
+import { AdminOverviewQueryDto } from './dto/admin-overview-query.dto.js';
 
 @Controller('dashboard')
 @UseGuards(SessionAuthGuard, RolesGuard)
@@ -19,10 +20,13 @@ export class DashboardController {
     return this.dashboard.memberSelf(user);
   }
 
-  /** Admin club snapshot — active members, today visits, expiry, reception revenue. */
+  /** Admin club snapshot — stats, expiry, reception revenue with Jalali filters. */
   @Get('admin')
   @Roles(Role.ADMIN)
-  admin(@CurrentUser() user: AuthUser) {
-    return this.dashboard.adminOverview(user);
+  admin(
+    @CurrentUser() user: AuthUser,
+    @Query() query: AdminOverviewQueryDto,
+  ) {
+    return this.dashboard.adminOverview(user, query);
   }
 }

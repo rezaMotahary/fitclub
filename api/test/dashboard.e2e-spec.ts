@@ -127,5 +127,51 @@ describe('Dashboard (e2e)', () => {
     expect(res.body.receptionRevenueThisMonth.monthLabel.length).toBeGreaterThan(
       2,
     );
+    expect(res.body.receptionRevenue.today).toBeTruthy();
+    expect(Array.isArray(res.body.receptionRevenue.daily)).toBe(true);
+    expect(res.body.receptionRevenue.daily.length).toBeGreaterThan(0);
+    expect(Array.isArray(res.body.receptionRevenue.monthly)).toBe(true);
+    expect(res.body.receptionRevenue.monthly.length).toBeGreaterThanOrEqual(6);
+  });
+
+  it('admin can filter reception revenue by Jalali month and Persian from-to', async () => {
+    const cookie = await staffCookie(
+      'admin@fitclub.local',
+      SAMPLE_STAFF_PASSWORDS.admin,
+    );
+    const base = await request(app.getHttpServer())
+      .get('/api/dashboard/admin')
+      .set('Cookie', cookie)
+      .expect(200);
+
+    const ym = base.body.receptionRevenue.thisMonth as {
+      iranYear: number;
+      iranMonth: number;
+    };
+
+    const byMonth = await request(app.getHttpServer())
+      .get('/api/dashboard/admin')
+      .query({ iranYear: ym.iranYear, iranMonth: ym.iranMonth })
+      .set('Cookie', cookie)
+      .expect(200);
+    expect(byMonth.body.receptionRevenue.range.amountToman).toBe(
+      base.body.receptionRevenue.thisMonth.amountToman,
+    );
+
+    const byPersianRange = await request(app.getHttpServer())
+      .get('/api/dashboard/admin')
+      .query({ from: '۱۴۰۴/۰۷/۰۱', to: '۱۴۰۴/۰۷/۰۳' })
+      .set('Cookie', cookie)
+      .expect(200);
+    expect(byPersianRange.body.receptionRevenue.range.fromDay).toBe('2025-09-23');
+    expect(byPersianRange.body.receptionRevenue.range.toDay).toBe('2025-09-25');
+    expect(byPersianRange.body.receptionRevenue.daily).toHaveLength(3);
+
+    await request(app.getHttpServer())
+      .get('/api/dashboard/admin')
+      .query({ from: '1404/07/10', to: '1404/07/01' })
+      .set('Cookie', cookie)
+      .expect(400);
   });
 });
+

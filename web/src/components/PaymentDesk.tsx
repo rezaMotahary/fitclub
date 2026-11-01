@@ -11,6 +11,7 @@ import {
 } from "react";
 import {
   ApiError,
+  fetchClubSettings,
   fetchMe,
   fetchMember,
   fetchPlans,
@@ -86,6 +87,7 @@ export function PaymentDesk({
   const [renewPlanId, setRenewPlanId] = useState("");
   const [renewAmountRaw, setRenewAmountRaw] = useState("");
   const [renewMethod, setRenewMethod] = useState<PayMethod>("CASH");
+  const [earlyDiscountPercent, setEarlyDiscountPercent] = useState(10);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
@@ -141,14 +143,16 @@ export function PaymentDesk({
           return;
         }
         setUser(me.user);
-        const [list, planList] = await Promise.all([
+        const [list, planList, clubSettings] = await Promise.all([
           searchMembers(""),
           fetchPlans(false),
+          fetchClubSettings(),
         ]);
         if (cancelled) return;
         plansRef.current = planList;
         setMembers(list);
         setPlans(planList);
+        setEarlyDiscountPercent(clubSettings.earlyRenewalDiscountPercent);
         const pick = pickInitialMember(list);
         if (pick) await selectMember(pick.id);
       } catch (err) {
@@ -200,8 +204,9 @@ export function PaymentDesk({
     return previewRenewTuition({
       planPriceToman: selectedRenewPlan.priceToman,
       renewingBeforeCurrentEnds: renewingEarly,
+      earlyDiscountPercent,
     });
-  }, [selectedRenewPlan, renewingEarly]);
+  }, [selectedRenewPlan, renewingEarly, earlyDiscountPercent]);
 
   const payAmount = parseTomanInput(amountRaw);
   const payWords = payAmount != null ? tomanAmountInWords(payAmount) : null;

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { StaffDesk } from "@/components/StaffDesk";
+import { AdminDesk } from "@/components/AdminDesk";
 
 export const metadata: Metadata = {
   title: "پنل مدیریت | فیت‌کلاب",
 };
 
 export default function AdminPage() {
-  return <StaffDesk panel="admin" title="پنل مدیریت" />;
+  return <AdminDesk />;
 }

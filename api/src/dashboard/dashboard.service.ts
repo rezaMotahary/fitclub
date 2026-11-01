@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -24,7 +25,9 @@ import {
   dayStringToUtcNoon,
   iranDayString,
 } from '../common/iran-date.js';
-import { iranMonthLabel, isSameIranMonth } from '../common/iran-month.js';
+import { buildReceptionRevenue } from '../common/reception-revenue.js';
+import { resolveAdminRevenueRange } from './admin-overview-query.js';
+import type { AdminOverviewQueryDto } from './dto/admin-overview-query.dto.js';
 import {
   calendarDayOf,
   classifySubscription,
@@ -191,7 +194,11 @@ export class DashboardService {
     };
   }
 
-  async adminOverview(_user: AuthUser, now: Date = new Date()) {
+  async adminOverview(
+    _user: AuthUser,
+    query: AdminOverviewQueryDto = {},
+    now: Date = new Date(),
+  ) {
     const today = iranDayString(now);
     const dayStart = dayStringToUtcNoon(today);
     const dayEnd = new Date(dayStart.getTime() + 86_400_000);
@@ -272,8 +279,18 @@ export class DashboardService {
     }
     expiringSoon.sort((a, b) => a.remainingDays - b.remainingDays);
 
-    const monthPayments = payments.filter((p) => isSameIranMonth(p.paidAt, now));
-    const amountToman = monthPayments.reduce((sum, p) => sum + p.amountToman, 0);
+    const range = resolveAdminRevenueRange(query, now);
+    if (!range.ok) {
+      throw new BadRequestException(range.message);
+    }
+
+    const receptionRevenue = buildReceptionRevenue({
+      payments,
+      now,
+      rangeFromDay: range.fromDay,
+      rangeToDay: range.toDay,
+      monthlyLookback: 6,
+    });
 
     return {
       activeMembers,
@@ -284,10 +301,11 @@ export class DashboardService {
         rejectedToday,
       },
       expiringSoon,
+      receptionRevenue,
       receptionRevenueThisMonth: {
-        amountToman,
-        paymentCount: monthPayments.length,
-        monthLabel: iranMonthLabel(now),
+        amountToman: receptionRevenue.thisMonth.amountToman,
+        paymentCount: receptionRevenue.thisMonth.paymentCount,
+        monthLabel: receptionRevenue.thisMonth.monthLabel,
       },
     };
   }

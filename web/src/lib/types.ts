@@ -321,6 +321,43 @@ export type MemberDashboard = {
   }>;
 };
 
+export type RevenueBucket = {
+  amountToman: number;
+  paymentCount: number;
+};
+
+export type DailyRevenuePoint = RevenueBucket & {
+  day: string;
+  label: string;
+};
+
+export type MonthlyRevenuePoint = RevenueBucket & {
+  iranYear: number;
+  iranMonth: number;
+  label: string;
+  fromDay: string;
+  toDay: string;
+};
+
+export type ReceptionRevenue = {
+  today: RevenueBucket & { day: string; jalaliLabel: string };
+  thisMonth: RevenueBucket & {
+    iranYear: number;
+    iranMonth: number;
+    monthLabel: string;
+    fromDay: string;
+    toDay: string;
+  };
+  range: RevenueBucket & {
+    fromDay: string;
+    toDay: string;
+    jalaliFromLabel: string;
+    jalaliToLabel: string;
+  };
+  daily: DailyRevenuePoint[];
+  monthly: MonthlyRevenuePoint[];
+};
+
 export type AdminOverview = {
   activeMembers: number;
   attendanceToday: {
@@ -337,9 +374,15 @@ export type AdminOverview = {
     endsOn: string;
     remainingDays: number;
   }>;
+  receptionRevenue: ReceptionRevenue;
   receptionRevenueThisMonth: {
     amountToman: number;
     paymentCount: number;
     monthLabel: string;
   };
+};
+
+export type ClubSettings = {
+  earlyRenewalDiscountPercent: number;
+  updatedAt: string;
 };

@@ -103,6 +103,52 @@ describe('Members + Plans + Subscriptions (e2e)', () => {
     expect(updated.body.priceToman).toBe(original);
   });
 
+  it('admin can set plan price with Persian digits without changing past sales', async () => {
+    const plans = await request(app.getHttpServer())
+      .get('/api/plans')
+      .set('Cookie', adminCookie)
+      .expect(200);
+    const plan = plans.body.find(
+      (p: { daysPerWeek: number }) => p.daysPerWeek === 3,
+    );
+    expect(plan).toBeTruthy();
+    const original = plan.priceToman as number;
+
+    const members = await request(app.getHttpServer())
+      .get('/api/members')
+      .query({ q: 'FS-1042' })
+      .set('Cookie', adminCookie)
+      .expect(200);
+    const saraId = members.body[0].id as string;
+    const before = await request(app.getHttpServer())
+      .get(`/api/members/${saraId}`)
+      .set('Cookie', adminCookie)
+      .expect(200);
+    const soldPrice = before.body.currentSubscription.priceToman as number;
+    expect(soldPrice).toBeGreaterThan(0);
+
+    const bumped = original + 50_000;
+    const persian = bumped.toLocaleString('fa-IR').replace(/٬/g, '');
+    const patched = await request(app.getHttpServer())
+      .patch(`/api/plans/${plan.id}`)
+      .set('Cookie', adminCookie)
+      .send({ priceToman: persian })
+      .expect(200);
+    expect(patched.body.priceToman).toBe(bumped);
+
+    const after = await request(app.getHttpServer())
+      .get(`/api/members/${saraId}`)
+      .set('Cookie', adminCookie)
+      .expect(200);
+    expect(after.body.currentSubscription.priceToman).toBe(soldPrice);
+
+    await request(app.getHttpServer())
+      .patch(`/api/plans/${plan.id}`)
+      .set('Cookie', adminCookie)
+      .send({ priceToman: original })
+      .expect(200);
+  });
+
   it('searches members by name, FS- code, and phone', async () => {
     const byName = await request(app.getHttpServer())
       .get('/api/members')

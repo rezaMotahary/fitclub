@@ -1,5 +1,6 @@
 /**
- * Client preview of early-renewal price — matches sample ClubSettings (10%).
+ * Client preview of early-renewal price.
+ * Default 10 matches sample ClubSettings; payment desk loads the live percent.
  * Server remains source of truth on POST /subscriptions/renew.
  */
 export const SAMPLE_EARLY_RENEWAL_DISCOUNT_PERCENT = 10;
