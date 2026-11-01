@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BrandLogo } from "./BrandLogo";
 import { ThemeToggle } from "./ThemeToggle";
 
 export const STAFF_WRONG_DOOR_MESSAGE = "این در برای این حساب نیست.";
@@ -15,7 +16,7 @@ export function StaffWrongDoor({ onLogout }: StaffWrongDoorProps) {
       <ThemeToggle className="theme-toggle-float" />
       <div className="auth-card">
         <div className="auth-card-top">
-          <p className="brand-mark">FITCLUB</p>
+          <BrandLogo size="md" wordmark />
         </div>
         <h1>این در برای این حساب نیست</h1>
         <p className="auth-lead">با این حساب نمی‌شود از اینجا وارد شد.</p>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { BrandLogo } from "./BrandLogo";
 import { ThemeToggle } from "./ThemeToggle";
 
 export type PanelNavItem = {
@@ -38,9 +39,7 @@ export function PanelFrame({
     <div className="panel-app">
       <aside className="panel-side">
         <Link href={homeHref} className="panel-brand">
-          <span className="brand-mark ltr-isolate" dir="ltr">
-            FITCLUB
-          </span>
+          <BrandLogo size="sm" wordmark decorative />
           <span className="panel-brand-name">فیت‌کلاب</span>
         </Link>
         <nav className="panel-nav" aria-label="منوی پنل">

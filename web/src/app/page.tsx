@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SitePricing } from "@/components/SitePricing";
 
@@ -25,7 +26,9 @@ export default function HomePage() {
 
       <section className="hero">
         <div className="hero-content">
-          <div className="brand">FITCLUB</div>
+          <div className="hero-brand">
+            <BrandLogo size="lg" wordmark />
+          </div>
           <h1>
             بدن قوی‌تر، <em>عادت ماندگار</em>
           </h1>
@@ -275,9 +278,12 @@ export default function HomePage() {
       </section>
 
       <footer className="footer site-footer">
-        <div>
-          <strong>فیت‌کلاب</strong>
-          <span>باشگاه بدنسازی و تناسب اندام · سعادت‌آباد</span>
+        <div className="footer-brand">
+          <BrandLogo size="sm" decorative />
+          <div>
+            <strong>فیت‌کلاب</strong>
+            <span>باشگاه بدنسازی و تناسب اندام · سعادت‌آباد</span>
+          </div>
         </div>
         <div>
           <Link href="/how-to-open">چطور باز کنم؟</Link>

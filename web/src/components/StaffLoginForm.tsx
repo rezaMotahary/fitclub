@@ -11,6 +11,7 @@ import {
 } from "@/lib/staff-login-copy";
 import type { Role } from "@/lib/types";
 import { STAFF_WRONG_DOOR_MESSAGE } from "./StaffWrongDoor";
+import { BrandLogo } from "./BrandLogo";
 import { ThemeToggle } from "./ThemeToggle";
 
 function resolveStaffIdentifier(raw: string): string {
@@ -68,7 +69,7 @@ export function StaffLoginForm({
       <ThemeToggle className="theme-toggle-float" />
       <div className="auth-card">
         <div className="auth-card-top">
-          <p className="brand-mark">FITCLUB</p>
+          <BrandLogo size="md" wordmark />
         </div>
         <h1>{staffLoginHeading(expectedRole)}</h1>
         <p className="auth-lead">{staffLoginLead(expectedRole)}</p>

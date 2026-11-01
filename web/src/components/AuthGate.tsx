@@ -6,6 +6,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { ApiError, fetchMe, logout } from "@/lib/api";
 import { canAccessPanel, loginPathForPanel, roleLabel } from "@/lib/auth";
 import type { PublicAuthUser } from "@/lib/types";
+import { BrandLogo } from "./BrandLogo";
 import { ThemeToggle } from "./ThemeToggle";
 
 type Panel = "member" | "secretary" | "admin";
@@ -102,7 +103,7 @@ export function AuthGate({ panel, title, children }: AuthGateProps) {
       <ThemeToggle className="theme-toggle-float" />
       <div className="auth-card welcome-card">
         <div className="auth-card-top">
-          <p className="brand-mark">FITCLUB</p>
+          <BrandLogo size="md" wordmark />
         </div>
         <h1>خوش آمدید</h1>
         <p className="auth-lead">

@@ -149,14 +149,70 @@ input {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent);
+}
+
+.brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-mark-img {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+}
+
+.brand-lockup-sm .brand-mark-img {
+  width: 32px;
+  height: 32px;
+}
+
+.brand-lockup-md .brand-mark-img {
+  width: 52px;
+  height: 52px;
+}
+
+.brand-lockup-lg .brand-mark-img {
+  width: 88px;
+  height: 88px;
+}
+
+.brand-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 22%;
+}
+
+.brand-logo-light {
+  display: none;
+}
+
+[data-theme="light"] .brand-logo-dark {
+  display: none;
+}
+
+[data-theme="light"] .brand-logo-light {
+  display: block;
+}
+
+.brand-wordmark {
   font-family: var(--font-display);
   letter-spacing: 0.1em;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--accent);
+  line-height: 1;
 }
 
-.brand span {
+.brand-wordmark span {
   color: var(--text);
 }
 
@@ -282,8 +338,12 @@ input {
   font-size: 1.05rem;
 }
 
-.hero .brand {
+.hero-brand {
   margin-bottom: 14px;
+}
+
+.hero-brand .brand-wordmark {
+  font-size: 1.45rem;
 }
 
 .cta-row {
@@ -580,6 +640,13 @@ input {
   padding: 28px min(4vw, 40px);
 }
 
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: right;
+}
+
 .site-footer strong {
   display: block;
   color: var(--accent);
@@ -635,14 +702,6 @@ input {
 
 .welcome-card {
   width: min(520px, 100%);
-}
-
-.brand-mark {
-  margin: 0 0 10px;
-  font-family: var(--font-display);
-  letter-spacing: 0.14em;
-  color: var(--accent);
-  font-weight: 700;
 }
 
 .auth-card h1 {
@@ -866,8 +925,9 @@ textarea.ltr-isolate {
   margin-bottom: 4px;
 }
 
-.auth-card-top .brand-mark {
-  margin-bottom: 0;
+.auth-card-top .brand-lockup,
+.auth-card > .brand-lockup {
+  margin-bottom: 10px;
 }
 
 .sr-only {
@@ -1050,7 +1110,7 @@ textarea.ltr-isolate {
     grid-template-columns: 1fr;
   }
 
-  .brand {
+  .brand-wordmark {
     font-size: 1.1rem;
   }
 }
@@ -2245,19 +2305,22 @@ textarea.ltr-isolate {
 
 .panel-brand {
   display: grid;
-  gap: 0;
+  gap: 2px;
   padding: 2px 10px 6px;
 }
 
-.panel-brand .brand-mark {
-  margin: 0;
+.panel-brand .brand-lockup {
+  gap: 8px;
+}
+
+.panel-brand .brand-wordmark {
   font-size: 1.15rem;
-  line-height: 1.2;
 }
 
 .panel-brand-name {
   color: var(--muted);
   font-size: 0.86rem;
+  margin-inline-start: 40px;
 }
 
 .panel-nav {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { tryBuildStaffPaths } from "@/lib/staff-paths";
 
@@ -21,7 +22,7 @@ export default function HowToOpenPage() {
     <main className="auth-shell">
       <ThemeToggle className="theme-toggle-float" />
       <div className="auth-card" style={{ width: "min(560px, 100%)" }}>
-        <p className="brand-mark">FITCLUB</p>
+        <BrandLogo size="md" wordmark />
         <h1>چطور پروژه را باز کنم؟</h1>
         <p className="auth-lead">
           نیازی به دستور فنی نیست. اگر صفحه باز نشد، در چت بگو «سایت را روشن کن»

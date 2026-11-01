@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { BrandLogo } from "./BrandLogo";
 import { ThemeToggle } from "./ThemeToggle";
 
 type NavItem = {
@@ -31,7 +32,7 @@ export function SiteHeader() {
     <header className="topbar">
       <div className="topbar-main">
         <Link className="brand" href="/" onClick={closeMenu}>
-          FIT<span>CLUB</span>
+          <BrandLogo size="sm" wordmark />
         </Link>
         <div className="topbar-actions">
           <ThemeToggle className="theme-toggle-mobile" />

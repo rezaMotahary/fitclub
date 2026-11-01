@@ -11,6 +11,7 @@ import {
   normalizeIranMobile,
   normalizeOtpCode,
 } from "@/lib/auth";
+import { BrandLogo } from "./BrandLogo";
 import { ThemeToggle } from "./ThemeToggle";
 
 type Step = "phone" | "code";
@@ -83,7 +84,7 @@ export function MemberLoginForm() {
       <ThemeToggle className="theme-toggle-float" />
       <div className="auth-card">
         <div className="auth-card-top">
-          <p className="brand-mark">FITCLUB</p>
+          <BrandLogo size="md" wordmark />
         </div>
         <h1>ورود اعضا</h1>
         <p className="auth-lead">با موبایل و کد یک‌بارمصرف</p>
