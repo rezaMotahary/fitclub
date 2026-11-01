@@ -100,3 +100,4 @@
 - آفر/قیمت و آیندهٔ کد تخفیف: `docs/open-questions.md`  
 - بازبینی متن: `docs/copy-review.md`  
 - محدوده MVP: `docs/mvp-scope.md`  
+- تا لانچ: `docs/launch.md`  
