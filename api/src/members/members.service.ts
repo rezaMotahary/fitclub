@@ -18,6 +18,7 @@ import {
   normalizeIranMobile,
   toAsciiDigits,
 } from '../common/iran-mobile.js';
+import { paginatedResult, resolvePage } from '../common/pagination.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { CreateMemberDto } from './dto/create-member.dto.js';
 
@@ -60,9 +61,11 @@ export class MembersService {
   async search(params: {
     q?: string;
     limit?: number;
+    page?: number;
+    pageSize?: number;
     includeArchived?: boolean;
   }) {
-    const limit = params.limit ?? 30;
+    const { page, pageSize, skip, take } = resolvePage(params);
     const q = params.q?.trim() ?? '';
     const includeArchived = params.includeArchived ?? false;
 
@@ -82,14 +85,23 @@ export class MembersService {
       ];
     }
 
-    const members = await this.prisma.member.findMany({
-      where,
-      take: limit,
-      orderBy: { membershipCode: 'asc' },
-      include: memberDetailInclude,
-    });
+    const [members, total] = await Promise.all([
+      this.prisma.member.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { membershipCode: 'asc' },
+        include: memberDetailInclude,
+      }),
+      this.prisma.member.count({ where }),
+    ]);
 
-    return members.map((m) => this.toSummary(m));
+    return paginatedResult(
+      members.map((m) => this.toSummary(m)),
+      total,
+      page,
+      pageSize,
+    );
   }
 
   async findById(id: string) {

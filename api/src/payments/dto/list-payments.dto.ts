@@ -27,6 +27,20 @@ export class ListPaymentsDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(10_000)
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  pageSize?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   @Max(100)
   limit?: number;
 }

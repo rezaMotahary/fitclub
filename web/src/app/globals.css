@@ -1700,19 +1700,33 @@ textarea.ltr-isolate {
 .admin-chart-plot {
   display: flex;
   align-items: flex-end;
-  gap: 4px;
-  height: 220px;
+  gap: 8px;
+  height: 260px;
   padding: 8px 4px 0;
   overflow-x: auto;
 }
 
 .admin-bar-col {
   flex: 1 1 0;
-  min-width: 14px;
+  min-width: 42px;
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 100%;
+}
+
+.admin-chart-dense .admin-bar-col {
+  flex: 0 0 auto;
+  min-width: 44px;
+}
+
+.admin-bar-amount {
+  margin-bottom: 6px;
+  font-size: 0.68rem;
+  line-height: 1.2;
+  color: var(--text);
+  text-align: center;
+  white-space: nowrap;
 }
 
 .admin-bar-track {
@@ -1737,17 +1751,99 @@ textarea.ltr-isolate {
 
 .admin-bar-label {
   margin-top: 8px;
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   line-height: 1.3;
   color: var(--muted);
   text-align: center;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  overflow: visible;
+}
+
+.admin-chart-dense .admin-bar-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  height: 4.6rem;
+  margin-top: 10px;
+  font-size: 0.78rem;
 }
 
 .admin-bar-label-spacer {
+  visibility: hidden;
+}
+
+.desk-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.desk-pager-status {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.jalali-field {
+  position: relative;
+  min-width: 0;
+}
+
+.jalali-pop {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 268px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--text) 18%, transparent);
+  color: var(--text);
+}
+
+.jalali-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.jalali-weekdays,
+.jalali-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.jalali-weekdays {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-bottom: 6px;
+}
+
+.jalali-cell {
+  min-height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.jalali-cell:hover {
+  background: color-mix(in srgb, var(--accent) 16%, var(--panel));
+}
+
+.jalali-cell-on {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.jalali-cell-empty {
   visibility: hidden;
 }
 

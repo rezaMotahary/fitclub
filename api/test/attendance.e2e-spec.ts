@@ -359,7 +359,9 @@ describe('Attendance (e2e)', () => {
       .set('Cookie', secretaryCookie)
       .expect(200);
     expect(
-      en.body.some((m: { membershipCode: string }) => m.membershipCode === 'FS-1042'),
+      en.body.items.some(
+        (m: { membershipCode: string }) => m.membershipCode === 'FS-1042',
+      ),
     ).toBe(true);
 
     const fa = await request(app.getHttpServer())
@@ -368,7 +370,9 @@ describe('Attendance (e2e)', () => {
       .set('Cookie', secretaryCookie)
       .expect(200);
     expect(
-      fa.body.some((m: { membershipCode: string }) => m.membershipCode === 'FS-1042'),
+      fa.body.items.some(
+        (m: { membershipCode: string }) => m.membershipCode === 'FS-1042',
+      ),
     ).toBe(true);
   });
 

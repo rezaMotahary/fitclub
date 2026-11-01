@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SitePricing } from "@/components/SitePricing";
 
 const amenities = [
   "سالن وزنه مجزا",
@@ -16,29 +17,6 @@ const amenities = [
   "ماساژ ورزشی",
 ];
 
-const plans = [
-  {
-    days: "۲ روز در هفته",
-    amount: "۸۹۰٬۰۰۰",
-    note: "شروع آرام · ۸ جلسه در ماه",
-  },
-  {
-    days: "۳ روز در هفته",
-    amount: "۱٬۱۹۰٬۰۰۰",
-    note: "پرفروش · ۱۲ جلسه در ماه",
-    featured: true,
-  },
-  {
-    days: "۴ روز در هفته",
-    amount: "۱٬۴۵۰٬۰۰۰",
-    note: "پیشرفت سریع · ۱۶ جلسه",
-  },
-  {
-    days: "هر روز در هفته",
-    amount: "۱٬۷۹۰٬۰۰۰",
-    note: "دسترسی کامل ماهانه",
-  },
-];
 
 export default function HomePage() {
   return (
@@ -239,33 +217,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="section" id="pricing">
-        <h2>هزینه اشتراک ماهانه</h2>
-        <p className="sub">
-          شهریه بر اساس تعداد روزهای حضور در هفته محاسبه می‌شود. قیمت‌ها برای دوره ۳۰
-          روزه است و فقط نمونه هستند.
-        </p>
-        <div className="pricing">
-          {plans.map((plan, index) => (
-            <article
-              key={plan.days}
-              className={`price fade-in${index > 0 ? ` d${index + 1}` : ""}${
-                plan.featured ? " featured-price" : ""
-              }`}
-            >
-              <div className="days">{plan.days}</div>
-              <div className="amount">
-                {plan.amount} <small>تومان</small>
-              </div>
-              <p>{plan.note}</p>
-            </article>
-          ))}
-        </div>
-        <p className="price-note">
-          هزینه برنامه اختصاصی مربی و پیکرسنجی دوره‌ای جداگانه است. تمدید قبل از انقضا
-          ۱۰٪ تخفیف دارد. این اعداد تعرفه رسمی نیستند.
-        </p>
-      </section>
+      <SitePricing />
 
       <section className="section" id="contact">
         <h2>اطلاعات تماس و آدرس</h2>

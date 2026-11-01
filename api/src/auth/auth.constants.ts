@@ -11,3 +11,5 @@ export const OTP_MAX_ATTEMPTS = Number(process.env.OTP_MAX_ATTEMPTS ?? 5);
 export const DEFAULT_OTP_DEV_CODE = '123456';
 
 export const ROLES_KEY = 'roles';
+
+export const IS_PUBLIC_KEY = 'isPublic';

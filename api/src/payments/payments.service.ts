@@ -18,6 +18,7 @@ import {
   tuitionDebt,
 } from '../common/subscription-period.js';
 import { planReceptionPayment } from '../common/reception-payment.js';
+import { paginatedResult, resolvePage } from '../common/pagination.js';
 import { MembersService } from '../members/members.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { ListPaymentsDto } from './dto/list-payments.dto.js';
@@ -122,7 +123,11 @@ export class PaymentsService {
   }
 
   async listForStaff(query: ListPaymentsDto) {
-    const limit = query.limit ?? 40;
+    const { page, pageSize, skip, take } = resolvePage({
+      page: query.page,
+      pageSize: query.pageSize,
+      limit: query.limit,
+    });
     const where: Prisma.PaymentWhereInput = {
       status: PaymentStatus.CONFIRMED,
     };
@@ -150,21 +155,30 @@ export class PaymentsService {
       };
     }
 
-    const rows = await this.prisma.payment.findMany({
-      where,
-      orderBy: { paidAt: 'desc' },
-      take: limit,
-      include: {
-        member: {
-          select: {
-            membershipCode: true,
-            user: { select: { fullName: true, phone: true } },
+    const [rows, total] = await Promise.all([
+      this.prisma.payment.findMany({
+        where,
+        orderBy: { paidAt: 'desc' },
+        skip,
+        take,
+        include: {
+          member: {
+            select: {
+              membershipCode: true,
+              user: { select: { fullName: true, phone: true } },
+            },
           },
         },
-      },
-    });
+      }),
+      this.prisma.payment.count({ where }),
+    ]);
 
-    return rows.map((p) => this.mapPayment(p));
+    return paginatedResult(
+      rows.map((p) => this.mapPayment(p)),
+      total,
+      page,
+      pageSize,
+    );
   }
 
   async listForMember(memberId: string) {

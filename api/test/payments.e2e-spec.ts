@@ -121,9 +121,10 @@ describe('Payments — reception manual (e2e)', () => {
       .set('Cookie', secretaryCookie)
       .expect(200);
 
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeGreaterThan(0);
-    expect(res.body[0].member.membershipCode).toBe('FS-1046');
+    expect(Array.isArray(res.body.items)).toBe(true);
+    expect(res.body.items.length).toBeGreaterThan(0);
+    expect(res.body.total).toBeGreaterThan(0);
+    expect(res.body.items[0].member.membershipCode).toBe('FS-1046');
   });
 
   it('rejects invalid amount and OTHER method', async () => {
@@ -289,9 +290,9 @@ describe('Payments — reception manual (e2e)', () => {
       .query({ memberId: day10.id })
       .set('Cookie', adminCookie)
       .expect(200);
-    expect(listed.body.some((p: { id: string }) => p.id === paymentId)).toBe(
-      true,
-    );
+    expect(
+      listed.body.items.some((p: { id: string }) => p.id === paymentId),
+    ).toBe(true);
 
     // restore FS-1045 half-paid for attendance weekly-cap sample
     const half = Math.ceil(sub.priceToman / 2);
@@ -346,5 +347,27 @@ describe('Payments — reception manual (e2e)', () => {
       where: { id: m.id },
       data: { debtAmount: snap.debtAmount },
     });
+  });
+
+  it('paginates reception payments so page 2 does not repeat page 1', async () => {
+    const page1 = await request(app.getHttpServer())
+      .get('/api/payments')
+      .query({ page: 1, pageSize: 2 })
+      .set('Cookie', secretaryCookie)
+      .expect(200);
+    const page2 = await request(app.getHttpServer())
+      .get('/api/payments')
+      .query({ page: 2, pageSize: 2 })
+      .set('Cookie', secretaryCookie)
+      .expect(200);
+
+    const ids1 = page1.body.items.map((p: { id: string }) => p.id);
+    const ids2 = page2.body.items.map((p: { id: string }) => p.id);
+    expect(ids1).toHaveLength(2);
+    expect(ids2.length).toBeGreaterThan(0);
+    expect(ids1.some((id: string) => ids2.includes(id))).toBe(false);
+    expect(page1.body.total).toBe(page2.body.total);
+    expect(page1.body.total).toBeGreaterThan(2);
+    expect(page2.body.page).toBe(2);
   });
 });

@@ -27,6 +27,8 @@ export class MembersController {
     return this.members.search({
       q: query.q,
       limit: query.limit,
+      page: query.page,
+      pageSize: query.pageSize,
       includeArchived:
         query.includeArchived === '1' || query.includeArchived === 'true',
     });

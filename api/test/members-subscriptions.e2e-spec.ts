@@ -13,6 +13,12 @@ import {
 } from '../src/common/iran-date.js';
 import { earlyRenewalStartDay } from '../src/common/subscription-period.js';
 
+function memberItems(body: {
+  items?: Array<{ id: string; membershipCode: string; isArchived?: boolean }>;
+}) {
+  return body.items ?? [];
+}
+
 describe('Members + Plans + Subscriptions (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaClient;
@@ -119,7 +125,7 @@ describe('Members + Plans + Subscriptions (e2e)', () => {
       .query({ q: 'FS-1042' })
       .set('Cookie', adminCookie)
       .expect(200);
-    const saraId = members.body[0].id as string;
+    const saraId = memberItems(members.body)[0].id;
     const before = await request(app.getHttpServer())
       .get(`/api/members/${saraId}`)
       .set('Cookie', adminCookie)
@@ -155,23 +161,23 @@ describe('Members + Plans + Subscriptions (e2e)', () => {
       .query({ q: 'سارا' })
       .set('Cookie', secretaryCookie)
       .expect(200);
-    expect(byName.body.some((m: { membershipCode: string }) => m.membershipCode === 'FS-1042')).toBe(
-      true,
-    );
+    expect(
+      memberItems(byName.body).some((m) => m.membershipCode === 'FS-1042'),
+    ).toBe(true);
 
     const byCode = await request(app.getHttpServer())
       .get('/api/members')
       .query({ q: 'FS-1045' })
       .set('Cookie', secretaryCookie)
       .expect(200);
-    expect(byCode.body[0].membershipCode).toBe('FS-1045');
+    expect(memberItems(byCode.body)[0].membershipCode).toBe('FS-1045');
 
     const byPhone = await request(app.getHttpServer())
       .get('/api/members')
       .query({ q: '09121234567' })
       .set('Cookie', secretaryCookie)
       .expect(200);
-    expect(byPhone.body[0].membershipCode).toBe('FS-1042');
+    expect(memberItems(byPhone.body)[0].membershipCode).toBe('FS-1042');
   });
 
   it('member detail exposes half-paid day~10 open vs day~16 blocked debt flags', async () => {
@@ -180,7 +186,7 @@ describe('Members + Plans + Subscriptions (e2e)', () => {
       .query({ q: 'FS-1045' })
       .set('Cookie', secretaryCookie)
       .expect(200);
-    const openId = openDebt.body[0].id as string;
+    const openId = memberItems(openDebt.body)[0].id;
     const openDetail = await request(app.getHttpServer())
       .get(`/api/members/${openId}`)
       .set('Cookie', secretaryCookie)
@@ -193,7 +199,7 @@ describe('Members + Plans + Subscriptions (e2e)', () => {
       .query({ q: 'FS-1046' })
       .set('Cookie', secretaryCookie)
       .expect(200);
-    const closedId = closedDebt.body[0].id as string;
+    const closedId = memberItems(closedDebt.body)[0].id;
     const closedDetail = await request(app.getHttpServer())
       .get(`/api/members/${closedId}`)
       .set('Cookie', secretaryCookie)
@@ -444,13 +450,47 @@ describe('Members + Plans + Subscriptions (e2e)', () => {
       .query({ q: 'FS-1099' })
       .set('Cookie', secretaryCookie)
       .expect(200);
-    expect(hidden.body.length).toBe(0);
+    expect(memberItems(hidden.body)).toHaveLength(0);
 
     const shown = await request(app.getHttpServer())
       .get('/api/members')
       .query({ q: 'FS-1099', includeArchived: 'true' })
       .set('Cookie', secretaryCookie)
       .expect(200);
-    expect(shown.body[0]?.isArchived).toBe(true);
+    expect(memberItems(shown.body)[0]?.isArchived).toBe(true);
+  });
+
+  it('lists active plans without login so the public site can show tariffs', async () => {
+    const res = await request(app.getHttpServer()).get('/api/plans').expect(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(4);
+    expect(res.body[0]).toMatchObject({
+      name: expect.any(String),
+      priceToman: expect.any(Number),
+      priceLabel: expect.stringContaining('تومان'),
+    });
+  });
+
+  it('paginates members so page 2 does not repeat page 1', async () => {
+    const page1 = await request(app.getHttpServer())
+      .get('/api/members')
+      .query({ page: 1, pageSize: 2 })
+      .set('Cookie', secretaryCookie)
+      .expect(200);
+    const page2 = await request(app.getHttpServer())
+      .get('/api/members')
+      .query({ page: 2, pageSize: 2 })
+      .set('Cookie', secretaryCookie)
+      .expect(200);
+
+    const ids1 = memberItems(page1.body).map((m) => m.id);
+    const ids2 = memberItems(page2.body).map((m) => m.id);
+    expect(ids1).toHaveLength(2);
+    expect(ids2.length).toBeGreaterThan(0);
+    expect(ids1.some((id) => ids2.includes(id))).toBe(false);
+    expect(page1.body.total).toBe(page2.body.total);
+    expect(page1.body.total).toBeGreaterThan(2);
+    expect(page2.body.page).toBe(2);
+    expect(page2.body.pageCount).toBeGreaterThan(1);
   });
 });

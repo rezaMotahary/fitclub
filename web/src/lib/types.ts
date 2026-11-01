@@ -40,6 +40,14 @@ export type PlanPublic = {
   priceLabel: string;
 };
 
+export type PaginatedList<T> = {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  pageCount: number;
+};
+
 export type MemberSummary = {
   id: string;
   membershipCode: string;

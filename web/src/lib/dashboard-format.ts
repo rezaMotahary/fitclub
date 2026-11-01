@@ -28,3 +28,27 @@ export function paymentMethodLabel(method: string): string {
 export function formatToman(n: number): string {
   return `${n.toLocaleString("fa-IR")} تومان`;
 }
+
+/** Compact bar label so amounts stay readable without hover. */
+export function formatChartAmount(n: number): string {
+  if (!Number.isFinite(n) || n <= 0) return "۰";
+  if (n >= 1_000_000) {
+    const millions = n / 1_000_000;
+    const text = millions.toLocaleString("fa-IR", {
+      maximumFractionDigits: millions >= 10 ? 0 : 1,
+    });
+    return `${text} میلیون`;
+  }
+  if (n >= 1000) {
+    const thousands = n / 1000;
+    const text = thousands.toLocaleString("fa-IR", {
+      maximumFractionDigits: Number.isInteger(thousands) ? 0 : 0,
+    });
+    return `${text} هزار`;
+  }
+  return n.toLocaleString("fa-IR");
+}
+
+export function formatPageStatus(page: number, pageCount: number): string {
+  return `صفحه ${page.toLocaleString("fa-IR")} از ${pageCount.toLocaleString("fa-IR")}`;
+}

@@ -85,7 +85,7 @@ export function AttendanceDesk() {
         setUser(me.user);
         const list = await searchMembers("");
         if (cancelled) return;
-        setMembers(list);
+        setMembers(list.items);
         await refreshBoards();
       } catch (err) {
         if (cancelled) return;
@@ -118,14 +118,14 @@ export function AttendanceDesk() {
     setNote(null);
     try {
       const list = await searchMembers(toAsciiDigits(query.trim()));
-      setMembers(list);
+      setMembers(list.items);
       setNote(
-        list.length === 0
+        list.total === 0
           ? "عضوی پیدا نشد."
-          : `${list.length.toLocaleString("fa-IR")} عضو پیدا شد.`,
+          : `${list.total.toLocaleString("fa-IR")} عضو پیدا شد.`,
       );
-      if (list.length === 1) {
-        await loadEligibility(list[0]!.id);
+      if (list.items.length === 1) {
+        await loadEligibility(list.items[0]!.id);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "جستجو ناموفق بود");

@@ -33,7 +33,12 @@ import {
   paymentMethodLabel,
 } from "@/lib/dashboard-format";
 import { formatJalaliDateTime, formatJalaliDay } from "@/lib/jalali-date";
-import { createLatestGate, pickInitialMember } from "@/lib/member-select";
+import { createLatestGate } from "@/lib/member-select";
+import {
+  parsePaymentMemberQuery,
+  resolveBootMember,
+} from "@/lib/payment-member-query";
+import { DeskPager } from "./DeskPager";
 import { defaultRenewPlanId } from "@/lib/renew-plan-default";
 import {
   minimumHalfTuition,
@@ -49,6 +54,17 @@ import type {
 import { ThemeToggle } from "./ThemeToggle";
 
 type PayMethod = "CASH" | "CARD_READER" | "CARD_TRANSFER";
+type Notice = { ok?: string; error?: string };
+
+const MEMBER_PAGE_SIZE = 5;
+const PAYMENT_PAGE_SIZE = 8;
+
+function SectionNotice({ notice }: { notice: Notice | null | undefined }) {
+  if (!notice) return null;
+  if (notice.error) return <p className="auth-error">{notice.error}</p>;
+  if (notice.ok) return <p className="desk-ok">{notice.ok}</p>;
+  return null;
+}
 
 const METHODS: { value: PayMethod; label: string }[] = [
   { value: "CASH", label: "نقد" },
@@ -76,10 +92,16 @@ export function PaymentDesk({
   const [user, setUser] = useState<PublicAuthUser | null>(null);
   const [query, setQuery] = useState("");
   const [members, setMembers] = useState<MemberSummary[]>([]);
+  const [memberPage, setMemberPage] = useState(1);
+  const [memberPageCount, setMemberPageCount] = useState(1);
   const [plans, setPlans] = useState<PlanPublic[]>([]);
   const [selected, setSelected] = useState<MemberDetail | null>(null);
   const [history, setHistory] = useState<PaymentPublic[]>([]);
+  const [historyPage, setHistoryPage] = useState(1);
+  const [historyPageCount, setHistoryPageCount] = useState(1);
   const [recent, setRecent] = useState<PaymentPublic[]>([]);
+  const [recentPage, setRecentPage] = useState(1);
+  const [recentPageCount, setRecentPageCount] = useState(1);
   const [filterMethod, setFilterMethod] = useState<string>("");
   const [amountRaw, setAmountRaw] = useState("");
   const [method, setMethod] = useState<PayMethod>("CASH");
@@ -89,19 +111,27 @@ export function PaymentDesk({
   const [renewMethod, setRenewMethod] = useState<PayMethod>("CASH");
   const [earlyDiscountPercent, setEarlyDiscountPercent] = useState(10);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [ok, setOk] = useState<string | null>(null);
+  const [bootError, setBootError] = useState<string | null>(null);
+  const [searchNotice, setSearchNotice] = useState<Notice | null>(null);
+  const [payNotice, setPayNotice] = useState<Notice | null>(null);
+  const [renewNotice, setRenewNotice] = useState<Notice | null>(null);
 
   const plansRef = useRef<PlanPublic[]>([]);
   const selectGate = useRef(createLatestGate()).current;
 
-  const loadRecent = useCallback(async () => {
-    const list = await listPayments({
-      method: filterMethod || undefined,
-      limit: 25,
-    });
-    setRecent(list);
-  }, [filterMethod]);
+  const loadRecent = useCallback(
+    async (page = 1) => {
+      const list = await listPayments({
+        method: filterMethod || undefined,
+        page,
+        pageSize: PAYMENT_PAGE_SIZE,
+      });
+      setRecent(list.items);
+      setRecentPage(list.page);
+      setRecentPageCount(list.pageCount);
+    },
+    [filterMethod],
+  );
 
   // Stable identity: boot must not re-run when plans change (KI-007).
   const selectMember = useCallback(
@@ -109,11 +139,13 @@ export function PaymentDesk({
       const ticket = selectGate.begin();
       const [detail, pays] = await Promise.all([
         fetchMember(id),
-        listPayments({ memberId: id, limit: 30 }),
+        listPayments({ memberId: id, page: 1, pageSize: PAYMENT_PAGE_SIZE }),
       ]);
       if (!selectGate.isLatest(ticket)) return;
       setSelected(detail);
-      setHistory(pays);
+      setHistory(pays.items);
+      setHistoryPage(pays.page);
+      setHistoryPageCount(pays.pageCount);
       setAmountRaw("");
       setNote("");
       setRenewAmountRaw("");
@@ -143,25 +175,44 @@ export function PaymentDesk({
           return;
         }
         setUser(me.user);
+        const requested = parsePaymentMemberQuery(window.location.search);
         const [list, planList, clubSettings] = await Promise.all([
-          searchMembers(""),
+          searchMembers("", false, 1, MEMBER_PAGE_SIZE),
           fetchPlans(false),
           fetchClubSettings(),
         ]);
         if (cancelled) return;
         plansRef.current = planList;
-        setMembers(list);
+        setMembers(list.items);
+        setMemberPage(list.page);
+        setMemberPageCount(list.pageCount);
         setPlans(planList);
         setEarlyDiscountPercent(clubSettings.earlyRenewalDiscountPercent);
-        const pick = pickInitialMember(list);
-        if (pick) await selectMember(pick.id);
+        let pick = resolveBootMember(list.items, requested);
+        if (requested.memberId && !pick) {
+          await selectMember(requested.memberId);
+        } else {
+          if (requested.membershipCode && !pick) {
+            const extra = await searchMembers(
+              requested.membershipCode,
+              false,
+              1,
+              20,
+            );
+            pick =
+              extra.items.find(
+                (m) => m.membershipCode.toUpperCase() === requested.membershipCode,
+              ) ?? extra.items[0] ?? null;
+          }
+          if (pick) await selectMember(pick.id);
+        }
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
           window.location.href = "/login/staff";
           return;
         }
-        setError("ارتباط با سرور برقرار نشد. کمی بعد دوباره باز کنید.");
+        setBootError("ارتباط با سرور برقرار نشد. کمی بعد دوباره باز کنید.");
       }
     }
 
@@ -173,9 +224,17 @@ export function PaymentDesk({
 
   useEffect(() => {
     let cancelled = false;
-    listPayments({ method: filterMethod || undefined, limit: 25 })
+    listPayments({
+      method: filterMethod || undefined,
+      page: 1,
+      pageSize: PAYMENT_PAGE_SIZE,
+    })
       .then((list) => {
-        if (!cancelled) setRecent(list);
+        if (!cancelled) {
+          setRecent(list.items);
+          setRecentPage(list.page);
+          setRecentPageCount(list.pageCount);
+        }
       })
       .catch(() => {
         /* first load may race the auth redirect */
@@ -214,17 +273,29 @@ export function PaymentDesk({
   const renewWords =
     renewAmount != null ? tomanAmountInWords(renewAmount) : null;
 
+  async function loadMemberPage(page: number) {
+    const list = await searchMembers(
+      toAsciiDigits(query.trim()),
+      false,
+      page,
+      MEMBER_PAGE_SIZE,
+    );
+    setMembers(list.items);
+    setMemberPage(list.page);
+    setMemberPageCount(list.pageCount);
+  }
+
   async function onSearch(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
-    setError(null);
-    setOk(null);
+    setSearchNotice(null);
     try {
-      const list = await searchMembers(toAsciiDigits(query.trim()));
-      setMembers(list);
-      setOk("نتیجه جستجو به‌روز شد.");
+      await loadMemberPage(1);
+      setSearchNotice({ ok: "نتیجه جستجو به‌روز شد." });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "جستجو ناموفق بود");
+      setSearchNotice({
+        error: err instanceof Error ? err.message : "جستجو ناموفق بود",
+      });
     } finally {
       setBusy(false);
     }
@@ -235,12 +306,11 @@ export function PaymentDesk({
     if (!selected) return;
     const amount = parseTomanInput(amountRaw);
     if (amount == null || amount < 1) {
-      setError("مبلغ را با رقم فارسی یا انگلیسی وارد کنید.");
+      setPayNotice({ error: "مبلغ را با رقم فارسی یا انگلیسی وارد کنید." });
       return;
     }
     setBusy(true);
-    setError(null);
-    setOk(null);
+    setPayNotice(null);
     try {
       const res = await recordReceptionPayment({
         memberId: selected.id,
@@ -251,20 +321,35 @@ export function PaymentDesk({
       setSelected(res.member);
       setAmountRaw("");
       setNote("");
-      setOk(
-        res.fullySettled
+      setPayNotice({
+        ok: res.fullySettled
           ? `تسویه کامل شد. ورود از نظر شهریه باز است.`
           : `قسط ثبت شد. مانده: ${formatToman(res.subscription.debtToman)}`,
-      );
+      });
       const [pays, list] = await Promise.all([
-        listPayments({ memberId: selected.id, limit: 30 }),
-        searchMembers(toAsciiDigits(query.trim())),
-        loadRecent(),
+        listPayments({
+          memberId: selected.id,
+          page: 1,
+          pageSize: PAYMENT_PAGE_SIZE,
+        }),
+        searchMembers(
+          toAsciiDigits(query.trim()),
+          false,
+          memberPage,
+          MEMBER_PAGE_SIZE,
+        ),
+        loadRecent(recentPage),
       ]);
-      setHistory(pays);
-      setMembers(list);
+      setHistory(pays.items);
+      setHistoryPage(pays.page);
+      setHistoryPageCount(pays.pageCount);
+      setMembers(list.items);
+      setMemberPage(list.page);
+      setMemberPageCount(list.pageCount);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "ثبت پرداخت ناموفق بود");
+      setPayNotice({
+        error: err instanceof Error ? err.message : "ثبت پرداخت ناموفق بود",
+      });
     } finally {
       setBusy(false);
     }
@@ -275,12 +360,13 @@ export function PaymentDesk({
     if (!selected || !renewPlanId) return;
     const amount = parseTomanInput(renewAmountRaw);
     if (amount == null || amount < 1) {
-      setError("مبلغ تمدید را با رقم فارسی یا انگلیسی وارد کنید.");
+      setRenewNotice({
+        error: "مبلغ تمدید را با رقم فارسی یا انگلیسی وارد کنید.",
+      });
       return;
     }
     setBusy(true);
-    setError(null);
-    setOk(null);
+    setRenewNotice(null);
     try {
       const res = await renewSubscription({
         memberId: selected.id,
@@ -295,18 +381,33 @@ export function PaymentDesk({
         res.subscription.discountPercentApplied > 0
           ? ` با تخفیف ${res.subscription.discountPercentApplied.toLocaleString("fa-IR")}٪`
           : "";
-      setOk(
-        `تمدید ثبت شد${disc}. دورهٔ جدید از ${startLabel} شروع می‌شود (${res.subscription.plan.name}).`,
-      );
+      setRenewNotice({
+        ok: `تمدید ثبت شد${disc}. دورهٔ جدید از ${startLabel} شروع می‌شود (${res.subscription.plan.name}).`,
+      });
       const [pays, list] = await Promise.all([
-        listPayments({ memberId: selected.id, limit: 30 }),
-        searchMembers(toAsciiDigits(query.trim())),
-        loadRecent(),
+        listPayments({
+          memberId: selected.id,
+          page: 1,
+          pageSize: PAYMENT_PAGE_SIZE,
+        }),
+        searchMembers(
+          toAsciiDigits(query.trim()),
+          false,
+          memberPage,
+          MEMBER_PAGE_SIZE,
+        ),
+        loadRecent(recentPage),
       ]);
-      setHistory(pays);
-      setMembers(list);
+      setHistory(pays.items);
+      setHistoryPage(pays.page);
+      setHistoryPageCount(pays.pageCount);
+      setMembers(list.items);
+      setMemberPage(list.page);
+      setMemberPageCount(list.pageCount);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "ثبت تمدید ناموفق بود");
+      setRenewNotice({
+        error: err instanceof Error ? err.message : "ثبت تمدید ناموفق بود",
+      });
     } finally {
       setBusy(false);
     }
@@ -321,7 +422,7 @@ export function PaymentDesk({
     window.location.href = "/login/staff";
   }
 
-  if (!user && !error) {
+  if (!user && !bootError) {
     return (
       <main className="auth-shell">
         <ThemeToggle className="theme-toggle-float" />
@@ -366,8 +467,7 @@ export function PaymentDesk({
         </div>
       </header>
 
-      {error ? <p className="auth-error desk-banner">{error}</p> : null}
-      {ok ? <p className="desk-ok desk-banner">{ok}</p> : null}
+      {bootError ? <p className="auth-error desk-banner">{bootError}</p> : null}
 
       <div className="att-layout">
         <section className="desk-section desk-section-first">
@@ -390,6 +490,7 @@ export function PaymentDesk({
               جستجو
             </button>
           </form>
+          <SectionNotice notice={searchNotice} />
           <div className="att-member-list">
             {members.length === 0 ? (
               <p className="auth-muted">عضوی پیدا نشد.</p>
@@ -414,6 +515,18 @@ export function PaymentDesk({
               ))
             )}
           </div>
+          <DeskPager
+            page={memberPage}
+            pageCount={memberPageCount}
+            busy={busy}
+            onPage={(p) => {
+              void loadMemberPage(p).catch((err: unknown) => {
+                setSearchNotice({
+                  error: err instanceof Error ? err.message : "جستجو ناموفق بود",
+                });
+              });
+            }}
+          />
         </section>
 
         <section className="desk-section desk-section-first">
@@ -523,8 +636,11 @@ export function PaymentDesk({
                       ثبت قسط
                     </button>
                   </div>
+                  <SectionNotice notice={payNotice} />
                 </form>
-              ) : null}
+              ) : (
+                <SectionNotice notice={payNotice} />
+              )}
 
               <div className="pay-renew-box">
                 <h3>تمدید اشتراک</h3>
@@ -655,30 +771,53 @@ export function PaymentDesk({
                         ثبت تمدید
                       </button>
                     </div>
+                    <SectionNotice notice={renewNotice} />
                   </form>
                 )}
+                {renewBlockedByUpcoming || !canRenewEarly ? (
+                  <SectionNotice notice={renewNotice} />
+                ) : null}
               </div>
 
               <h3 className="dash-subhead">سوابق این عضو</h3>
               {history.length === 0 ? (
                 <p className="auth-muted">پرداختی در پرونده نیست.</p>
               ) : (
-                <ul className="dash-list">
-                  {history.map((p) => (
-                    <li key={p.id} className="dash-list-item">
-                      <div>
-                        <strong>{p.title}</strong>
-                        <p className="auth-muted">
-                          {formatJalaliDateTime(p.paidAt)} ·{" "}
-                          {paymentMethodLabel(p.method)}
-                        </p>
-                      </div>
-                      <span className="dash-list-meta">
-                        {formatToman(p.amountToman)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                <>
+                  <ul className="dash-list">
+                    {history.map((p) => (
+                      <li key={p.id} className="dash-list-item">
+                        <div>
+                          <strong>{p.title}</strong>
+                          <p className="auth-muted">
+                            {formatJalaliDateTime(p.paidAt)} ·{" "}
+                            {paymentMethodLabel(p.method)}
+                          </p>
+                        </div>
+                        <span className="dash-list-meta">
+                          {formatToman(p.amountToman)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <DeskPager
+                    page={historyPage}
+                    pageCount={historyPageCount}
+                    busy={busy}
+                    onPage={(p) => {
+                      if (!selected) return;
+                      void listPayments({
+                        memberId: selected.id,
+                        page: p,
+                        pageSize: PAYMENT_PAGE_SIZE,
+                      }).then((pays) => {
+                        setHistory(pays.items);
+                        setHistoryPage(pays.page);
+                        setHistoryPageCount(pays.pageCount);
+                      });
+                    }}
+                  />
+                </>
               )}
             </>
           )}
@@ -714,27 +853,35 @@ export function PaymentDesk({
         {recent.length === 0 ? (
           <p className="auth-muted">پرداختی نیست.</p>
         ) : (
-          <ul className="dash-list">
-            {recent.map((p) => (
-              <li key={p.id} className="dash-list-item">
-                <div>
-                  <strong>
-                    {p.member?.fullName ?? "—"}{" "}
-                    <span className="desk-code">
-                      {p.member?.membershipCode ?? ""}
-                    </span>
-                  </strong>
-                  <p className="auth-muted">
-                    {p.title} · {formatJalaliDateTime(p.paidAt)} ·{" "}
-                    {paymentMethodLabel(p.method)}
-                  </p>
-                </div>
-                <span className="dash-list-meta">
-                  {formatToman(p.amountToman)}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="dash-list">
+              {recent.map((p) => (
+                <li key={p.id} className="dash-list-item">
+                  <div>
+                    <strong>
+                      {p.member?.fullName ?? "—"}{" "}
+                      <span className="desk-code">
+                        {p.member?.membershipCode ?? ""}
+                      </span>
+                    </strong>
+                    <p className="auth-muted">
+                      {p.title} · {formatJalaliDateTime(p.paidAt)} ·{" "}
+                      {paymentMethodLabel(p.method)}
+                    </p>
+                  </div>
+                  <span className="dash-list-meta">
+                    {formatToman(p.amountToman)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <DeskPager
+              page={recentPage}
+              pageCount={recentPageCount}
+              busy={busy}
+              onPage={(p) => void loadRecent(p)}
+            />
+          </>
         )}
       </section>
     </main>

@@ -12,6 +12,7 @@ import type {
   MemberOtpRequestResponse,
   MemberOtpVerifyResponse,
   MemberSummary,
+  PaginatedList,
   PaymentPublic,
   PlanPublic,
   RecordPaymentResponse,
@@ -142,12 +143,19 @@ export function updateClubSettings(body: { earlyRenewalDiscountPercent: number }
   });
 }
 
-export function searchMembers(q: string, includeArchived = false) {
+export function searchMembers(
+  q: string,
+  includeArchived = false,
+  page = 1,
+  pageSize = 20,
+) {
   const params = new URLSearchParams();
   if (q) params.set("q", q);
   if (includeArchived) params.set("includeArchived", "true");
+  params.set("page", String(page));
+  params.set("pageSize", String(pageSize));
   const qs = params.toString();
-  return apiFetch<MemberSummary[]>(`/members${qs ? `?${qs}` : ""}`);
+  return apiFetch<PaginatedList<MemberSummary>>(`/members?${qs}`);
 }
 
 export function archiveMember(id: string) {
@@ -222,14 +230,20 @@ export function listPayments(params: {
   q?: string;
   method?: string;
   limit?: number;
+  page?: number;
+  pageSize?: number;
 } = {}) {
   const search = new URLSearchParams();
   if (params.memberId) search.set("memberId", params.memberId);
   if (params.q) search.set("q", params.q);
   if (params.method) search.set("method", params.method);
-  if (params.limit) search.set("limit", String(params.limit));
+  if (params.page) search.set("page", String(params.page));
+  if (params.pageSize) search.set("pageSize", String(params.pageSize));
+  else if (params.limit) search.set("limit", String(params.limit));
   const qs = search.toString();
-  return apiFetch<PaymentPublic[]>(`/payments${qs ? `?${qs}` : ""}`);
+  return apiFetch<PaginatedList<PaymentPublic>>(
+    `/payments${qs ? `?${qs}` : ""}`,
+  );
 }
 
 export function listMyPayments() {

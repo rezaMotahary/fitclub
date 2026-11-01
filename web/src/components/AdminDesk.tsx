@@ -28,6 +28,7 @@ import {
 import { roleLabel, toAsciiDigits } from "@/lib/auth";
 import { formatToman } from "@/lib/dashboard-format";
 import { formatJalaliDay } from "@/lib/jalali-date";
+import { paymentMemberHref } from "@/lib/payment-member-query";
 import type {
   AdminOverview,
   ClubSettings,
@@ -35,18 +36,37 @@ import type {
   PlanPublic,
   PublicAuthUser,
 } from "@/lib/types";
+import { DeskPager } from "./DeskPager";
+import { JalaliDateField } from "./JalaliDateField";
 import { RevenueChart } from "./RevenueChart";
 import { ThemeToggle } from "./ThemeToggle";
+
+const MEMBER_PAGE_SIZE = 5;
+
+type Notice = { ok?: string; error?: string };
+
+function SectionNotice({ notice }: { notice: Notice | null | undefined }) {
+  if (!notice) return null;
+  if (notice.error) return <p className="auth-error">{notice.error}</p>;
+  if (notice.ok) return <p className="desk-ok">{notice.ok}</p>;
+  return null;
+}
 
 export function AdminDesk() {
   const [user, setUser] = useState<PublicAuthUser | null>(null);
   const [query, setQuery] = useState("");
   const [members, setMembers] = useState<MemberSummary[]>([]);
+  const [memberPage, setMemberPage] = useState(1);
+  const [memberPageCount, setMemberPageCount] = useState(1);
   const [plans, setPlans] = useState<PlanPublic[]>([]);
   const [includeArchived, setIncludeArchived] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [note, setNote] = useState<string | null>(null);
+  const [bootError, setBootError] = useState<string | null>(null);
+  const [searchNotice, setSearchNotice] = useState<Notice | null>(null);
+  const [filterNotice, setFilterNotice] = useState<Notice | null>(null);
+  const [planNotice, setPlanNotice] = useState<Record<string, Notice>>({});
+  const [discountNotice, setDiscountNotice] = useState<Notice | null>(null);
+  const [memberNotice, setMemberNotice] = useState<Record<string, Notice>>({});
   const [overview, setOverview] = useState<AdminOverview | null>(null);
   const [settings, setSettings] = useState<ClubSettings | null>(null);
   const [iranYear, setIranYear] = useState<number | null>(null);
@@ -67,9 +87,11 @@ export function AdminDesk() {
   }, []);
 
   const loadMembers = useCallback(
-    async (q: string) => {
-      const list = await searchMembers(q, includeArchived);
-      setMembers(list);
+    async (q: string, page = 1) => {
+      const res = await searchMembers(q, includeArchived, page, MEMBER_PAGE_SIZE);
+      setMembers(res.items);
+      setMemberPage(res.page);
+      setMemberPageCount(res.pageCount);
     },
     [includeArchived],
   );
@@ -83,11 +105,11 @@ export function AdminDesk() {
         toInput: to,
       });
       if ("error" in built) {
-        setError(built.error);
-        return;
+        return built.error;
       }
       const o = await fetchAdminOverview(built);
       setOverview(o);
+      return null;
     },
     [],
   );
@@ -108,7 +130,7 @@ export function AdminDesk() {
         const [clubSettings] = await Promise.all([
           fetchClubSettings(),
           loadPlans(),
-          loadMembers(""),
+          loadMembers("", 1),
         ]);
         if (cancelled) return;
         setSettings(clubSettings);
@@ -126,7 +148,7 @@ export function AdminDesk() {
           window.location.href = "/login/staff";
           return;
         }
-        setError("ارتباط با سرور برقرار نشد. کمی بعد دوباره باز کنید.");
+        setBootError("ارتباط با سرور برقرار نشد. کمی بعد دوباره باز کنید.");
       }
     }
 
@@ -145,13 +167,18 @@ export function AdminDesk() {
     e.preventDefault();
     if (iranYear == null || iranMonth == null) return;
     setBusy(true);
-    setError(null);
-    setNote(null);
+    setFilterNotice(null);
     try {
-      await loadOverview(iranYear, iranMonth, fromInput, toInput);
-      setNote("بازه درآمد به‌روز شد.");
+      const err = await loadOverview(iranYear, iranMonth, fromInput, toInput);
+      if (err) {
+        setFilterNotice({ error: err });
+        return;
+      }
+      setFilterNotice({ ok: "بازه درآمد به‌روز شد." });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "فیلتر ناموفق بود");
+      setFilterNotice({
+        error: err instanceof Error ? err.message : "فیلتر ناموفق بود",
+      });
     } finally {
       setBusy(false);
     }
@@ -165,11 +192,14 @@ export function AdminDesk() {
     setFromInput("");
     setToInput("");
     setBusy(true);
-    setError(null);
+    setFilterNotice(null);
     try {
-      await loadOverview(y, m, "", "");
+      const err = await loadOverview(y, m, "", "");
+      if (err) setFilterNotice({ error: err });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "فیلتر ناموفق بود");
+      setFilterNotice({
+        error: err instanceof Error ? err.message : "فیلتر ناموفق بود",
+      });
     } finally {
       setBusy(false);
     }
@@ -178,13 +208,28 @@ export function AdminDesk() {
   async function onSearch(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
-    setError(null);
-    setNote(null);
+    setSearchNotice(null);
     try {
-      await loadMembers(toAsciiDigits(query.trim()));
-      setNote("نتیجه جستجو به‌روز شد.");
+      await loadMembers(toAsciiDigits(query.trim()), 1);
+      setSearchNotice({ ok: "نتیجه جستجو به‌روز شد." });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "جستجو ناموفق بود");
+      setSearchNotice({
+        error: err instanceof Error ? err.message : "جستجو ناموفق بود",
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onMemberPage(page: number) {
+    setBusy(true);
+    setSearchNotice(null);
+    try {
+      await loadMembers(toAsciiDigits(query.trim()), page);
+    } catch (err) {
+      setSearchNotice({
+        error: err instanceof Error ? err.message : "جستجو ناموفق بود",
+      });
     } finally {
       setBusy(false);
     }
@@ -192,19 +237,29 @@ export function AdminDesk() {
 
   async function onToggleArchive(m: MemberSummary) {
     setBusy(true);
-    setError(null);
-    setNote(null);
+    setMemberNotice((prev) => ({ ...prev, [m.id]: {} }));
     try {
       if (m.isArchived) {
         await activateMember(m.id);
-        setNote(`${m.fullName} دوباره فعال شد.`);
+        setMemberNotice((prev) => ({
+          ...prev,
+          [m.id]: { ok: `${m.fullName} دوباره فعال شد.` },
+        }));
       } else {
         await archiveMember(m.id);
-        setNote(`${m.fullName} آرشیو شد.`);
+        setMemberNotice((prev) => ({
+          ...prev,
+          [m.id]: { ok: `${m.fullName} آرشیو شد.` },
+        }));
       }
-      await loadMembers(toAsciiDigits(query.trim()));
+      await loadMembers(toAsciiDigits(query.trim()), memberPage);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "عملیات ناموفق بود");
+      setMemberNotice((prev) => ({
+        ...prev,
+        [m.id]: {
+          error: err instanceof Error ? err.message : "عملیات ناموفق بود",
+        },
+      }));
     } finally {
       setBusy(false);
     }
@@ -213,12 +268,14 @@ export function AdminDesk() {
   async function onSavePlanPrice(plan: PlanPublic) {
     const parsed = parseTomanInput(priceDrafts[plan.id] ?? "");
     if (parsed == null) {
-      setError("قیمت پلن باید عدد باشد (رقم فارسی یا انگلیسی).");
+      setPlanNotice((prev) => ({
+        ...prev,
+        [plan.id]: { error: "قیمت پلن باید عدد باشد (رقم فارسی یا انگلیسی)." },
+      }));
       return;
     }
     setBusy(true);
-    setError(null);
-    setNote(null);
+    setPlanNotice((prev) => ({ ...prev, [plan.id]: {} }));
     try {
       const updated = await updatePlan(plan.id, { priceToman: parsed });
       setPlans((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
@@ -226,11 +283,19 @@ export function AdminDesk() {
         ...prev,
         [updated.id]: formatTomanGrouped(updated.priceToman),
       }));
-      setNote(
-        `قیمت «${updated.name}» برای فروش‌های بعدی ${updated.priceLabel} شد. اشتراک‌های قبلی عوض نمی‌شوند.`,
-      );
+      setPlanNotice((prev) => ({
+        ...prev,
+        [updated.id]: {
+          ok: `قیمت «${updated.name}» برای فروش‌های بعدی ${updated.priceLabel} شد. اشتراک‌های قبلی عوض نمی‌شوند.`,
+        },
+      }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "ذخیره تعرفه ناموفق بود");
+      setPlanNotice((prev) => ({
+        ...prev,
+        [plan.id]: {
+          error: err instanceof Error ? err.message : "ذخیره تعرفه ناموفق بود",
+        },
+      }));
     } finally {
       setBusy(false);
     }
@@ -240,25 +305,29 @@ export function AdminDesk() {
     e.preventDefault();
     const parsed = parsePercentInput(discountRaw);
     if (parsed == null) {
-      setError("درصد تخفیف باید بین ۰ تا ۱۰۰ باشد (رقم فارسی یا انگلیسی).");
+      setDiscountNotice({
+        error: "درصد تخفیف باید بین ۰ تا ۱۰۰ باشد (رقم فارسی یا انگلیسی).",
+      });
       return;
     }
     setBusy(true);
-    setError(null);
-    setNote(null);
+    setDiscountNotice(null);
     try {
       const updated = await updateClubSettings({
         earlyRenewalDiscountPercent: parsed,
       });
       setSettings(updated);
       setDiscountRaw(updated.earlyRenewalDiscountPercent.toLocaleString("fa-IR"));
-      setNote(
-        parsed === 0
-          ? "تخفیف تمدید زودتر خاموش شد."
-          : `تخفیف تمدید زودتر ${updated.earlyRenewalDiscountPercent.toLocaleString("fa-IR")}٪ شد.`,
-      );
+      setDiscountNotice({
+        ok:
+          parsed === 0
+            ? "تخفیف تمدید زودتر خاموش شد."
+            : `تخفیف تمدید زودتر ${updated.earlyRenewalDiscountPercent.toLocaleString("fa-IR")}٪ شد.`,
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "ذخیره تخفیف ناموفق بود");
+      setDiscountNotice({
+        error: err instanceof Error ? err.message : "ذخیره تخفیف ناموفق بود",
+      });
     } finally {
       setBusy(false);
     }
@@ -273,7 +342,7 @@ export function AdminDesk() {
     window.location.href = "/login/staff";
   }
 
-  if (!user && !error) {
+  if (!user && !bootError) {
     return (
       <main className="auth-shell">
         <ThemeToggle className="theme-toggle-float" />
@@ -314,8 +383,7 @@ export function AdminDesk() {
         </div>
       </header>
 
-      {error ? <p className="auth-error desk-banner">{error}</p> : null}
-      {note ? <p className="desk-ok desk-banner">{note}</p> : null}
+      {bootError ? <p className="auth-error desk-banner">{bootError}</p> : null}
 
       {overview && revenue ? (
         <>
@@ -390,32 +458,25 @@ export function AdminDesk() {
                   ))}
                 </select>
               </label>
-              <label className="pay-field">
-                از تاریخ
-                <input
-                  dir="ltr"
-                  className="ltr-isolate"
-                  value={fromInput}
-                  onChange={(e) => setFromInput(e.target.value)}
-                  placeholder="۱۴۰۵/۰۸/۰۱"
-                  aria-label="از تاریخ شمسی"
-                />
-              </label>
-              <label className="pay-field">
-                تا تاریخ
-                <input
-                  dir="ltr"
-                  className="ltr-isolate"
-                  value={toInput}
-                  onChange={(e) => setToInput(e.target.value)}
-                  placeholder="۱۴۰۵/۰۸/۱۵"
-                  aria-label="تا تاریخ شمسی"
-                />
-              </label>
+              <JalaliDateField
+                label="از تاریخ"
+                value={fromInput}
+                onChange={setFromInput}
+                placeholder="۱۴۰۵/۰۸/۰۱"
+                ariaLabel="از تاریخ شمسی"
+              />
+              <JalaliDateField
+                label="تا تاریخ"
+                value={toInput}
+                onChange={setToInput}
+                placeholder="۱۴۰۵/۰۸/۱۵"
+                ariaLabel="تا تاریخ شمسی"
+              />
               <button type="submit" className="btn btn-primary" disabled={busy}>
                 نمایش بازه
               </button>
             </form>
+            <SectionNotice notice={filterNotice} />
             <p className="admin-range-summary">
               بازه انتخابی ({revenue.range.jalaliFromLabel} تا{" "}
               {revenue.range.jalaliToLabel}):{" "}
@@ -428,6 +489,7 @@ export function AdminDesk() {
                 title="درآمد روزانه در بازه"
                 points={revenue.daily}
                 emptyText="در این بازه پرداختی ثبت نشده."
+                dense
               />
               <RevenueChart
                 title="شش ماه اخیر"
@@ -515,6 +577,7 @@ export function AdminDesk() {
                         >
                           ذخیره قیمت
                         </button>
+                        <SectionNotice notice={planNotice[p.id]} />
                       </div>
                     </article>
                   );
@@ -545,6 +608,7 @@ export function AdminDesk() {
                 <button type="submit" className="btn btn-primary" disabled={busy}>
                   ذخیره تخفیف
                 </button>
+                <SectionNotice notice={discountNotice} />
               </form>
             </section>
           </div>
@@ -571,12 +635,18 @@ export function AdminDesk() {
               onChange={(e) => {
                 const next = e.target.checked;
                 setIncludeArchived(next);
-                void searchMembers(toAsciiDigits(query.trim()), next)
-                  .then(setMembers)
+                void searchMembers(toAsciiDigits(query.trim()), next, 1, MEMBER_PAGE_SIZE)
+                  .then((res) => {
+                    setMembers(res.items);
+                    setMemberPage(res.page);
+                    setMemberPageCount(res.pageCount);
+                    setSearchNotice({ ok: "نتیجه جستجو به‌روز شد." });
+                  })
                   .catch((err: unknown) => {
-                    setError(
-                      err instanceof Error ? err.message : "جستجو ناموفق بود",
-                    );
+                    setSearchNotice({
+                      error:
+                        err instanceof Error ? err.message : "جستجو ناموفق بود",
+                    });
                   });
               }}
             />
@@ -586,6 +656,7 @@ export function AdminDesk() {
             جستجو
           </button>
         </form>
+        <SectionNotice notice={searchNotice} />
 
         <div className="desk-members admin-members">
           {members.length === 0 ? (
@@ -616,10 +687,14 @@ export function AdminDesk() {
                   ) : (
                     <p className="desk-ok-inline">بدهی شهریه ندارد</p>
                   )}
+                  <SectionNotice notice={memberNotice[m.id]} />
                 </div>
                 <div className="att-live-actions">
                   {m.debtAmount > 0 ? (
-                    <Link className="btn btn-primary" href="/admin/payments">
+                    <Link
+                      className="btn btn-primary"
+                      href={paymentMemberHref("admin", m.membershipCode)}
+                    >
                       ثبت پرداخت
                     </Link>
                   ) : null}
@@ -636,6 +711,12 @@ export function AdminDesk() {
             ))
           )}
         </div>
+        <DeskPager
+          page={memberPage}
+          pageCount={memberPageCount}
+          busy={busy}
+          onPage={(p) => void onMemberPage(p)}
+        />
       </section>
     </main>
   );
