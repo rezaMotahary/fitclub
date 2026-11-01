@@ -59,15 +59,8 @@ export default function HowToOpenPage() {
             )
           </p>
           <p>
-            <strong>پرداخت پذیرش:</strong> بعد از ورود منشی یا مدیر برو به{" "}
-            <Link href="/secretary/payments" className="ltr-isolate" dir="ltr">
-              /secretary/payments
-            </Link>{" "}
-            یا{" "}
-            <Link href="/admin/payments" className="ltr-isolate" dir="ltr">
-              /admin/payments
-            </Link>{" "}
-            — عضو بدهکار نمونه:{" "}
+            <strong>پرداخت پذیرش:</strong> بعد از ورود از لینک اختصاصی منشی یا
+            مدیر، از منوی همان پنل باز می‌شود — عضو بدهکار نمونه:{" "}
             <span className="ltr-isolate" dir="ltr">
               FS-1046
             </span>
@@ -80,9 +73,6 @@ export default function HowToOpenPage() {
           </Link>
           <Link className="btn btn-ghost" href="/login/member">
             ورود عضو
-          </Link>
-          <Link className="btn btn-ghost" href="/login/staff">
-            ورود پرسنل
           </Link>
         </div>
       </div>

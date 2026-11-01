@@ -1,3 +1,4 @@
+import type { StaffPathConfig } from "./staff-paths";
 import type { PublicAuthUser, Role } from "./types";
 
 export const ROLE_LABELS: Record<Role, string> = {
@@ -10,21 +11,36 @@ export function roleLabel(role: Role): string {
   return ROLE_LABELS[role] ?? role;
 }
 
-export function panelPathForRole(role: Role): string {
+export function panelPathForRole(
+  role: Role,
+  staffPaths?: StaffPathConfig,
+): string {
   switch (role) {
     case "ADMIN":
-      return "/admin";
+      if (!staffPaths) {
+        throw new Error("staff paths required for admin panel");
+      }
+      return staffPaths.admin.home;
     case "SECRETARY":
-      return "/secretary";
+      if (!staffPaths) {
+        throw new Error("staff paths required for secretary panel");
+      }
+      return staffPaths.secretary.home;
     case "MEMBER":
     default:
       return "/member";
   }
 }
 
-export function loginPathForPanel(panel: "member" | "secretary" | "admin"): string {
+export function loginPathForPanel(
+  panel: "member" | "secretary" | "admin",
+  staffPaths?: StaffPathConfig,
+): string {
   if (panel === "member") return "/login/member";
-  return "/login/staff";
+  if (!staffPaths) {
+    throw new Error("staff paths required for staff login");
+  }
+  return staffPaths[panel].home;
 }
 
 export function canAccessPanel(
@@ -33,9 +49,7 @@ export function canAccessPanel(
 ): boolean {
   if (!user) return false;
   if (panel === "member") return user.role === "MEMBER";
-  if (panel === "secretary") {
-    return user.role === "SECRETARY" || user.role === "ADMIN";
-  }
+  if (panel === "secretary") return user.role === "SECRETARY";
   return user.role === "ADMIN";
 }
 

@@ -266,9 +266,6 @@ export default function HomePage() {
               <Link className="btn btn-primary" href="/login/member">
                 ورود پنل اعضا
               </Link>
-              <Link className="btn btn-ghost" href="/login/staff">
-                ورود پرسنل
-              </Link>
               <a className="btn btn-ghost" href="tel:02122113344">
                 تماس با باشگاه
               </a>

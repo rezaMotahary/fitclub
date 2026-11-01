@@ -1,14 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { ApiError, staffLogin } from "@/lib/api";
-import {
-  isValidIranMobile,
-  normalizeIranMobile,
-  panelPathForRole,
-} from "@/lib/auth";
+import { ApiError, logout, staffLogin } from "@/lib/api";
+import { isValidIranMobile, normalizeIranMobile } from "@/lib/auth";
+import type { Role } from "@/lib/types";
+import { STAFF_WRONG_DOOR_MESSAGE } from "./StaffWrongDoor";
 import { ThemeToggle } from "./ThemeToggle";
 
 function resolveStaffIdentifier(raw: string): string {
@@ -18,8 +15,13 @@ function resolveStaffIdentifier(raw: string): string {
   return isValidIranMobile(phone) ? phone : trimmed;
 }
 
-export function StaffLoginForm() {
-  const router = useRouter();
+export function StaffLoginForm({
+  expectedRole,
+  panelPath,
+}: {
+  expectedRole: Extract<Role, "SECRETARY" | "ADMIN">;
+  panelPath: string;
+}) {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +33,17 @@ export function StaffLoginForm() {
     setPending(true);
     try {
       const res = await staffLogin(resolveStaffIdentifier(identifier), password);
-      router.replace(panelPathForRole(res.user.role));
+      if (res.user.role !== expectedRole) {
+        try {
+          await logout();
+        } catch {
+          // stay on this door without revealing the other path
+        }
+        setError(STAFF_WRONG_DOOR_MESSAGE);
+        setPending(false);
+        return;
+      }
+      window.location.replace(panelPath);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(

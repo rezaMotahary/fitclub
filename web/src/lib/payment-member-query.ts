@@ -48,9 +48,8 @@ export function resolveBootMember(
 }
 
 export function paymentMemberHref(
-  panel: "admin" | "secretary",
+  paymentsPath: string,
   membershipCode: string,
 ): string {
-  const base = panel === "admin" ? "/admin/payments" : "/secretary/payments";
-  return `${base}?member=${encodeURIComponent(membershipCode)}`;
+  return `${paymentsPath}?member=${encodeURIComponent(membershipCode)}`;
 }

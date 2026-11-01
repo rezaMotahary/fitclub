@@ -27,6 +27,7 @@ import {
   tomanAmountInWords,
 } from "@/lib/amount-input";
 import { roleLabel, toAsciiDigits } from "@/lib/auth";
+import type { StaffPanelPaths } from "@/lib/staff-paths";
 import {
   formatToman,
   paymentMethodLabel,
@@ -82,8 +83,10 @@ function memberChipHint(m: MemberSummary): string {
 
 export function PaymentDesk({
   panel,
+  paths,
 }: {
   panel: "secretary" | "admin";
+  paths: StaffPanelPaths;
 }) {
   const title =
     panel === "admin" ? "پنل مدیریت — پرداخت پذیرش" : "پنل منشی — پرداخت پذیرش";
@@ -165,12 +168,9 @@ export function PaymentDesk({
       try {
         const me = await fetchMe();
         if (cancelled) return;
-        if (me.user.role !== "SECRETARY" && me.user.role !== "ADMIN") {
-          window.location.href = "/login/staff";
-          return;
-        }
-        if (panel === "admin" && me.user.role !== "ADMIN") {
-          window.location.href = "/secretary/payments";
+        const expected = panel === "admin" ? "ADMIN" : "SECRETARY";
+        if (me.user.role !== expected) {
+          setBootError("این در برای این حساب نیست.");
           return;
         }
         setUser(me.user);
@@ -208,7 +208,7 @@ export function PaymentDesk({
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-          window.location.href = "/login/staff";
+          window.location.href = paths.home;
           return;
         }
         setBootError("ارتباط با سیستم برقرار نشد. چند لحظه بعد دوباره صفحه را باز کنید.");
@@ -219,7 +219,7 @@ export function PaymentDesk({
     return () => {
       cancelled = true;
     };
-  }, [panel, selectMember]);
+  }, [panel, paths.home, selectMember]);
 
   useEffect(() => {
     let cancelled = false;
@@ -418,7 +418,7 @@ export function PaymentDesk({
     } catch {
       // ignore
     }
-    window.location.href = "/login/staff";
+    window.location.href = paths.home;
   }
 
   if (!user && !bootError) {
@@ -432,16 +432,14 @@ export function PaymentDesk({
     );
   }
 
-  const nav =
-    panel === "admin"
-      ? [
-          { href: "/admin", label: "نمای کلی", exact: true },
-          { href: "/admin/payments", label: "پرداخت پذیرش", exact: true },
-        ]
-      : [
-          { href: "/secretary", label: "خانه پذیرش", exact: true },
-          { href: "/secretary/payments", label: "پرداخت پذیرش", exact: true },
-        ];
+  const nav = [
+    {
+      href: paths.home,
+      label: panel === "admin" ? "نمای کلی" : "خانه پذیرش",
+      exact: true,
+    },
+    { href: paths.payments, label: "پرداخت پذیرش", exact: true },
+  ];
 
   return (
     <PanelFrame

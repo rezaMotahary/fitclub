@@ -26,6 +26,7 @@ import {
   tomanAmountInWords,
 } from "@/lib/amount-input";
 import { roleLabel, toAsciiDigits } from "@/lib/auth";
+import type { StaffPanelPaths } from "@/lib/staff-paths";
 import { formatToman } from "@/lib/dashboard-format";
 import { formatJalaliDay } from "@/lib/jalali-date";
 import { paymentMemberHref } from "@/lib/payment-member-query";
@@ -53,7 +54,7 @@ function SectionNotice({ notice }: { notice: Notice | null | undefined }) {
   return null;
 }
 
-export function AdminDesk() {
+export function AdminDesk({ paths }: { paths: StaffPanelPaths }) {
   const [user, setUser] = useState<PublicAuthUser | null>(null);
   const [query, setQuery] = useState("");
   const [members, setMembers] = useState<MemberSummary[]>([]);
@@ -123,8 +124,7 @@ export function AdminDesk() {
         const me = await fetchMe();
         if (cancelled) return;
         if (me.user.role !== "ADMIN") {
-          window.location.href =
-            me.user.role === "SECRETARY" ? "/secretary" : "/login/staff";
+          setBootError("این در برای این حساب نیست.");
           return;
         }
         setUser(me.user);
@@ -146,7 +146,7 @@ export function AdminDesk() {
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-          window.location.href = "/login/staff";
+          window.location.href = paths.home;
           return;
         }
         setBootError("ارتباط با سیستم برقرار نشد. چند لحظه بعد دوباره صفحه را باز کنید.");
@@ -157,7 +157,7 @@ export function AdminDesk() {
     return () => {
       cancelled = true;
     };
-  }, [loadMembers, loadPlans]);
+  }, [loadMembers, loadPlans, paths.home]);
 
   const monthOptions = useMemo(() => {
     const rows = overview?.receptionRevenue.monthly ?? [];
@@ -340,7 +340,7 @@ export function AdminDesk() {
     } catch {
       // ignore
     }
-    window.location.href = "/login/staff";
+    window.location.href = paths.home;
   }
 
   if (!user && !bootError) {
@@ -363,8 +363,8 @@ export function AdminDesk() {
       title="داشبورد مدیریت"
       lede={user ? `${user.fullName} · ${roleLabel(user.role)}` : null}
       nav={[
-        { href: "/admin", label: "نمای کلی", exact: true },
-        { href: "/admin/payments", label: "پرداخت پذیرش" },
+        { href: paths.home, label: "نمای کلی", exact: true },
+        { href: paths.payments, label: "پرداخت پذیرش" },
       ]}
       onLogout={onLogout}
     >
@@ -613,8 +613,8 @@ export function AdminDesk() {
           <span className="ltr-isolate" dir="ltr">
             FS-
           </span>
-          ) یا موبایل. برای کارهای روزمرهٔ پذیرش (ثبت حضور، فروش اول و قسط) به{" "}
-          <Link href="/secretary">خانهٔ پذیرش</Link> بروید.
+          ) یا موبایل. کارهای روزمرهٔ پذیرش (ثبت حضور، فروش اول و قسط) در پنل
+          منشی انجام می‌شود.
         </p>
         <form className="desk-search" onSubmit={onSearch}>
           <input
@@ -692,7 +692,7 @@ export function AdminDesk() {
                   {m.debtAmount > 0 ? (
                     <Link
                       className="btn btn-primary"
-                      href={paymentMemberHref("admin", m.membershipCode)}
+                      href={paymentMemberHref(paths.payments, m.membershipCode)}
                     >
                       ثبت پرداخت
                     </Link>

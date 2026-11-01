@@ -6,6 +6,12 @@ import {
   paymentMemberHref,
   resolveBootMember,
 } from "./payment-member-query";
+import { buildStaffPaths } from "./staff-paths";
+
+const staffPaths = buildStaffPaths({
+  STAFF_PATH_SECRETARY: "qx".repeat(18),
+  STAFF_PATH_ADMIN: "zm".repeat(18),
+});
 
 function member(partial: Partial<MemberSummary>): MemberSummary {
   return {
@@ -86,12 +92,12 @@ describe("resolveBootMember (KI-013)", () => {
 });
 
 describe("paymentMemberHref", () => {
-  it("builds admin and secretary payment links with the code", () => {
-    expect(paymentMemberHref("admin", "FS-1046")).toBe(
-      "/admin/payments?member=FS-1046",
+  it("builds payment links from the given panel payments path", () => {
+    expect(paymentMemberHref(staffPaths.admin.payments, "FS-1046")).toBe(
+      `${staffPaths.admin.payments}?member=FS-1046`,
     );
-    expect(paymentMemberHref("secretary", "FS-1042")).toBe(
-      "/secretary/payments?member=FS-1042",
+    expect(paymentMemberHref(staffPaths.secretary.payments, "FS-1042")).toBe(
+      `${staffPaths.secretary.payments}?member=FS-1042`,
     );
   });
 });

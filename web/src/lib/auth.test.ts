@@ -11,7 +11,13 @@ import {
   roleLabel,
   toAsciiDigits,
 } from "./auth";
+import { buildStaffPaths } from "./staff-paths";
 import type { PublicAuthUser } from "./types";
+
+const staffPaths = buildStaffPaths({
+  STAFF_PATH_SECRETARY: "qx".repeat(18),
+  STAFF_PATH_ADMIN: "zm".repeat(18),
+});
 
 const member: PublicAuthUser = {
   id: "1",
@@ -48,15 +54,19 @@ describe("role helpers", () => {
     expect(roleLabel("ADMIN")).toBe("مدیر");
     expect(roleLabel("SECRETARY")).toBe("منشی");
     expect(roleLabel("MEMBER")).toBe("عضو");
-    expect(panelPathForRole("ADMIN")).toBe("/admin");
-    expect(panelPathForRole("SECRETARY")).toBe("/secretary");
+    expect(panelPathForRole("ADMIN", staffPaths)).toBe(staffPaths.admin.home);
+    expect(panelPathForRole("SECRETARY", staffPaths)).toBe(
+      staffPaths.secretary.home,
+    );
     expect(panelPathForRole("MEMBER")).toBe("/member");
   });
 
   it("points panels to the right login pages", () => {
     expect(loginPathForPanel("member")).toBe("/login/member");
-    expect(loginPathForPanel("secretary")).toBe("/login/staff");
-    expect(loginPathForPanel("admin")).toBe("/login/staff");
+    expect(loginPathForPanel("secretary", staffPaths)).toBe(
+      staffPaths.secretary.home,
+    );
+    expect(loginPathForPanel("admin", staffPaths)).toBe(staffPaths.admin.home);
   });
 });
 
@@ -71,7 +81,7 @@ describe("canAccessPanel", () => {
     expect(canAccessPanel(member, "secretary")).toBe(false);
     expect(canAccessPanel(secretary, "secretary")).toBe(true);
     expect(canAccessPanel(secretary, "admin")).toBe(false);
-    expect(canAccessPanel(admin, "secretary")).toBe(true);
+    expect(canAccessPanel(admin, "secretary")).toBe(false);
     expect(canAccessPanel(admin, "admin")).toBe(true);
   });
 });

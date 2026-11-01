@@ -17,10 +17,7 @@ const navItems: NavItem[] = [
   { href: "/#pricing", label: "اشتراک" },
   { href: "/#contact", label: "تماس" },
   { href: "/login/member", label: "ورود اعضا" },
-  { href: "/login/staff", label: "ورود پرسنل" },
   { href: "/member", label: "پنل اعضا" },
-  { href: "/secretary", label: "پنل منشی" },
-  { href: "/admin", label: "پنل مدیریت" },
 ];
 
 export function SiteHeader() {

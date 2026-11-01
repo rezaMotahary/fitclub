@@ -169,9 +169,6 @@ export function MemberLoginForm() {
         </div>
 
         <div className="cta-row auth-links">
-          <Link className="btn btn-ghost" href="/login/staff">
-            ورود پرسنل
-          </Link>
           <Link className="btn btn-ghost" href="/">
             سایت عمومی
           </Link>

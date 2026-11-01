@@ -29,6 +29,7 @@ import {
   roleLabel,
   toAsciiDigits,
 } from "@/lib/auth";
+import type { StaffPanelPaths } from "@/lib/staff-paths";
 import { formatToman } from "@/lib/dashboard-format";
 import { formatJalaliDay } from "@/lib/jalali-date";
 import {
@@ -55,7 +56,7 @@ function genderLabel(g: "MEN" | "WOMEN"): string {
   return g === "WOMEN" ? "بانوان" : "آقایان";
 }
 
-export function AttendanceDesk() {
+export function AttendanceDesk({ paths }: { paths: StaffPanelPaths }) {
   const [user, setUser] = useState<PublicAuthUser | null>(null);
   const [query, setQuery] = useState("");
   const [includeArchived, setIncludeArchived] = useState(false);
@@ -135,8 +136,8 @@ export function AttendanceDesk() {
       try {
         const me = await fetchMe();
         if (cancelled) return;
-        if (me.user.role !== "SECRETARY" && me.user.role !== "ADMIN") {
-          window.location.href = "/login/staff";
+        if (me.user.role !== "SECRETARY") {
+          setBootError("این در برای این حساب نیست.");
           return;
         }
         setUser(me.user);
@@ -146,7 +147,7 @@ export function AttendanceDesk() {
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-          window.location.href = "/login/staff";
+          window.location.href = paths.home;
           return;
         }
         setBootError("ارتباط با سیستم برقرار نشد. چند لحظه بعد دوباره صفحه را باز کنید.");
@@ -157,7 +158,7 @@ export function AttendanceDesk() {
     return () => {
       cancelled = true;
     };
-  }, [loadMembers, refreshBoards]);
+  }, [loadMembers, paths.home, refreshBoards]);
 
   useEffect(() => {
     const id = window.setInterval(() => setTick((n) => n + 1), 1000);
@@ -416,7 +417,7 @@ export function AttendanceDesk() {
     } catch {
       // ignore
     }
-    window.location.href = "/login/staff";
+    window.location.href = paths.home;
   }
 
   if (!user && !bootError) {
@@ -466,8 +467,8 @@ export function AttendanceDesk() {
         ) : null
       }
       nav={[
-        { href: "/secretary", label: "خانه پذیرش", exact: true },
-        { href: "/secretary/payments", label: "پرداخت پذیرش" },
+        { href: paths.home, label: "خانه پذیرش", exact: true },
+        { href: paths.payments, label: "پرداخت پذیرش" },
       ]}
       onLogout={onLogout}
     >
