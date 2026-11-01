@@ -38,5 +38,11 @@ echo "4/6 Updating the website"
 (cd web && npm ci && npm run build)
 
 echo "5/6 Build finished"
-echo "6/6 Restart the API and the website the way they are already running on this server."
+echo "6/6 Restarting the website and API"
+if [[ -f /etc/systemd/system/fitclub-api.service && -f /etc/systemd/system/fitclub-web.service ]]; then
+  systemctl restart fitclub-api fitclub-web
+  systemctl is-active fitclub-api fitclub-web
+else
+  echo "Restart the API and the website the way they are already running on this server."
+fi
 echo "Do not run prisma db seed or prisma migrate reset."
