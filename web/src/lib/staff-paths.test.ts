@@ -3,6 +3,7 @@ import {
   buildStaffPaths,
   matchStaffKey,
   parseStaffPathToken,
+  tryBuildStaffPaths,
 } from "./staff-paths";
 
 const SECRETARY_TOKEN = "qx".repeat(18);
@@ -80,6 +81,13 @@ describe("buildStaffPaths", () => {
         STAFF_PATH_ADMIN: SECRETARY_TOKEN,
       }),
     ).toThrow(/differ|متفاوت/i);
+  });
+
+  it("returns null instead of throwing when env is missing", () => {
+    expect(tryBuildStaffPaths({})).toBeNull();
+    expect(tryBuildStaffPaths(fakeEnv)?.secretary.home).toBe(
+      `/${SECRETARY_TOKEN}/reception`,
+    );
   });
 });
 

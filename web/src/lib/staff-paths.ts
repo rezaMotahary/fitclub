@@ -66,3 +66,11 @@ export function matchStaffKey(
   return null;
 }
 
+export function tryBuildStaffPaths(env: StaffPathEnv): StaffPathConfig | null {
+  try {
+    return buildStaffPaths(env);
+  } catch {
+    return null;
+  }
+}
+

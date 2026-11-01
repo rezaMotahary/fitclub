@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ApiError, logout, staffLogin } from "@/lib/api";
 import { isValidIranMobile, normalizeIranMobile } from "@/lib/auth";
+import {
+  staffLoginHeading,
+  staffLoginLead,
+  staffLoginSampleEmail,
+} from "@/lib/staff-login-copy";
 import type { Role } from "@/lib/types";
 import { STAFF_WRONG_DOOR_MESSAGE } from "./StaffWrongDoor";
 import { ThemeToggle } from "./ThemeToggle";
@@ -65,8 +70,8 @@ export function StaffLoginForm({
         <div className="auth-card-top">
           <p className="brand-mark">FITCLUB</p>
         </div>
-        <h1>ورود پرسنل</h1>
-        <p className="auth-lead">برای منشی و مدیر باشگاه</p>
+        <h1>{staffLoginHeading(expectedRole)}</h1>
+        <p className="auth-lead">{staffLoginLead(expectedRole)}</p>
 
         <form className="auth-form" onSubmit={onSubmit}>
           <label className="auth-field">
@@ -78,7 +83,7 @@ export function StaffLoginForm({
               className="ltr-isolate"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
-              placeholder="secretary@fitclub.local"
+              placeholder={staffLoginSampleEmail(expectedRole)}
               required
             />
           </label>
@@ -104,18 +109,12 @@ export function StaffLoginForm({
 
         <div className="auth-hint">
           <p>
-            ایمیل منشی نمونه:{" "}
+            ایمیل نمونه:{" "}
             <span className="ltr-isolate" dir="ltr">
-              secretary@fitclub.local
+              {staffLoginSampleEmail(expectedRole)}
             </span>
           </p>
-          <p>
-            ایمیل مدیر نمونه:{" "}
-            <span className="ltr-isolate" dir="ltr">
-              admin@fitclub.local
-            </span>
-          </p>
-          <p>رمزهای نمونه در صفحهٔ «چطور باز کنم؟» نوشته شده است.</p>
+          <p>رمز نمونه در صفحهٔ «چطور باز کنم؟» نوشته شده است.</p>
         </div>
 
         <div className="cta-row auth-links">

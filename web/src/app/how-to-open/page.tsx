@@ -1,12 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { tryBuildStaffPaths } from "@/lib/staff-paths";
 
 export const metadata: Metadata = {
   title: "چطور باز کنم؟ | فیت‌کلاب",
 };
 
+const SITE_ORIGIN = "http://localhost:3000";
+
 export default function HowToOpenPage() {
+  const staffPaths = tryBuildStaffPaths({
+    STAFF_PATH_SECRETARY: process.env.STAFF_PATH_SECRETARY,
+    STAFF_PATH_ADMIN: process.env.STAFF_PATH_ADMIN,
+  });
+  const secretaryHref = staffPaths?.secretary.home ?? null;
+  const adminHref = staffPaths?.admin.home ?? null;
+
   return (
     <main className="auth-shell">
       <ThemeToggle className="theme-toggle-float" />
@@ -21,13 +31,13 @@ export default function HowToOpenPage() {
         <ol className="howto-list">
           <li>
             این آدرس را در مرورگر باز کن:{" "}
-            <a href="http://localhost:3000">
+            <a href={SITE_ORIGIN}>
               <code className="ltr-isolate" dir="ltr">
-                http://localhost:3000
+                {SITE_ORIGIN}
               </code>
             </a>
           </li>
-          <li>برای ورود، از حساب‌های نمونه زیر استفاده کن.</li>
+          <li>برای ورود، از حساب‌های نمونه و لینک‌های زیر استفاده کن.</li>
           <li>
             دکمهٔ <strong>روز / شب</strong> بالای صفحه را بزن تا تم عوض شود؛
             انتخابت برای دفعهٔ بعد یادت می‌ماند.
@@ -36,13 +46,33 @@ export default function HowToOpenPage() {
 
         <div className="sample-box">
           <p>
-            <strong>منشی:</strong>{" "}
+            <strong>پنل منشی:</strong>{" "}
+            {secretaryHref ? (
+              <Link href={secretaryHref} className="ltr-isolate" dir="ltr">
+                {`${SITE_ORIGIN}${secretaryHref}`}
+              </Link>
+            ) : (
+              "لینک هنوز آماده نیست"
+            )}
+          </p>
+          <p>
+            حساب منشی:{" "}
             <span className="ltr-isolate" dir="ltr">
               secretary@fitclub.local / FitClubSecretary1!
             </span>
           </p>
           <p>
-            <strong>مدیر:</strong>{" "}
+            <strong>پنل ادمین:</strong>{" "}
+            {adminHref ? (
+              <Link href={adminHref} className="ltr-isolate" dir="ltr">
+                {`${SITE_ORIGIN}${adminHref}`}
+              </Link>
+            ) : (
+              "لینک هنوز آماده نیست"
+            )}
+          </p>
+          <p>
+            حساب ادمین:{" "}
             <span className="ltr-isolate" dir="ltr">
               admin@fitclub.local / FitClubAdmin1!
             </span>
@@ -59,8 +89,8 @@ export default function HowToOpenPage() {
             )
           </p>
           <p>
-            <strong>پرداخت پذیرش:</strong> بعد از ورود از لینک اختصاصی منشی یا
-            مدیر، از منوی همان پنل باز می‌شود — عضو بدهکار نمونه:{" "}
+            <strong>پرداخت پذیرش:</strong> بعد از ورود منشی یا ادمین، از منوی
+            همان پنل باز می‌شود — عضو بدهکار نمونه:{" "}
             <span className="ltr-isolate" dir="ltr">
               FS-1046
             </span>
@@ -74,6 +104,16 @@ export default function HowToOpenPage() {
           <Link className="btn btn-ghost" href="/login/member">
             ورود عضو
           </Link>
+          {secretaryHref ? (
+            <Link className="btn btn-ghost" href={secretaryHref}>
+              ورود منشی
+            </Link>
+          ) : null}
+          {adminHref ? (
+            <Link className="btn btn-ghost" href={adminHref}>
+              ورود ادمین
+            </Link>
+          ) : null}
         </div>
       </div>
     </main>
