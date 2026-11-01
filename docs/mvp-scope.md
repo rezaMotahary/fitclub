@@ -6,7 +6,7 @@
 
 مالک باید بتواند نتیجه را در مرورگر باز کند و ببیند؛ فقط API پشت‌صحنه کافی نیست. → `docs/collaboration.md`
 
-بازدید مالک ۱۴۰۴/۰۷/۲۹: داشبورد مدیر فعلی کافی نیست؛ ظاهر پنل‌ها تأیید نیست. برنامهٔ تکمیل در [product-roadmap.md](./product-roadmap.md) و [ui-ux-panels.md](./ui-ux-panels.md).
+داشبورد مدیر، خانهٔ پذیرش، و ظاهر پنل‌ها تأیید شده‌اند. مرحلهٔ بعد بازبینی متن فارسی است. → [product-roadmap.md](./product-roadmap.md) · [copy-review.md](./copy-review.md)
 
 ## هست
 
