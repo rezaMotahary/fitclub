@@ -34,21 +34,21 @@ export function planReceptionPayment(
 
   if (remainingBefore <= 0) {
     throw new SubscriptionRuleError(
-      'این اشتراک بدهی شهریه ندارد',
+      'این اشتراک بدهی شهریه ندارد.',
       'NO_TUITION_DEBT',
     );
   }
 
   if (!Number.isInteger(paymentAmountToman) || paymentAmountToman <= 0) {
     throw new SubscriptionRuleError(
-      'مبلغ پرداخت باید عدد صحیح مثبت باشد',
+      'مبلغ پرداخت باید یک عدد درست و بیشتر از صفر باشد.',
       'INVALID_PAYMENT_AMOUNT',
     );
   }
 
   if (paymentAmountToman > remainingBefore) {
     throw new SubscriptionRuleError(
-      `مبلغ بیشتر از ماندهٔ بدهی است (مانده ${remainingBefore.toLocaleString('fa-IR')} تومان)`,
+      `مبلغ واردشده بیشتر از ماندهٔ بدهی (${remainingBefore.toLocaleString('fa-IR')} تومان) است.`,
       'OVER_REMAINING_DEBT',
     );
   }
@@ -58,7 +58,7 @@ export function planReceptionPayment(
 
   if (amountPaidToman < half && amountPaidAfter < half) {
     throw new SubscriptionRuleError(
-      `پرداخت کمتر از نصف شهریه برای شروع دوره مجاز نیست (حداقل ${half.toLocaleString('fa-IR')} تومان)`,
+      `برای شروع دوره باید حداقل نصف شهریه (${half.toLocaleString('fa-IR')} تومان) پرداخت شود.`,
       'BELOW_HALF_TUITION',
     );
   }

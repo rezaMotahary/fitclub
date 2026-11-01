@@ -26,22 +26,22 @@ export function resultLabel(result: string, isVoided: boolean): string {
   if (isVoided) return "باطل‌شده";
   switch (result) {
     case "SUCCESS":
-      return "موفق";
+      return "ورود موفق";
     case "REJECTED_WEEKLY_CAP":
-      return "رد — سقف هفته";
+      return "رد ورود — پر شدن سقف هفته";
     case "REJECTED_EXPIRED":
-      return "رد — انقضا";
+      return "رد ورود — پایان اشتراک";
     case "REJECTED_DEBT":
-      return "رد — بدهی";
+      return "رد ورود — بدهی شهریه";
     case "REJECTED_OUTSIDE_SESSION":
-      return "رد — سانس";
+      return "رد ورود — خارج از ساعت سانس";
     case "REJECTED_ALREADY_INSIDE":
-      return "رد — داخل سالن";
+      return "رد ورود — حضور باز در سالن";
     case "REJECTED_ARCHIVED":
-      return "رد — آرشیو";
+      return "رد ورود — عضو آرشیوشده";
     case "REJECTED_NOT_STARTED":
-      return "رد — شروع نشده";
+      return "رد ورود — اشتراک شروع‌نشده";
     default:
-      return "رد";
+      return "رد ورود";
   }
 }

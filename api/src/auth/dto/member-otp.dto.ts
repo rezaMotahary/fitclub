@@ -19,7 +19,7 @@ export class MemberOtpRequestDto {
   @Transform(({ value }) => toIranMobile(value))
   @IsString()
   @IsNotEmpty()
-  @Matches(IRAN_MOBILE, { message: 'phone must be a valid Iranian mobile' })
+  @Matches(IRAN_MOBILE, { message: 'شماره موبایل معتبر نیست (مثال: ۰۹۱۲۱۲۳۴۵۶۷)' })
   phone!: string;
 }
 
@@ -27,12 +27,12 @@ export class MemberOtpVerifyDto {
   @Transform(({ value }) => toIranMobile(value))
   @IsString()
   @IsNotEmpty()
-  @Matches(IRAN_MOBILE, { message: 'phone must be a valid Iranian mobile' })
+  @Matches(IRAN_MOBILE, { message: 'شماره موبایل معتبر نیست (مثال: ۰۹۱۲۱۲۳۴۵۶۷)' })
   phone!: string;
 
   @Transform(({ value }) => toOtpCode(value))
   @IsString()
   @Length(6, 6)
-  @Matches(/^\d{6}$/, { message: 'code must be 6 digits' })
+  @Matches(/^\d{6}$/, { message: 'کد تأیید باید ۶ رقم باشد' })
   code!: string;
 }

@@ -39,12 +39,12 @@ export function MemberLoginForm() {
       await requestMemberOtp(normalized);
       setPhone(normalized);
       setStep("code");
-      setInfo("کد ارسال شد. در محیط توسعه از کد ۱۲۳۴۵۶ استفاده کنید.");
+      setInfo("کد تأیید ارسال شد. برای تست از کد ۱۲۳۴۵۶ استفاده کنید.");
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.message || "ارسال کد ناموفق بود.");
+        setError(err.message || "ارسال کد انجام نشد. دوباره تلاش کنید.");
       } else {
-        setError("ارتباط با سرور برقرار نشد. API را روشن کنید.");
+        setError("ارتباط با سیستم برقرار نشد. چند لحظه بعد دوباره تلاش کنید.");
       }
     } finally {
       setPending(false);
@@ -68,12 +68,11 @@ export function MemberLoginForm() {
     } catch (err) {
       if (err instanceof ApiError) {
         setError(
-          err.status === 401 || err.status === 403
-            ? "کد نادرست است یا این شماره اجازه ورود ندارد."
-            : err.message || "تأیید کد ناموفق بود.",
+          err.message ||
+            "کد اشتباه است یا این شماره اجازهٔ ورود به پنل را ندارد.",
         );
       } else {
-        setError("ارتباط با سرور برقرار نشد. API را روشن کنید.");
+        setError("ارتباط با سیستم برقرار نشد. چند لحظه بعد دوباره تلاش کنید.");
       }
       setPending(false);
     }
@@ -156,13 +155,13 @@ export function MemberLoginForm() {
 
         <div className="auth-hint">
           <p>
-            نمونه عضو:{" "}
+            موبایل نمونه:{" "}
             <span className="ltr-isolate" dir="ltr">
               09121234567
             </span>
           </p>
           <p>
-            کد توسعه:{" "}
+            کد نمونه:{" "}
             <span className="ltr-isolate" dir="ltr">
               123456
             </span>

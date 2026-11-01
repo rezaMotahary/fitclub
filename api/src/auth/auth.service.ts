@@ -146,12 +146,12 @@ export class AuthService {
     });
 
     if (!user?.passwordHash || !user.isActive) {
-      throw new UnauthorizedException('شناسه یا رمز نادرست است');
+      throw new UnauthorizedException('ایمیل/موبایل یا رمز عبور اشتباه است');
     }
 
     const ok = await verifySecret(password, user.passwordHash);
     if (!ok) {
-      throw new UnauthorizedException('شناسه یا رمز نادرست است');
+      throw new UnauthorizedException('ایمیل/موبایل یا رمز عبور اشتباه است');
     }
 
     const { token, expiresAt } = await this.createSession(user.id);
@@ -184,7 +184,7 @@ export class AuthService {
 
     if (!user.isActive || user.member.isArchived) {
       throw new ForbiddenException(
-        'این عضویت آرشیو شده و ورود به پنل مجاز نیست',
+        'پروندهٔ شما غیرفعال (آرشیو) است. برای فعال‌سازی با پذیرش باشگاه تماس بگیرید.',
       );
     }
 
@@ -228,7 +228,7 @@ export class AuthService {
 
     if (!user.isActive || user.member.isArchived) {
       throw new ForbiddenException(
-        'این عضویت آرشیو شده و ورود به پنل مجاز نیست',
+        'پروندهٔ شما غیرفعال (آرشیو) است. برای فعال‌سازی با پذیرش باشگاه تماس بگیرید.',
       );
     }
 
@@ -242,11 +242,15 @@ export class AuthService {
     });
 
     if (!challenge) {
-      throw new UnauthorizedException('کد تأیید منقضی یا نامعتبر است');
+      throw new UnauthorizedException(
+        'کد تأیید منقضی شده یا معتبر نیست. دوباره درخواست کد بدهید.',
+      );
     }
 
     if (challenge.attempts >= OTP_MAX_ATTEMPTS) {
-      throw new UnauthorizedException('تعداد تلاش بیش از حد مجاز است');
+      throw new UnauthorizedException(
+        'تعداد تلاش‌های اشتباه زیاد بود. لطفاً دوباره درخواست کد بدهید.',
+      );
     }
 
     const ok = await verifySecret(code, challenge.codeHash);

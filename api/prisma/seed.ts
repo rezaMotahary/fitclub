@@ -303,7 +303,7 @@ async function main() {
               status: PaymentStatus.CONFIRMED,
               title: `فروش اشتراک ${plan.name}`,
               paidAt: basePaidAt,
-              note: 'پرداخت نصف نمونه — بدهی مانده',
+              note: 'پیش‌پرداخت نصف شهریه',
             },
           });
         } else {
@@ -319,7 +319,7 @@ async function main() {
               status: PaymentStatus.CONFIRMED,
               title: `فروش اشتراک ${plan.name}`,
               paidAt: basePaidAt,
-              note: 'قسط اول نمونه seed',
+              note: 'قسط اول شهریه',
             },
           });
           if (rest > 0) {
@@ -332,7 +332,7 @@ async function main() {
                 status: PaymentStatus.CONFIRMED,
                 title: `تسویه شهریه ${plan.name}`,
                 paidAt: dayFromToday(Math.max(m.startsOffsetDays + 3, -5)),
-                note: 'تسویه ماندهٔ نمونه seed',
+                note: 'تسویه کامل شهریه',
               },
             });
           }
@@ -369,9 +369,9 @@ async function main() {
               ? PaymentMethod.CASH
               : PaymentMethod.CARD_READER,
           status: PaymentStatus.CONFIRMED,
-          title: 'خدمات پذیرش نمونه — نمودار درآمد',
+          title: 'ثبت اشتراک و خدمات پذیرش',
           paidAt: dayStringToUtcNoon(day),
-          note: 'پرداخت نمونه برای داشبورد مدیر',
+          note: 'پرداخت ثبت‌شده در پذیرش',
         },
       });
       chartIndex += 1;
@@ -385,9 +385,9 @@ async function main() {
         amountToman: 350_000,
         method: PaymentMethod.CARD_TRANSFER,
         status: PaymentStatus.CONFIRMED,
-        title: 'خدمات پذیرش نمونه — امروز',
+        title: 'ثبت خدمات پذیرش',
         paidAt: new Date(),
-        note: 'پرداخت امروز برای کارت درآمد داشبورد',
+        note: 'پرداخت امروز در پذیرش',
       },
     });
   }
@@ -436,7 +436,7 @@ async function main() {
         recordedById: secretary.id,
         voidedAt: iranWallDateTime(today, '09:30'),
         voidedById: secretary.id,
-        voidReason: 'ثبت اشتباه — نمونه seed',
+        voidReason: 'ثبت اشتباه در پذیرش',
       },
     });
   }
@@ -507,7 +507,7 @@ async function main() {
         memberId: debtMemberId,
         checkInAt: iranWallDateTime(today, '16:20'),
         result: AttendanceResult.REJECTED_DEBT,
-        rejectReason: 'از روز ۱۵ ماندهٔ شهریه تسویه نشده؛ ورود بسته است',
+        rejectReason: 'از روز ۱۵ دوره گذشته و ماندهٔ شهریه تسویه نشده است',
         recordedById: secretary.id,
       },
     });

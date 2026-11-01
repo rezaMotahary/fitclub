@@ -204,14 +204,14 @@ export function MemberFinance({
       setPayNote("");
       setPayNotice({
         ok: res.fullySettled
-          ? "تسویه کامل شد. ورود از نظر شهریه باز است."
-          : `قسط ثبت شد. مانده: ${formatToman(res.subscription.debtToman)}`,
+          ? "شهریه کامل تسویه شد و مانع بدهی برای ورود برداشته شد."
+          : `قسط ثبت شد. ماندهٔ بدهی: ${formatToman(res.subscription.debtToman)}`,
       });
       await refreshHistory(1);
       await notifyChanged();
     } catch (err) {
       setPayNotice({
-        error: err instanceof Error ? err.message : "ثبت پرداخت ناموفق بود",
+        error: err instanceof Error ? err.message : "ثبت پرداخت انجام نشد",
       });
     } finally {
       setSaving(false);
@@ -230,7 +230,7 @@ export function MemberFinance({
     }
     if (amount < minimumHalfTuition(renewPreview.priceToman)) {
       setRenewNotice({
-        error: "کمتر از نصف شهریه برای شروع دوره ثبت نمی‌شود.",
+        error: "برای شروع دوره باید حداقل نصف شهریه پرداخت شود.",
       });
       return;
     }
@@ -250,16 +250,16 @@ export function MemberFinance({
       const startLabel = formatJalaliDay(res.subscription.startsOn);
       const disc =
         res.subscription.discountPercentApplied > 0
-          ? ` با تخفیف ${res.subscription.discountPercentApplied.toLocaleString("fa-IR")}٪`
+          ? ` با ${res.subscription.discountPercentApplied.toLocaleString("fa-IR")}٪ تخفیف تمدید زودتر`
           : "";
       setRenewNotice({
-        ok: `تمدید ثبت شد${disc}. دورهٔ جدید از ${startLabel} شروع می‌شود (${res.subscription.plan.name}).`,
+        ok: `تمدید ثبت شد${disc}. دورهٔ جدید (${res.subscription.plan.name}) از ${startLabel} شروع می‌شود.`,
       });
       await refreshHistory(1);
       await notifyChanged();
     } catch (err) {
       setRenewNotice({
-        error: err instanceof Error ? err.message : "ثبت تمدید ناموفق بود",
+        error: err instanceof Error ? err.message : "ثبت تمدید انجام نشد",
       });
     } finally {
       setSaving(false);
@@ -278,7 +278,7 @@ export function MemberFinance({
     }
     if (amount < minimumHalfTuition(sellPlan.priceToman)) {
       setSellNotice({
-        error: "کمتر از نصف شهریه برای شروع دوره ثبت نمی‌شود.",
+        error: "برای شروع دوره باید حداقل نصف شهریه پرداخت شود.",
       });
       return;
     }
@@ -308,14 +308,14 @@ export function MemberFinance({
       setSellNotice({
         ok:
           res.subscription.debtToman > 0
-            ? `اشتراک ثبت شد (${paid}). شروع ${when}. مانده: ${formatToman(res.subscription.debtToman)}`
-            : `اشتراک ثبت شد و تسویه است. شروع ${when}.`,
+            ? `اشتراک ثبت شد (${paid}). شروع از ${when} · ماندهٔ بدهی: ${formatToman(res.subscription.debtToman)}`
+            : `اشتراک با تسویهٔ کامل ثبت شد. تاریخ شروع: ${when}.`,
       });
       await refreshHistory(1);
       await notifyChanged();
     } catch (err) {
       setSellNotice({
-        error: err instanceof Error ? err.message : "ثبت اشتراک ناموفق بود",
+        error: err instanceof Error ? err.message : "ثبت اشتراک انجام نشد",
       });
     } finally {
       setSaving(false);
@@ -327,13 +327,14 @@ export function MemberFinance({
   }
 
   if (!detail) {
-    return <p className="auth-muted">در حال خواندن پروندهٔ پرداخت…</p>;
+    return <p className="auth-muted">در حال خواندن پروندهٔ مالی عضو…</p>;
   }
 
   if (detail.isArchived) {
     return (
       <p className="desk-warn">
-        این عضو آرشیو است. اول فعالش کنید، بعد اشتراک یا قسط ثبت می‌شود.
+        پروندهٔ این عضو آرشیو (غیرفعال) است. اول از بالا دکمهٔ «فعال‌سازی
+        دوباره» را بزنید تا بتوانید اشتراک یا پرداخت ثبت کنید.
       </p>
     );
   }
@@ -344,8 +345,8 @@ export function MemberFinance({
         <form className="pay-form" onSubmit={onSell}>
           <h3>فروش اشتراک اول</h3>
           <p className="auth-muted">
-            این عضو دورهٔ جاری ندارد. شروع فقط امروز یا فردا است؛ گذشته مجاز
-            نیست. کمتر از نصف شهریه ثبت نمی‌شود.
+            این عضو اشتراک فعالی ندارد. تاریخ شروع فقط امروز یا فردا است و حداقل
+            نصف شهریه باید پرداخت شود.
           </p>
           <label className="pay-field">
             <span>پلن</span>
@@ -470,10 +471,10 @@ export function MemberFinance({
           </p>
           {debt > 0 ? (
             <p className="desk-warn">
-              مانده بدهی: {formatToman(debt)}
+              ماندهٔ شهریه: {formatToman(debt)}
               {blocks
-                ? " — ورود به‌خاطر بدهی بسته است (از روز ۱۵)"
-                : " — تا روز ۱۴ ورود از نظر شهریه باز است"}
+                ? " — از روز ۱۵ دوره گذشته و ورود تا تسویه بسته است"
+                : " — تا روز ۱۴ دوره ورود باز است"}
             </p>
           ) : (
             <p className="desk-ok-inline">بدهی شهریه ندارد</p>
@@ -553,29 +554,32 @@ export function MemberFinance({
           {detail.upcomingSubscription ? (
             <p className="desk-ok-inline">
               دورهٔ بعدی از{" "}
-              {formatJalaliDay(detail.upcomingSubscription.startsOn)} ثبت شده —
-              تمدید دوباره تا شروع آن مجاز نیست.
+              {formatJalaliDay(detail.upcomingSubscription.startsOn)} ثبت شده
+              است.
             </p>
           ) : null}
           {renewBlockedByUpcoming ? (
             <p className="desk-warn">
-              دورهٔ بعدی از قبل ثبت شده؛ تا شروع آن تمدید دوباره مجاز نیست.
+              برای این عضو یک دورهٔ بعدی در صف است؛ تا وقتی آن دوره شروع نشود،
+              تمدید جدید ثبت نمی‌شود.
             </p>
           ) : !canRenew || !detail.currentSubscription ? (
             <p className="auth-muted">
-              برای تمدید، اشتراک جاری و بدون دورهٔ بعدی لازم است.
+              برای تمدید، عضو باید اشتراک فعال داشته باشد و دورهٔ بعدی برایش ثبت
+              نشده باشد.
             </p>
           ) : (
             <form className="pay-form" onSubmit={onRenew}>
               <p className="auth-muted">
-                جدا از قسط بدهی. اگر دوره هنوز تمام نشده، دورهٔ جدید از فردای
-                پایان شروع می‌شود.
+                تمدید برای دورهٔ ۳۰ روزهٔ بعدی است (جدا از قسط بدهی). اگر اشتراک
+                فعلی هنوز تمام نشده باشد، دورهٔ جدید بدون فاصله از فردای پایان
+                دورهٔ فعلی شروع می‌شود.
               </p>
               {renewPreview && selectedRenewPlan ? (
                 <p className="auth-muted">
                   شهریهٔ این تمدید: {formatToman(renewPreview.priceToman)}
                   {renewPreview.discountPercent > 0
-                    ? ` (تخفیف تمدید زودتر ${renewPreview.discountPercent.toLocaleString("fa-IR")}٪)`
+                    ? ` (با ${renewPreview.discountPercent.toLocaleString("fa-IR")}٪ تخفیف تمدید زودتر)`
                     : ""}
                   {" · "}
                   حداقل نصف:{" "}
@@ -619,7 +623,7 @@ export function MemberFinance({
                   disabled={locked}
                 />
                 <p className="pay-amount-words">
-                  {renewWords ?? "کمتر از نصف برای شروع دوره ثبت نمی‌شود."}
+                  {renewWords ?? "برای شروع دوره باید حداقل نصف شهریه پرداخت شود."}
                 </p>
               </label>
               <label className="pay-field">
@@ -687,7 +691,7 @@ export function MemberFinance({
 
       <h3 className="dash-subhead">سوابق پرداخت این عضو</h3>
       {history.length === 0 ? (
-        <p className="auth-muted">پرداختی در پرونده نیست.</p>
+        <p className="auth-muted">هنوز پرداختی برای این عضو ثبت نشده است.</p>
       ) : (
         <>
           <ul className="dash-list">

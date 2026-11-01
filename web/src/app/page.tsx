@@ -30,8 +30,8 @@ export default function HomePage() {
             بدن قوی‌تر، <em>عادت ماندگار</em>
           </h1>
           <p>
-            باشگاه بدنسازی فیت‌کلاب در سعادت‌آباد؛ تمرین حرفه‌ای، مربی‌گری تخصصی و
-            مدیریت شفاف عضویت.
+            باشگاه بدنسازی فیت‌کلاب در سعادت‌آباد؛ تمرین منظم، مربی همراه و
+            مدیریت روشن اشتراک.
           </p>
           <div className="cta-row">
             <a className="btn btn-primary" href="#pricing">
@@ -89,8 +89,8 @@ export default function HomePage() {
           <div className="about-note">
             <h3>آنالیز رایگان بدن برای اعضای جدید</h3>
             <p>
-              در اولین حضور، پیکرسنجی و مشاوره برنامه تمرینی توسط مربی شیفت انجام
-              می‌شود. ثبت‌نام حضوری یا از طریق تماس با پذیرش.
+              در اولین روز حضور، مربی شیفت پیکرسنجی و مشاوره برنامه تمرینی را
+              رایگان انجام می‌دهد. ثبت‌نام حضوری در پذیرش باشگاه انجام می‌شود.
             </p>
           </div>
         </div>
@@ -99,8 +99,7 @@ export default function HomePage() {
       <section className="section" id="amenities">
         <h2>امکانات باشگاه</h2>
         <p className="sub">
-          امکاناتی که معمولاً در پروفایل باشگاه‌های ایرانی برای تصمیم‌گیری اعضا نمایش
-          داده می‌شود.
+          همهٔ امکانات لازم برای یک تمرین راحت، تمیز و منظم در یک جا.
         </p>
         <div className="amenity-grid">
           {amenities.map((item) => (
@@ -157,7 +156,7 @@ export default function HomePage() {
           </article>
         </div>
         <p className="price-note">
-          ساعت‌ها نمونه هستند و تعرفه/سانس رسمی بعداً از پنل مدیریت تنظیم می‌شود.
+          ساعت‌های بالا نمونه هستند و ساعت سانس رسمی را مدیر باشگاه تنظیم می‌کند.
         </p>
       </section>
 
@@ -202,12 +201,12 @@ export default function HomePage() {
           <figure>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/weights.jpg" alt="سالن وزنه فیت‌کلاب" />
-            <figcaption>سالن وزنه و رک‌ها</figcaption>
+            <figcaption>سالن وزنه و دستگاه‌ها</figcaption>
           </figure>
           <figure>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/cardio.jpg" alt="سالن هوازی فیت‌کلاب" />
-            <figcaption>زون هوازی</figcaption>
+            <figcaption>بخش هوازی</figcaption>
           </figure>
           <figure>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -228,19 +227,19 @@ export default function HomePage() {
             <div className="kv">
               <div>
                 <span>تلفن ثابت</span>
-                <strong>۰۲۱-۲۲۱۱۳۳۴۴</strong>
+                <strong className="ltr-isolate" dir="ltr">۰۲۱-۲۲۱۱۳۳۴۴</strong>
               </div>
               <div>
                 <span>موبایل / واتساپ</span>
-                <strong>۰۹۱۲۳۴۵۶۷۸۹</strong>
+                <strong className="ltr-isolate" dir="ltr">۰۹۱۲۳۴۵۶۷۸۹</strong>
               </div>
               <div>
                 <span>اینستاگرام</span>
-                <strong>@fitclub.club</strong>
+                <strong className="ltr-isolate" dir="ltr">@fitclub.club</strong>
               </div>
               <div>
                 <span>ایمیل</span>
-                <strong>info@fitclub.ir</strong>
+                <strong className="ltr-isolate" dir="ltr">info@fitclub.ir</strong>
               </div>
             </div>
           </article>

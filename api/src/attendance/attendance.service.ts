@@ -227,7 +227,7 @@ export class AttendanceService {
 
   async checkIn(memberId: string, staff: AuthUser, now: Date = new Date()) {
     if (staff.role !== Role.SECRETARY) {
-      throw new ForbiddenException('ثبت ورود فقط برای منشی است');
+      throw new ForbiddenException('ثبت ورود فقط توسط منشی انجام می‌شود.');
     }
 
     await this.autoCloseOpenAttendances(now);
@@ -275,7 +275,7 @@ export class AttendanceService {
     now: Date = new Date(),
   ) {
     if (staff.role !== Role.SECRETARY) {
-      throw new ForbiddenException('ثبت خروج فقط برای منشی است');
+      throw new ForbiddenException('ثبت خروج فقط توسط منشی انجام می‌شود.');
     }
 
     await this.autoCloseOpenAttendances(now);
@@ -290,13 +290,13 @@ export class AttendanceService {
           : null;
 
     if (!row) {
-      throw new NotFoundException('حضور باز پیدا نشد');
+      throw new NotFoundException('حضور بازی برای ثبت خروج پیدا نشد.');
     }
     if (row.result !== AttendanceResult.SUCCESS || row.voidedAt) {
-      throw new BadRequestException('این رکورد قابل خروج نیست');
+      throw new BadRequestException('این رکورد قابل خروج نیست.');
     }
     if (row.checkOutAt) {
-      throw new BadRequestException('برای این حضور قبلاً خروج ثبت شده');
+      throw new BadRequestException('برای این حضور قبلاً خروج ثبت شده است.');
     }
 
     const durationMinutes = Math.max(
@@ -344,7 +344,7 @@ export class AttendanceService {
     const today = iranDayString(now);
     if (checkInDay !== today) {
       throw new BadRequestException(
-        'ابطال فقط تا پایان همان روز تقویمی مجاز است',
+        'ابطال حضور فقط تا پایان همان روز امکان‌پذیر است.',
       );
     }
 

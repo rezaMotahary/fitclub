@@ -36,7 +36,8 @@ export function buildMemberNotices(params: {
   if (!params.hasCurrentSubscription) {
     notices.push({
       type: 'no_subscription',
-      message: 'اشتراک جاری ندارید. برای تمدید به پذیرش مراجعه کنید.',
+      message:
+        'الان اشتراک فعالی ندارید. برای خرید یا تمدید اشتراک به پذیرش باشگاه مراجعه کنید.',
     });
     return notices;
   }
@@ -44,7 +45,8 @@ export function buildMemberNotices(params: {
   if (params.remainingDays === 0) {
     notices.push({
       type: 'expired',
-      message: 'دورهٔ اشتراک تمام شده است. برای تمدید به پذیرش مراجعه کنید.',
+      message:
+        'اشتراک شما تمام شده است. برای تمدید به پذیرش باشگاه مراجعه کنید.',
     });
   } else if (
     shouldShowExpiryNotice({
@@ -57,8 +59,8 @@ export function buildMemberNotices(params: {
       type: 'expiry',
       message:
         days === 1
-          ? 'امروز آخرین روز اشتراک است. تمدید خودکار نیست؛ برای ادامه به پذیرش مراجعه کنید.'
-          : `${days.toLocaleString('fa-IR')} روز تا پایان اشتراک مانده. تمدید خودکار نیست؛ برای تمدید به پذیرش مراجعه کنید.`,
+          ? 'امروز آخرین روز اشتراک شماست (تا پایان سانس امروز وقت دارید). تمدید خودکار نیست؛ برای تمدید به پذیرش باشگاه مراجعه کنید.'
+          : `${days.toLocaleString('fa-IR')} روز تا پایان اشتراک شما مانده است. تمدید خودکار نیست؛ برای تمدید به پذیرش باشگاه مراجعه کنید.`,
     });
   }
 
@@ -66,8 +68,8 @@ export function buildMemberNotices(params: {
     notices.push({
       type: 'debt',
       message: params.debtBlocksEntry
-        ? `ماندهٔ شهریه ${params.debtToman.toLocaleString('fa-IR')} تومان است و فعلاً ورود به‌خاطر بدهی بسته است.`
-        : `ماندهٔ شهریه ${params.debtToman.toLocaleString('fa-IR')} تومان — تا روز ۱۴ ورود باز است؛ از روز ۱۵ تا تسویه بسته می‌شود.`,
+        ? `از روز ۱۵ اشتراک گذشته و به‌خاطر ماندهٔ شهریه (${params.debtToman.toLocaleString('fa-IR')} تومان) ورود بسته است. برای تسویه به پذیرش مراجعه کنید.`
+        : `ماندهٔ شهریهٔ شما ${params.debtToman.toLocaleString('fa-IR')} تومان است. تا روز ۱۴ اشتراک ورود باز است، اما از روز ۱۵ تا زمان تسویه بسته می‌شود.`,
     });
   }
 
@@ -78,7 +80,8 @@ export function buildMemberNotices(params: {
   ) {
     notices.push({
       type: 'weekly_cap',
-      message: 'سقف هفته پر شده است. سهم هفته شنبه بعد صفر می‌شود.',
+      message:
+        'سهم تمرین این هفتهٔ شما تمام شده است. از شنبه دوباره می‌توانید وارد شوید.',
     });
   }
 

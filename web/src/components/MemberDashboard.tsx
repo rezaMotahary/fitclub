@@ -42,7 +42,7 @@ export function MemberDashboard() {
           router.replace("/login/member");
           return;
         }
-        setError("ارتباط با سرور برقرار نشد. کمی بعد دوباره باز کنید.");
+        setError("ارتباط با سیستم برقرار نشد. چند لحظه بعد دوباره صفحه را باز کنید.");
         setStatus("error");
       }
     }
@@ -67,7 +67,7 @@ export function MemberDashboard() {
       <main className="auth-shell">
         <ThemeToggle className="theme-toggle-float" />
         <div className="auth-card">
-          <p className="auth-muted">در حال بارگذاری داشبورد…</p>
+          <p className="auth-muted">در حال باز کردن پنل شما…</p>
         </div>
       </main>
     );
@@ -79,7 +79,7 @@ export function MemberDashboard() {
         <ThemeToggle className="theme-toggle-float" />
         <div className="auth-card">
           <h1>پنل اعضا</h1>
-          <p className="auth-error">{error ?? "بارگذاری ناموفق بود."}</p>
+          <p className="auth-error">{error ?? "اطلاعات پنل بارگذاری نشد."}</p>
           <div className="cta-row">
             <Link className="btn btn-primary" href="/login/member">
               ورود دوباره
@@ -152,12 +152,14 @@ export function MemberDashboard() {
             </article>
           </div>
         ) : (
-          <p className="auth-muted">اشتراک جاری ندارید.</p>
+          <p className="auth-muted">
+            الان اشتراک فعالی ندارید. برای خرید اشتراک به پذیرش باشگاه مراجعه کنید.
+          </p>
         )}
         {data.upcomingSubscription ? (
           <p className="desk-ok-inline">
-            دورهٔ بعدی از {formatJalaliDay(data.upcomingSubscription.startsOn)}{" "}
-            ({data.upcomingSubscription.planName}) ثبت شده است.
+            دورهٔ بعدی شما ({data.upcomingSubscription.planName}) از{" "}
+            {formatJalaliDay(data.upcomingSubscription.startsOn)} شروع می‌شود.
           </p>
         ) : null}
       </section>
@@ -165,19 +167,19 @@ export function MemberDashboard() {
       <section className="desk-section">
         <h2>سهم این هفته</h2>
         <p className="auth-muted">
-          هفته از شنبه تا جمعه است. شمارندهٔ «جلسه در ماه» نداریم — فقط سقف
-          هفتگی.
+          هفته از شنبه تا جمعه حساب می‌شود و با ثبت خروج، یک روز از سهم هفته کم
+          می‌شود.
         </p>
         <div className="dash-stats">
           <article className="att-stat">
-            <div className="label">مصرف‌شده</div>
+            <div className="label">روزهای تمرین این هفته</div>
             <div className="value">
               {weekly.usedDays.toLocaleString("fa-IR")} از{" "}
               {weekly.weeklyCap.toLocaleString("fa-IR")}
             </div>
           </article>
           <article className="att-stat">
-            <div className="label">مانده هفته</div>
+            <div className="label">سهم باقی‌مانده</div>
             <div className={`value ${weekly.remaining === 0 ? "warn" : "ok"}`}>
               {weekly.remaining.toLocaleString("fa-IR")} روز
             </div>
@@ -225,7 +227,7 @@ export function MemberDashboard() {
                         : "حضور"}
                   </strong>
                   {a.closedAutomatically ? (
-                    <span className="auth-muted"> · بستن خودکار</span>
+                    <span className="auth-muted"> · خروج خودکار آخر سانس</span>
                   ) : null}
                   <p className="auth-muted">
                     ورود: {formatJalaliDateTime(a.checkInAt)}
@@ -236,7 +238,7 @@ export function MemberDashboard() {
                 </div>
                 <span className="dash-list-meta">
                   {a.isOpen
-                    ? "باز"
+                    ? "در حال تمرین"
                     : formatDurationMinutes(
                         resolveDurationMinutes({
                           checkInAt: a.checkInAt,
@@ -254,10 +256,11 @@ export function MemberDashboard() {
       <section className="desk-section">
         <h2>سوابق پرداخت</h2>
         <p className="auth-muted">
-          پرداخت فقط در پذیرش ثبت می‌شود؛ از این پنل پرداخت آنلاین نیست.
+          پرداخت و تمدید حضوری در پذیرش باشگاه انجام می‌شود (پرداخت آنلاین
+          نداریم).
         </p>
         {payments.length === 0 ? (
-          <p className="auth-muted">پرداختی در پرونده نیست.</p>
+          <p className="auth-muted">هنوز پرداختی ثبت نشده است.</p>
         ) : (
           <ul className="dash-list">
             {payments.map((p) => (

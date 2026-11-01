@@ -149,7 +149,7 @@ export function AttendanceDesk() {
           window.location.href = "/login/staff";
           return;
         }
-        setBootError("ارتباط با سرور برقرار نشد. کمی بعد دوباره باز کنید.");
+        setBootError("ارتباط با سیستم برقرار نشد. چند لحظه بعد دوباره صفحه را باز کنید.");
       }
     }
 
@@ -302,7 +302,9 @@ export function AttendanceDesk() {
       await voidAttendance(attendanceId, "ابطال از پنل");
       setVoidNotice({
         id: attendanceId,
-        notice: { ok: "حضور باطل شد؛ رکورد در لاگ می‌ماند." },
+        notice: {
+          ok: "این حضور باطل شد (در فهرست امروز با علامت باطل‌شده می‌ماند و سهم هفته برمی‌گردد).",
+        },
       });
       if (selectedId) await loadEligibility(selectedId);
       await refreshBoards();
@@ -310,7 +312,7 @@ export function AttendanceDesk() {
       setVoidNotice({
         id: attendanceId,
         notice: {
-          error: err instanceof Error ? err.message : "ابطال ناموفق بود",
+          error: err instanceof Error ? err.message : "ابطال انجام نشد",
         },
       });
     } finally {
@@ -331,14 +333,14 @@ export function AttendanceDesk() {
       } else {
         await archiveMember(memberId);
         setArchiveNotice({
-          ok: `${snapshot.member.fullName} آرشیو شد. حذف نشده و سوابق مانده.`,
+          ok: `${snapshot.member.fullName} آرشیو شد (حذف نشده و همهٔ سوابق حفظ می‌شود).`,
         });
       }
       await loadEligibility(memberId);
       await loadMembers(query, memberPage, includeArchived);
     } catch (err) {
       setArchiveNotice({
-        error: err instanceof Error ? err.message : "تغییر وضعیت عضو ناموفق بود",
+        error: err instanceof Error ? err.message : "تغییر وضعیت عضو انجام نشد",
       });
     } finally {
       setBusy(false);
@@ -350,12 +352,12 @@ export function AttendanceDesk() {
     const fullName = newName.trim();
     const phone = normalizeIranMobile(newPhone);
     if (!fullName) {
-      setCreateNotice({ error: "نام عضو را بنویسید." });
+      setCreateNotice({ error: "نام و نام خانوادگی عضو را بنویسید." });
       return;
     }
     if (!isValidIranMobile(phone)) {
       setCreateNotice({
-        error: "موبایل باید ۱۱ رقم و با ۰۹ شروع شود. رقم فارسی هم قبول است.",
+        error: "شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود (رقم فارسی یا انگلیسی).",
       });
       return;
     }
@@ -370,18 +372,18 @@ export function AttendanceDesk() {
       setNewName("");
       setNewPhone("");
       setCreateNotice({
-        ok: `${created.fullName} ثبت شد. کد عضویت \u2066${created.membershipCode}\u2069`,
+        ok: `${created.fullName} ثبت شد. کد عضویت: \u2066${created.membershipCode}\u2069`,
       });
       setQuery(created.membershipCode);
       setCardNotice(null);
       setArchiveNotice(null);
       await loadMembers(created.membershipCode, 1, includeArchived);
-      setSearchNotice({ ok: "عضو تازه‌ساخته در نتیجهٔ جستجو است." });
+      setSearchNotice({ ok: "عضو جدید ثبت و انتخاب شد." });
       await loadEligibility(created.id);
       await refreshBoards();
     } catch (err) {
       setCreateNotice({
-        error: err instanceof Error ? err.message : "ثبت عضو ناموفق بود",
+        error: err instanceof Error ? err.message : "ثبت عضو انجام نشد",
       });
     } finally {
       setBusy(false);
@@ -498,12 +500,15 @@ export function AttendanceDesk() {
       <section className="desk-section att-section">
         <h2>پیدا کردن عضو</h2>
         <p className="auth-muted">
-          نام، کد FS- یا موبایل. رقم فارسی و انگلیسی هر دو کار می‌کند. برای فروش
-          اول، کیان مرادی (
+          جستجو با نام، کد عضویت (
+          <span className="ltr-isolate" dir="ltr">
+            FS-
+          </span>
+          ) یا موبایل. برای تست فروش اول، «کیان مرادی» (
           <span className="ltr-isolate" dir="ltr">
             FS-1050
           </span>
-          ) اشتراک جاری ندارد.
+          ) هنوز اشتراک ندارد.
         </p>
         <form className="desk-search" onSubmit={onSearch}>
           <input
@@ -518,7 +523,7 @@ export function AttendanceDesk() {
               checked={includeArchived}
               onChange={(e) => void onToggleArchived(e.target.checked)}
             />
-            آرشیو هم نشان بده
+            نمایش اعضای آرشیوشده
           </label>
           <button type="submit" className="btn btn-primary" disabled={busy}>
             جستجو
@@ -655,13 +660,14 @@ export function AttendanceDesk() {
                   !snapshot.eligibility.allowed &&
                   !snapshot.openAttendance ? (
                     <p className="att-deny">
-                      دکمه ورود نیست —{" "}
-                      {snapshot.eligibility.denyMessage ?? "شرط‌ها برقرار نیست"}
+                      امکان ثبت ورود نیست:{" "}
+                      {snapshot.eligibility.denyMessage ?? "شرایط ورود برقرار نیست"}
                     </p>
                   ) : null}
                   {!isSecretary ? (
                     <p className="auth-muted">
-                      مدیر ورود و خروج ثبت نمی‌کند؛ فقط مشاهده و ابطال همان‌روز.
+                      ثبت ورود و خروج فقط با منشی است؛ مدیر می‌تواند وضعیت را
+                      ببیند یا حضور امروز را باطل کند.
                     </p>
                   ) : null}
                 </div>
@@ -702,8 +708,8 @@ export function AttendanceDesk() {
       <section className="desk-section att-section reception-create">
         <h2>ثبت عضو جدید</h2>
         <p className="auth-muted">
-          نام، موبایل و سانس. کد FS- را سیستم می‌سازد. اشتراک را بعد از ثبت،
-          همین‌جا می‌فروشید.
+          نام، موبایل و سانس عضو را وارد کنید. کد عضویت خودکار ساخته می‌شود و
+          بلافاصله می‌توانید اشتراک او را ثبت کنید.
         </p>
         <form className="pay-form" onSubmit={onCreate}>
           <label className="pay-field">
@@ -758,7 +764,7 @@ export function AttendanceDesk() {
             <SectionNotice notice={insideNotice.notice} />
           ) : null}
           {insideSlice.items.length === 0 ? (
-            <p className="auth-muted">کسی داخل نیست.</p>
+            <p className="auth-muted">الان کسی داخل سالن نیست.</p>
           ) : (
             <ul className="att-live">
               {insideSlice.items.map((item) => {
@@ -817,7 +823,7 @@ export function AttendanceDesk() {
 
         <section className="desk-section att-section" id="today">
           <h2>
-            لاگ امروز
+            ورود و خروج‌های امروز
             {today?.day ? (
               <span className="auth-muted">
                 {" "}
@@ -829,7 +835,7 @@ export function AttendanceDesk() {
             <SectionNotice notice={voidNotice.notice} />
           ) : null}
           {logSlice.items.length === 0 ? (
-            <p className="auth-muted">هنوز رکوردی برای امروز نیست.</p>
+            <p className="auth-muted">امروز هنوز ورود یا خروجی ثبت نشده است.</p>
           ) : (
             <div className="att-log">
               {logSlice.items.map((row) => {
@@ -850,7 +856,7 @@ export function AttendanceDesk() {
                         </span>
                         {" · "}
                         {resultLabel(row.result, row.isVoided)}
-                        {row.closedAutomatically ? " · بستن خودکار" : ""}
+                        {row.closedAutomatically ? " · خروج خودکار آخر سانس" : ""}
                         {row.rejectReason ? ` · ${row.rejectReason}` : ""}
                         {row.isVoided && row.voidReason
                           ? ` · ${row.voidReason}`

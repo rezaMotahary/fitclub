@@ -211,7 +211,7 @@ export function PaymentDesk({
           window.location.href = "/login/staff";
           return;
         }
-        setBootError("ارتباط با سرور برقرار نشد. کمی بعد دوباره باز کنید.");
+        setBootError("ارتباط با سیستم برقرار نشد. چند لحظه بعد دوباره صفحه را باز کنید.");
       }
     }
 
@@ -322,8 +322,8 @@ export function PaymentDesk({
       setNote("");
       setPayNotice({
         ok: res.fullySettled
-          ? `تسویه کامل شد. ورود از نظر شهریه باز است.`
-          : `قسط ثبت شد. مانده: ${formatToman(res.subscription.debtToman)}`,
+          ? `شهریه کامل تسویه شد و مانع بدهی برای ورود برداشته شد.`
+          : `قسط ثبت شد. ماندهٔ بدهی: ${formatToman(res.subscription.debtToman)}`,
       });
       const [pays, list] = await Promise.all([
         listPayments({
@@ -347,7 +347,7 @@ export function PaymentDesk({
       setMemberPageCount(list.pageCount);
     } catch (err) {
       setPayNotice({
-        error: err instanceof Error ? err.message : "ثبت پرداخت ناموفق بود",
+        error: err instanceof Error ? err.message : "ثبت پرداخت انجام نشد",
       });
     } finally {
       setBusy(false);
@@ -378,10 +378,10 @@ export function PaymentDesk({
       const startLabel = formatJalaliDay(res.subscription.startsOn);
       const disc =
         res.subscription.discountPercentApplied > 0
-          ? ` با تخفیف ${res.subscription.discountPercentApplied.toLocaleString("fa-IR")}٪`
+          ? ` با ${res.subscription.discountPercentApplied.toLocaleString("fa-IR")}٪ تخفیف تمدید زودتر`
           : "";
       setRenewNotice({
-        ok: `تمدید ثبت شد${disc}. دورهٔ جدید از ${startLabel} شروع می‌شود (${res.subscription.plan.name}).`,
+        ok: `تمدید ثبت شد${disc}. دورهٔ جدید (${res.subscription.plan.name}) از ${startLabel} شروع می‌شود.`,
       });
       const [pays, list] = await Promise.all([
         listPayments({
@@ -405,7 +405,7 @@ export function PaymentDesk({
       setMemberPageCount(list.pageCount);
     } catch (err) {
       setRenewNotice({
-        error: err instanceof Error ? err.message : "ثبت تمدید ناموفق بود",
+        error: err instanceof Error ? err.message : "ثبت تمدید انجام نشد",
       });
     } finally {
       setBusy(false);
@@ -454,7 +454,7 @@ export function PaymentDesk({
               {" · "}
             </>
           ) : null}
-          قسط بدهی و تمدید اشتراک — فقط نقد / کارت‌خوان / کارت‌به‌کارت.
+          ثبت قسط شهریه و تمدید اشتراک حضوری (نقد، کارت‌خوان یا کارت‌به‌کارت)
         </>
       }
       nav={nav}
@@ -467,17 +467,17 @@ export function PaymentDesk({
         <section className="desk-section desk-section-first">
           <h2>پیدا کردن عضو</h2>
           <p className="auth-muted">
-            برای تمدید زودتر، عضو نزدیک انقضا مثل{" "}
+            برای تست تمدید زودتر، عضوی که اشتراک فعال دارد مثل سارا (
             <span className="ltr-isolate" dir="ltr">
               FS-1042
-            </span>{" "}
-            (سارا) را انتخاب کنید.
+            </span>
+            ) را انتخاب کنید.
           </p>
           <form className="desk-search" onSubmit={onSearch}>
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="نام، کد FS- یا موبایل…"
+              placeholder="نام، کد عضویت یا موبایل…"
               aria-label="جستجوی عضو برای پرداخت"
             />
             <button type="submit" className="btn btn-primary" disabled={busy}>
@@ -503,7 +503,9 @@ export function PaymentDesk({
                   >
                     <strong>
                       {m.fullName}{" "}
-                      <span className="desk-code">{m.membershipCode}</span>
+                      <span className="desk-code ltr-isolate" dir="ltr">
+                        {m.membershipCode}
+                      </span>
                     </strong>
                     <span className="auth-muted">{memberChipHint(m)}</span>
                   </button>
@@ -528,14 +530,16 @@ export function PaymentDesk({
         <section className="desk-section desk-section-first">
           <h2>قسط / تسویه بدهی</h2>
           {!selected ? (
-            <p className="auth-muted">یک عضو را انتخاب کنید.</p>
+            <p className="auth-muted">یک عضو را از لیست انتخاب کنید.</p>
           ) : (
             <>
               <div className="att-result">
                 <div className="att-result-head">
                   <h3>
                     {selected.fullName}{" "}
-                    <span className="desk-code">{selected.membershipCode}</span>
+                    <span className="desk-code ltr-isolate" dir="ltr">
+                      {selected.membershipCode}
+                    </span>
                   </h3>
                 </div>
                 {selected.currentSubscription ? (
@@ -547,21 +551,21 @@ export function PaymentDesk({
                     {formatToman(selected.currentSubscription.priceToman)}
                   </p>
                 ) : (
-                  <p className="desk-warn">اشتراک جاری ندارد.</p>
+                  <p className="desk-warn">الان اشتراک فعالی ندارد.</p>
                 )}
                 {selected.upcomingSubscription ? (
                   <p className="desk-ok-inline">
                     دورهٔ بعدی از{" "}
                     {formatJalaliDay(selected.upcomingSubscription.startsOn)}{" "}
-                    ثبت شده — تمدید دوباره تا شروع آن مجاز نیست.
+                    ثبت شده است.
                   </p>
                 ) : null}
                 {debt > 0 ? (
                   <p className="desk-warn">
-                    مانده بدهی: {formatToman(debt)}
+                    ماندهٔ شهریه: {formatToman(debt)}
                     {blocks
-                      ? " — ورود به‌خاطر بدهی بسته است (از روز ۱۵)"
-                      : " — تا روز ۱۴ ورود از نظر شهریه باز است"}
+                      ? " — از روز ۱۵ دوره گذشته و ورود تا تسویه بسته است"
+                      : " — تا روز ۱۴ دوره ورود باز است"}
                   </p>
                 ) : (
                   <p className="desk-ok-inline">بدهی شهریه ندارد</p>
@@ -641,19 +645,24 @@ export function PaymentDesk({
               <div className="pay-renew-box">
                 <h3>تمدید اشتراک</h3>
                 <p className="auth-muted">
-                  جدا از قسط بدهی. اگر دوره هنوز تمام نشده، دورهٔ جدید از{" "}
-                  <strong>فردای روز پایان</strong> شروع می‌شود (بدون فاصله).
-                  تمدید خودکار نیست.
+                  تمدید برای دورهٔ ۳۰ روزهٔ بعدی است (جدا از قسط بدهی). اگر
+                  اشتراک فعلی هنوز تمام نشده باشد، دورهٔ جدید بدون فاصله از{" "}
+                  <strong>فردای پایان دورهٔ فعلی</strong> شروع می‌شود. تمدید
+                  خودکار نیست.
                 </p>
                 {renewBlockedByUpcoming ? (
                   <p className="desk-warn">
-                    دورهٔ بعدی از قبل ثبت شده؛ تا شروع آن تمدید دوباره مجاز
-                    نیست.
+                    برای این عضو یک دورهٔ بعدی در صف است؛ تا وقتی آن دوره شروع
+                    نشود، تمدید جدید ثبت نمی‌شود.
                   </p>
                 ) : !canRenewEarly || !selected.currentSubscription ? (
                   <p className="auth-muted">
-                    برای تمدید زودتر، عضوی با اشتراک جاری و بدون دورهٔ بعدی لازم
-                    است (نمونه: سارا FS-1042).
+                    برای تمدید زودتر، عضو باید اشتراک فعال داشته باشد و دورهٔ
+                    بعدی برایش ثبت نشده باشد (نمونه: سارا{" "}
+                    <span className="ltr-isolate" dir="ltr">
+                      FS-1042
+                    </span>
+                    ).
                   </p>
                 ) : (
                   <form className="pay-form" onSubmit={onRenew}>
@@ -661,13 +670,13 @@ export function PaymentDesk({
                       <p className="auth-muted">
                         شهریهٔ این تمدید: {formatToman(renewPreview.priceToman)}
                         {renewPreview.discountPercent > 0
-                          ? ` (تخفیف تمدید زودتر ${renewPreview.discountPercent.toLocaleString("fa-IR")}٪ نمونه)`
+                          ? ` (با ${renewPreview.discountPercent.toLocaleString("fa-IR")}٪ تخفیف تمدید زودتر)`
                           : ""}
                         {" · "}
                         حداقل نصف:{" "}
                         {formatToman(minimumHalfTuition(renewPreview.priceToman))}
                         {" · "}
-                        شروع پیش‌فرض: فردای{" "}
+                        شروع: فردای{" "}
                         {formatJalaliDay(selected.currentSubscription.endsOn)}
                       </p>
                     ) : null}
@@ -707,7 +716,7 @@ export function PaymentDesk({
                         <p className="pay-amount-words">{renewWords}</p>
                       ) : (
                         <p className="pay-amount-words">
-                          کمتر از نصف برای شروع دوره ثبت نمی‌شود.
+                          برای شروع دوره باید حداقل نصف شهریه پرداخت شود.
                         </p>
                       )}
                     </label>
@@ -777,7 +786,7 @@ export function PaymentDesk({
 
               <h3 className="dash-subhead">سوابق این عضو</h3>
               {history.length === 0 ? (
-                <p className="auth-muted">پرداختی در پرونده نیست.</p>
+                <p className="auth-muted">هنوز پرداختی برای این عضو ثبت نشده است.</p>
               ) : (
                 <>
                   <ul className="dash-list">
@@ -847,7 +856,7 @@ export function PaymentDesk({
           </button>
         </form>
         {recent.length === 0 ? (
-          <p className="auth-muted">پرداختی نیست.</p>
+          <p className="auth-muted">هنوز پرداختی ثبت نشده است.</p>
         ) : (
           <>
             <ul className="dash-list">
@@ -856,7 +865,7 @@ export function PaymentDesk({
                   <div>
                     <strong>
                       {p.member?.fullName ?? "—"}{" "}
-                      <span className="desk-code">
+                      <span className="desk-code ltr-isolate" dir="ltr">
                         {p.member?.membershipCode ?? ""}
                       </span>
                     </strong>

@@ -17,7 +17,8 @@ export function SitePricing() {
         if (!cancelled) setPlans(list);
       })
       .catch(() => {
-        if (!cancelled) setError("تعرفه الان خوانده نشد. کمی بعد صفحه را تازه کنید.");
+        if (!cancelled)
+          setError("قیمت‌ها الان بارگذاری نشد. چند لحظه بعد صفحه را دوباره باز کنید.");
       });
     return () => {
       cancelled = true;
@@ -28,12 +29,12 @@ export function SitePricing() {
     <section className="section" id="pricing">
       <h2>هزینه اشتراک ماهانه</h2>
       <p className="sub">
-        شهریه بر اساس تعداد روزهای حضور در هفته محاسبه می‌شود. قیمت‌ها برای دوره ۳۰
-        روزه است و از تعرفهٔ باشگاه می‌آید.
+        شهریه بر اساس تعداد روزهای تمرین در هفته است. هر دوره دقیقاً ۳۰ روز است
+        و ثبت‌نام حضوری در پذیرش انجام می‌شود.
       </p>
       {error ? <p className="price-note">{error}</p> : null}
       {!plans && !error ? (
-        <p className="sub">در حال خواندن تعرفه…</p>
+        <p className="sub">در حال بارگذاری قیمت‌ها…</p>
       ) : null}
       {plans ? (
         <div className="pricing">
@@ -54,9 +55,9 @@ export function SitePricing() {
         </div>
       ) : null}
       <p className="price-note">
-        هزینه برنامه اختصاصی مربی و پیکرسنجی دوره‌ای جداگانه است. تمدید قبل از انقضا
-        ممکن است تخفیف داشته باشد. اشتراک‌هایی که قبلاً فروخته شده‌اند مبلغ خودشان
-        می‌مانند.
+        هزینهٔ برنامهٔ مربی و پیکرسنجی جداست. اشتراک خودکار تمدید نمی‌شود؛ اگر
+        قبل از پایان دوره در پذیرش تمدید کنید، تخفیف تمدید زودتر شاملتان
+        می‌شود.
       </p>
     </section>
   );

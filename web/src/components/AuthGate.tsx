@@ -42,7 +42,7 @@ export function AuthGate({ panel, title, children }: AuthGateProps) {
           router.replace(loginHref);
           return;
         }
-        setError("ارتباط با سرور برقرار نشد. مطمئن شوید API روشن است.");
+        setError("ارتباط با سیستم برقرار نشد. چند لحظه بعد دوباره امتحان کنید.");
         setStatus("error");
       }
     }
@@ -67,7 +67,7 @@ export function AuthGate({ panel, title, children }: AuthGateProps) {
       <main className="auth-shell">
         <ThemeToggle className="theme-toggle-float" />
         <div className="auth-card">
-          <p className="auth-muted">در حال بررسی ورود…</p>
+          <p className="auth-muted">در حال بررسی حساب کاربری…</p>
         </div>
       </main>
     );
@@ -79,7 +79,7 @@ export function AuthGate({ panel, title, children }: AuthGateProps) {
         <ThemeToggle className="theme-toggle-float" />
         <div className="auth-card">
           <h1>{title}</h1>
-          <p className="auth-error">{error ?? "ورود لازم است."}</p>
+          <p className="auth-error">{error ?? "برای ادامه باید وارد شوید."}</p>
           <div className="cta-row">
             <Link className="btn btn-primary" href={loginHref}>
               رفتن به صفحه ورود
@@ -104,7 +104,7 @@ export function AuthGate({ panel, title, children }: AuthGateProps) {
         <div className="auth-card-top">
           <p className="brand-mark">FITCLUB</p>
         </div>
-        <h1>وارد شدید — خوش آمدید</h1>
+        <h1>خوش آمدید</h1>
         <p className="auth-lead">
           {user.fullName}
           <span className="welcome-role">{roleLabel(user.role)}</span>
@@ -132,7 +132,7 @@ export function AuthGate({ panel, title, children }: AuthGateProps) {
           </p>
         ) : null}
         <p className="auth-note">
-          داشبورد کامل حضور و مالی هنوز آماده نیست. فعلاً فقط تأیید ورود است.
+          شما با موفقیت وارد حساب خود شدید.
         </p>
         <div className="cta-row">
           <button type="button" className="btn btn-primary" onClick={onLogout}>

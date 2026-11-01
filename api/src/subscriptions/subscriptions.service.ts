@@ -105,7 +105,7 @@ export class SubscriptionsService {
     const member = await this.loadMemberOrThrow(dto.memberId);
     if (member.isArchived) {
       throw new BadRequestException(
-        'عضو آرشیو است؛ اول فعال‌سازی کنید، بعد اشتراک بفروشید',
+        'پروندهٔ این عضو آرشیو است؛ اول او را فعال کنید، بعد اشتراک ثبت کنید.',
       );
     }
 
@@ -118,7 +118,7 @@ export class SubscriptionsService {
 
     if (current || upcoming) {
       throw new BadRequestException(
-        'این عضو دورهٔ جاری یا بعدی دارد؛ برای دورهٔ بعد از تمدید استفاده کنید',
+        'این عضو اشتراک فعال دارد؛ برای دورهٔ بعد از بخش «تمدید اشتراک» استفاده کنید.',
       );
     }
 
@@ -181,7 +181,7 @@ export class SubscriptionsService {
     const member = await this.loadMemberOrThrow(dto.memberId);
     if (member.isArchived) {
       throw new BadRequestException(
-        'عضو آرشیو است؛ اول فعال‌سازی کنید، بعد تمدید کنید',
+        'پروندهٔ این عضو آرشیو است؛ اول او را فعال کنید، بعد تمدید را ثبت کنید.',
       );
     }
 
@@ -194,7 +194,7 @@ export class SubscriptionsService {
 
     if (upcoming) {
       throw new BadRequestException(
-        'دورهٔ بعدی از قبل ثبت شده؛ تا شروع آن تمدید دوباره مجاز نیست',
+        'دورهٔ بعدی این عضو قبلاً ثبت شده است؛ تا زمان شروع آن امکان تمدید دوباره نیست.',
       );
     }
 
@@ -207,7 +207,7 @@ export class SubscriptionsService {
 
     if (!latest) {
       throw new BadRequestException(
-        'اشتراک قبلی پیدا نشد؛ برای عضو جدید از فروش استفاده کنید',
+        'این عضو هنوز اشتراکی نداشته است؛ از بخش «فروش اشتراک اول» استفاده کنید.',
       );
     }
 
@@ -218,7 +218,7 @@ export class SubscriptionsService {
       startsOn = earlyRenewalStartDay(calendarDayOf(current.endsAt));
       if (dto.startsOn && dto.startsOn !== startsOn) {
         throw new BadRequestException(
-          'تمدید زودتر همیشه از فردای پایان دوره شروع می‌شود؛ نمی‌توان فاصله گذاشت',
+          'در تمدید زودتر، دورهٔ جدید همیشه بدون فاصله از فردای پایان دورهٔ فعلی شروع می‌شود.',
         );
       }
     } else {

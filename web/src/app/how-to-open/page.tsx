@@ -14,8 +14,8 @@ export default function HowToOpenPage() {
         <p className="brand-mark">FITCLUB</p>
         <h1>چطور پروژه را باز کنم؟</h1>
         <p className="auth-lead">
-          لازم نیست ترمینال یا دستور فنی بزنی. اگر صفحه باز نشد، در چت پروژه بگو
-          «سایت را روشن کن» تا عامل خودش انجام دهد.
+          نیازی به دستور فنی نیست. اگر صفحه باز نشد، در چت بگو «سایت را روشن کن»
+          تا خودش روشن شود.
         </p>
 
         <ol className="howto-list">
@@ -50,14 +50,24 @@ export default function HowToOpenPage() {
           <p>
             <strong>عضو:</strong>{" "}
             <span className="ltr-isolate" dir="ltr">
-              09121234567 — OTP 123456
+              09121234567
+            </span>{" "}
+            (کد یک‌بارمصرف:{" "}
+            <span className="ltr-isolate" dir="ltr">
+              123456
             </span>
+            )
           </p>
           <p>
             <strong>پرداخت پذیرش:</strong> بعد از ورود منشی یا مدیر برو به{" "}
-            <Link href="/secretary/payments">/secretary/payments</Link> یا{" "}
-            <Link href="/admin/payments">/admin/payments</Link> — عضو بدهکار
-            نمونه:{" "}
+            <Link href="/secretary/payments" className="ltr-isolate" dir="ltr">
+              /secretary/payments
+            </Link>{" "}
+            یا{" "}
+            <Link href="/admin/payments" className="ltr-isolate" dir="ltr">
+              /admin/payments
+            </Link>{" "}
+            — عضو بدهکار نمونه:{" "}
             <span className="ltr-isolate" dir="ltr">
               FS-1046
             </span>

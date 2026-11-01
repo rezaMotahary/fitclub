@@ -48,7 +48,7 @@ export class PaymentsService {
     if (!RECEPTION_METHODS.includes(method)) {
       throw new BadRequestException({
         message:
-          'روش پرداخت پذیرش فقط نقد، کارت‌خوان یا کارت‌به‌کارت است (بدون آنلاین)',
+          'روش پرداخت در پذیرش فقط نقد، کارت‌خوان یا کارت‌به‌کارت است.',
         code: 'INVALID_PAYMENT_METHOD',
       });
     }
@@ -208,7 +208,7 @@ export class PaymentsService {
     if (!member) throw new NotFoundException('عضو پیدا نشد');
     if (member.isArchived) {
       throw new BadRequestException(
-        'عضو آرشیو است؛ اول فعال‌سازی کنید، بعد پرداخت ثبت کنید',
+        'پروندهٔ این عضو آرشیو است؛ اول او را فعال کنید، بعد پرداخت ثبت کنید.',
       );
     }
 
@@ -248,7 +248,7 @@ export class PaymentsService {
 
     if (!target) {
       throw new BadRequestException(
-        'اشتراک جاری با بدهی پیدا نشد؛ اول فروش یا تمدید کنید',
+        'اشتراک فعالی با بدهی شهریه پیدا نشد.',
       );
     }
 

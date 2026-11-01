@@ -36,11 +36,11 @@ export function StaffLoginForm() {
       if (err instanceof ApiError) {
         setError(
           err.status === 401
-            ? "شناسه یا رمز اشتباه است."
-            : err.message || "ورود ناموفق بود.",
+            ? "ایمیل/موبایل یا رمز عبور اشتباه است."
+            : err.message || "ورود انجام نشد. دوباره تلاش کنید.",
         );
       } else {
-        setError("ارتباط با سرور برقرار نشد. API را روشن کنید.");
+        setError("ارتباط با سیستم برقرار نشد. چند لحظه بعد دوباره تلاش کنید.");
       }
       setPending(false);
     }
@@ -92,18 +92,18 @@ export function StaffLoginForm() {
 
         <div className="auth-hint">
           <p>
-            نمونه منشی:{" "}
+            ایمیل منشی نمونه:{" "}
             <span className="ltr-isolate" dir="ltr">
               secretary@fitclub.local
             </span>
           </p>
           <p>
-            نمونه مدیر:{" "}
+            ایمیل مدیر نمونه:{" "}
             <span className="ltr-isolate" dir="ltr">
               admin@fitclub.local
             </span>
           </p>
-          <p>رمزها در راهنمای «چطور باز کنم» آمده است.</p>
+          <p>رمزهای نمونه در صفحهٔ «چطور باز کنم؟» نوشته شده است.</p>
         </div>
 
         <div className="cta-row auth-links">

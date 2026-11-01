@@ -11,7 +11,9 @@ describe("attendance-format", () => {
 
   it("labels voided and reject results in Persian", () => {
     expect(resultLabel("SUCCESS", true)).toBe("باطل‌شده");
+    expect(resultLabel("SUCCESS", false)).toBe("ورود موفق");
     expect(resultLabel("REJECTED_DEBT", false)).toContain("بدهی");
+    expect(resultLabel("REJECTED_OUTSIDE_SESSION", false)).toContain("ساعت سانس");
   });
 });
 

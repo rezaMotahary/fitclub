@@ -149,7 +149,7 @@ export function AdminDesk() {
           window.location.href = "/login/staff";
           return;
         }
-        setBootError("ارتباط با سرور برقرار نشد. کمی بعد دوباره باز کنید.");
+        setBootError("ارتباط با سیستم برقرار نشد. چند لحظه بعد دوباره صفحه را باز کنید.");
       }
     }
 
@@ -422,8 +422,8 @@ export function AdminDesk() {
           <section className="desk-section">
             <h2>درآمد پذیرش</h2>
             <p className="auth-muted">
-              فقط شهریه و خدمات ثبت‌شده در پذیرش. اجاره، حقوق و بوفه در این نسخه
-              نیست.
+              مجموع دریافتی‌های ثبت‌شده در پذیرش (فروش اشتراک، قسط و تمدید).
+              هزینه‌های باشگاه مثل اجاره، حقوق و بوفه اینجا ثبت نمی‌شود.
             </p>
             <form className="admin-filter" onSubmit={onApplyFilter}>
               <label className="pay-field">
@@ -474,7 +474,7 @@ export function AdminDesk() {
               <RevenueChart
                 title="درآمد روزانه در بازه"
                 points={revenue.daily}
-                emptyText="در این بازه پرداختی ثبت نشده."
+                emptyText="در این بازه پرداختی ثبت نشده است."
                 dense
               />
               <RevenueChart
@@ -483,7 +483,7 @@ export function AdminDesk() {
                   label: m.label,
                   amountToman: m.amountToman,
                 }))}
-                emptyText="برای ماه‌های اخیر پرداختی نیست."
+                emptyText="در ماه‌های اخیر پرداختی ثبت نشده است."
               />
             </div>
           </section>
@@ -491,9 +491,12 @@ export function AdminDesk() {
           <div className="admin-split">
             <section className="desk-section admin-split-block">
               <h2>نزدیک انقضا</h2>
-              <p className="auth-muted">۱۴ روز یا کمتر، بدون تمدید ثبت‌شده.</p>
+              <p className="auth-muted">
+                اعضایی که ۱۴ روز یا کمتر از اشتراکشان مانده و هنوز تمدید
+                نکرده‌اند.
+              </p>
               {overview.expiringSoon.length === 0 ? (
-                <p className="auth-muted">در این بازه کسی نیست.</p>
+                <p className="auth-muted">فعلاً هیچ عضوی در این وضعیت نیست.</p>
               ) : (
                 <ul className="dash-list">
                   {overview.expiringSoon.map((m) => (
@@ -501,7 +504,9 @@ export function AdminDesk() {
                       <div>
                         <strong>
                           {m.fullName}{" "}
-                          <span className="desk-code">{m.membershipCode}</span>
+                          <span className="desk-code ltr-isolate" dir="ltr">
+                            {m.membershipCode}
+                          </span>
                         </strong>
                         <p className="auth-muted">
                           {m.planName} · پایان {formatJalaliDay(m.endsOn)}
@@ -519,8 +524,8 @@ export function AdminDesk() {
             <section className="desk-section admin-split-block">
               <h2>تعرفه و تخفیف تمدید</h2>
               <p className="auth-muted">
-                قیمت تازه فقط برای فروش بعدی است. اشتراک‌هایی که قبلاً فروخته
-                شده‌اند همان مبلغ خودشان می‌مانند.
+                تغییر قیمت فقط روی فروش‌ها و تمدیدهای بعدی اثر دارد و مبلغ
+                اشتراک‌های قبلی عوض نمی‌شود.
               </p>
               <div className="admin-tariffs">
                 {plans.map((p) => {
@@ -582,8 +587,8 @@ export function AdminDesk() {
                   />
                 </label>
                 <p className="auth-muted">
-                  صفر یعنی بدون تخفیف. فقط برای تمدید قبل از پایان دوره است؛ کد
-                  تخفیف ماهانه نیست.
+                  عدد ۰ یعنی بدون تخفیف. این درصد فقط وقتی کم می‌شود که عضو قبل
+                  از پایان اشتراک فعلی تمدید کند.
                 </p>
                 {settings ? (
                   <p className="dash-stat-hint">
@@ -604,14 +609,18 @@ export function AdminDesk() {
       <section className="desk-section">
         <h2>اعضا</h2>
         <p className="auth-muted">
-          جستجو با نام، کد FS- یا موبایل. برای پذیرش روز (ورود، فروش، پرداخت) به{" "}
-          <Link href="/secretary">خانهٔ منشی</Link> بروید.
+          جستجو با نام، کد عضویت (
+          <span className="ltr-isolate" dir="ltr">
+            FS-
+          </span>
+          ) یا موبایل. برای کارهای روزمرهٔ پذیرش (ثبت حضور، فروش اول و قسط) به{" "}
+          <Link href="/secretary">خانهٔ پذیرش</Link> بروید.
         </p>
         <form className="desk-search" onSubmit={onSearch}>
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="مثلاً سارا یا FS-1042 یا 0912…"
+            placeholder="مثلاً سارا یا FS-1042 یا ۰۹۱۲…"
             aria-label="جستجوی عضو"
           />
           <label className="desk-check">
@@ -636,7 +645,7 @@ export function AdminDesk() {
                   });
               }}
             />
-            آرشیو هم نشان بده
+            نمایش اعضای آرشیوشده
           </label>
           <button type="submit" className="btn btn-primary" disabled={busy}>
             جستجو
@@ -653,22 +662,26 @@ export function AdminDesk() {
                 <div>
                   <h3>
                     {m.fullName}{" "}
-                    <span className="desk-code">{m.membershipCode}</span>
+                    <span className="desk-code ltr-isolate" dir="ltr">
+                      {m.membershipCode}
+                    </span>
                   </h3>
                   <p className="auth-muted">
-                    {m.phone ?? "—"} ·{" "}
-                    {m.sessionGender === "WOMEN" ? "بانوان" : "آقایان"}
+                    <span className="ltr-isolate" dir="ltr">
+                      {m.phone ?? "—"}
+                    </span>{" "}
+                    · {m.sessionGender === "WOMEN" ? "بانوان" : "آقایان"}
                     {m.isArchived ? " · آرشیو" : ""}
                   </p>
                   <p>
-                    {m.currentPlanName ?? "بدون اشتراک جاری"}
+                    {m.currentPlanName ?? "بدون اشتراک فعال"}
                     {m.subscriptionEndsOn
                       ? ` · پایان: ${formatJalaliDay(m.subscriptionEndsOn)}`
                       : ""}
                   </p>
                   {m.debtAmount > 0 ? (
                     <p className="desk-warn">
-                      مانده شهریه: {formatToman(m.debtAmount)}
+                      ماندهٔ شهریه: {formatToman(m.debtAmount)}
                     </p>
                   ) : (
                     <p className="desk-ok-inline">بدهی شهریه ندارد</p>
@@ -690,7 +703,7 @@ export function AdminDesk() {
                     disabled={busy}
                     onClick={() => void onToggleArchive(m)}
                   >
-                    {m.isArchived ? "فعال‌سازی" : "آرشیو"}
+                    {m.isArchived ? "فعال‌سازی دوباره" : "آرشیو"}
                   </button>
                 </div>
               </article>

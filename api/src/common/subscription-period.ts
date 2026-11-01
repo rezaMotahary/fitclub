@@ -37,7 +37,7 @@ export function assertStartTodayOrTomorrow(
   const allowed = new Set([today, tomorrowIran(today)]);
   if (!allowed.has(startsOn)) {
     throw new SubscriptionRuleError(
-      'تاریخ شروع فقط امروز یا فردا مجاز است؛ شروع در گذشته ممنوع است',
+      'تاریخ شروع اشتراک فقط می‌تواند امروز یا فردا باشد.',
       'INVALID_START_DATE',
     );
   }
@@ -132,7 +132,7 @@ export function assertMinimumPayment(
   const min = minimumHalfTuition(priceToman);
   if (amountPaidToman < min) {
     throw new SubscriptionRuleError(
-      `پرداخت کمتر از نصف شهریه مجاز نیست (حداقل ${min.toLocaleString('fa-IR')} تومان)`,
+      `برای شروع دوره باید حداقل نصف شهریه (${min.toLocaleString('fa-IR')} تومان) پرداخت شود.`,
       'BELOW_HALF_TUITION',
     );
   }

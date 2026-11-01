@@ -76,6 +76,39 @@ describe('buildMemberNotices', () => {
       todayAlreadyCounted: false,
     });
     expect(notices.some((n) => n.type === 'weekly_cap')).toBe(true);
+    expect(notices.find((n) => n.type === 'weekly_cap')?.message).toContain(
+      'از شنبه دوباره می‌توانید وارد شوید',
+    );
+  });
+
+  it('shows clear debt notices for days 1-14 open vs day 15+ blocked', () => {
+    const openNotices = buildMemberNotices({
+      hasCurrentSubscription: true,
+      remainingDays: 22,
+      hasUpcomingRenewal: false,
+      debtToman: 445_000,
+      debtBlocksEntry: false,
+      weeklyCap: 3,
+      remainingWeekDays: 2,
+      todayAlreadyCounted: false,
+    });
+    expect(openNotices.find((n) => n.type === 'debt')?.message).toContain(
+      'تا روز ۱۴ اشتراک ورود باز است',
+    );
+
+    const blockedNotices = buildMemberNotices({
+      hasCurrentSubscription: true,
+      remainingDays: 10,
+      hasUpcomingRenewal: false,
+      debtToman: 445_000,
+      debtBlocksEntry: true,
+      weeklyCap: 3,
+      remainingWeekDays: 2,
+      todayAlreadyCounted: false,
+    });
+    expect(blockedNotices.find((n) => n.type === 'debt')?.message).toContain(
+      'از روز ۱۵ اشتراک گذشته',
+    );
   });
 });
 

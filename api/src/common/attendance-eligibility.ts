@@ -88,14 +88,14 @@ export type EligibilityDenied = {
 export type EligibilityResult = EligibilityOk | EligibilityDenied;
 
 const MESSAGES: Record<EligibilityDenyCode, string> = {
-  ARCHIVED: 'عضو آرشیو است؛ ورود مجاز نیست',
-  NOT_STARTED: 'تاریخ شروع دوره هنوز نرسیده؛ ورود بسته است',
-  EXPIRED: 'اشتراک منقضی شده؛ نیاز به تمدید',
-  DEBT: 'از روز ۱۵ ماندهٔ شهریه تسویه نشده؛ ورود بسته است',
-  ALREADY_INSIDE: 'عضو همین حالا داخل سالن است؛ اول خروج ثبت شود',
-  WEEKLY_CAP: 'سقف این هفته پر است و امروز هنوز شمرده نشده',
-  OUTSIDE_SESSION: 'الان بیرون از ساعت سانس جنس این عضو است',
-  NO_SUBSCRIPTION: 'اشتراک فعالی برای امروز نیست؛ نیاز به فروش یا تمدید',
+  ARCHIVED: 'این عضو آرشیو (غیرفعال) است؛ برای ورود، اول پرونده را فعال کنید',
+  NOT_STARTED: 'تاریخ شروع اشتراک هنوز نرسیده است',
+  EXPIRED: 'اشتراک تمام شده است؛ اول تمدید کنید',
+  DEBT: 'از روز ۱۵ دوره گذشته و ماندهٔ شهریه تسویه نشده است',
+  ALREADY_INSIDE: 'عضو الان داخل سالن است؛ اول باید خروج ثبت شود',
+  WEEKLY_CAP: 'سهم حضور این هفته پر شده است',
+  OUTSIDE_SESSION: 'الان ساعت سانس این عضو نیست',
+  NO_SUBSCRIPTION: 'اشتراک فعالی ندارد؛ اول اشتراک بفروشید یا تمدید کنید',
 };
 
 function deny(
