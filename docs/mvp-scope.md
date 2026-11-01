@@ -6,7 +6,7 @@
 
 مالک باید بتواند نتیجه را در مرورگر باز کند و ببیند؛ فقط API پشت‌صحنه کافی نیست. → `docs/collaboration.md`
 
-لینک مخفی منشی و مدیر تأیید شد. مرحلهٔ بعد نصب‌پذیر شدن سایت است. → [product-roadmap.md](./product-roadmap.md) · [pwa.md](./pwa.md)
+نصب مثل اپ تأیید شد. مرحلهٔ بعد آماده‌سازی لانچ است. → [product-roadmap.md](./product-roadmap.md) · [launch.md](./launch.md)
 
 ## هست
 
