@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   Logger,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -26,6 +27,7 @@ import {
   SESSION_TTL_DAYS,
 } from './auth.constants.js';
 import type { AuthUser, PublicAuthUser } from './auth.types.js';
+import { SmsService } from '../sms/sms.service.js';
 
 type UserWithMember = User & {
   member: {
@@ -42,6 +44,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly sms: SmsService,
   ) {}
 
   toPublicUser(user: AuthUser): PublicAuthUser {
@@ -170,7 +173,9 @@ export class AuthService {
     return null;
   }
 
-  async requestMemberOtp(rawPhone: string): Promise<{ ok: true; expiresInSec: number }> {
+  async requestMemberOtp(
+    rawPhone: string,
+  ): Promise<{ ok: true; expiresInSec: number; sentBySms: boolean }> {
     const phone = normalizeIranMobile(rawPhone);
     const user = await this.prisma.user.findUnique({
       where: { phone },
@@ -179,7 +184,11 @@ export class AuthService {
 
     if (!user || user.role !== Role.MEMBER || !user.member) {
       // Do not reveal whether the phone exists.
-      return { ok: true, expiresInSec: OTP_TTL_MINUTES * 60 };
+      return {
+        ok: true,
+        expiresInSec: OTP_TTL_MINUTES * 60,
+        sentBySms: false,
+      };
     }
 
     if (!user.isActive || user.member.isArchived) {
@@ -188,12 +197,13 @@ export class AuthService {
       );
     }
 
-    const devCode = this.resolveDevOtpCode();
+    const sentBySms = this.sms.isConfigured();
+    const devCode = sentBySms ? null : this.resolveDevOtpCode();
     const code = devCode ?? generateOtpCode();
     const codeHash = await hashSecret(code);
     const expiresAt = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000);
 
-    await this.prisma.otpChallenge.create({
+    const challenge = await this.prisma.otpChallenge.create({
       data: {
         phone,
         codeHash,
@@ -201,14 +211,28 @@ export class AuthService {
       },
     });
 
-    // No real SMS provider in MVP skeleton.
-    if (devCode) {
+    if (sentBySms) {
+      try {
+        await this.sms.sendText(
+          phone,
+          `کد ورود فیت‌کلاب: ${code}\nاین کد تا ${OTP_TTL_MINUTES} دقیقه معتبر است.`,
+        );
+      } catch (error) {
+        await this.prisma.otpChallenge.delete({ where: { id: challenge.id } });
+        const detail = error instanceof Error ? error.message : 'unknown';
+        this.logger.error(`[OTP] sms failed phone=${phone} detail=${detail}`);
+        throw new ServiceUnavailableException(
+          'ارسال پیامک انجام نشد. کمی بعد دوباره تلاش کنید.',
+        );
+      }
+      this.logger.log(`[OTP] sms queued phone=${phone}`);
+    } else if (devCode) {
       this.logger.log(`[OTP:dev] phone=${phone} code=${code}`);
     } else {
       this.logger.log(`[OTP] code issued for phone=${phone} (SMS provider not wired)`);
     }
 
-    return { ok: true, expiresInSec: OTP_TTL_MINUTES * 60 };
+    return { ok: true, expiresInSec: OTP_TTL_MINUTES * 60, sentBySms };
   }
 
   async verifyMemberOtp(

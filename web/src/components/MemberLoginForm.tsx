@@ -37,10 +37,14 @@ export function MemberLoginForm() {
     }
     setPending(true);
     try {
-      await requestMemberOtp(normalized);
+      const result = await requestMemberOtp(normalized);
       setPhone(normalized);
       setStep("code");
-      setInfo("کد تأیید ارسال شد. برای تست از کد ۱۲۳۴۵۶ استفاده کنید.");
+      setInfo(
+        result.sentBySms
+          ? "کد ورود به همین شماره پیامک شد."
+          : "کد تأیید ارسال شد. برای تست از کد ۱۲۳۴۵۶ استفاده کنید.",
+      );
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message || "ارسال کد انجام نشد. دوباره تلاش کنید.");
@@ -155,18 +159,7 @@ export function MemberLoginForm() {
         )}
 
         <div className="auth-hint">
-          <p>
-            موبایل نمونه:{" "}
-            <span className="ltr-isolate" dir="ltr">
-              09121234567
-            </span>
-          </p>
-          <p>
-            کد نمونه:{" "}
-            <span className="ltr-isolate" dir="ltr">
-              123456
-            </span>
-          </p>
+          <p>کد یک‌بارمصرف به موبایل شما پیامک می‌شود.</p>
         </div>
 
         <div className="cta-row auth-links">

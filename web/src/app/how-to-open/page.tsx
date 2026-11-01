@@ -83,11 +83,11 @@ export default function HowToOpenPage() {
             <span className="ltr-isolate" dir="ltr">
               09121234567
             </span>{" "}
-            (کد یک‌بارمصرف:{" "}
+            (اگر پیامک واقعی خاموش باشد، کد یک‌بارمصرف:{" "}
             <span className="ltr-isolate" dir="ltr">
               123456
             </span>
-            )
+            . اگر کاوه‌نگار روشن باشد، کد داخل پیامک را وارد کنید.)
           </p>
           <p>
             <strong>پرداخت پذیرش:</strong> بعد از ورود منشی یا ادمین، از منوی

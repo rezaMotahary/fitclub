@@ -20,6 +20,8 @@ export type StaffLoginResponse = {
 
 export type MemberOtpRequestResponse = {
   ok: boolean;
+  expiresInSec?: number;
+  sentBySms?: boolean;
   expiresAt?: string;
   message?: string;
 };
