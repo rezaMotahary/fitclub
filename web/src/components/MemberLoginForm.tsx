@@ -159,7 +159,18 @@ export function MemberLoginForm() {
         )}
 
         <div className="auth-hint">
-          <p>کد یک‌بارمصرف به موبایل شما پیامک می‌شود.</p>
+          <p>
+            موبایل نمونه:{" "}
+            <span className="ltr-isolate" dir="ltr">
+              09121234567
+            </span>
+          </p>
+          <p>
+            کد نمونه:{" "}
+            <span className="ltr-isolate" dir="ltr">
+              123456
+            </span>
+          </p>
         </div>
 
         <div className="cta-row auth-links">

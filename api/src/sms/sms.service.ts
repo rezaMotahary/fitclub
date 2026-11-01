@@ -9,7 +9,7 @@ export class SmsService {
   constructor(private readonly config: ConfigService) {}
 
   isConfigured(): boolean {
-    return Boolean(this.apiKey() && this.sender());
+    return this.enabled() && Boolean(this.apiKey() && this.sender());
   }
 
   async sendText(receptor: string, message: string): Promise<void> {
@@ -28,6 +28,11 @@ export class SmsService {
     this.logger.log(
       `SMS queued messageId=${result.messageId} status=${result.status}`,
     );
+  }
+
+  private enabled(): boolean {
+    const raw = this.config.get<string>('KAVENEGAR_ENABLED')?.trim().toLowerCase() ?? '';
+    return raw === 'true' || raw === '1' || raw === 'yes';
   }
 
   private apiKey(): string {
