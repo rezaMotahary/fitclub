@@ -1,12 +1,14 @@
+import { isDemoMode } from './demo-mode.js';
+
 /** Settings that must never reach a live server. Empty list = safe to start. */
 export function productionConfigProblems(env: NodeJS.ProcessEnv): string[] {
   if ((env.NODE_ENV ?? 'development') !== 'production') return [];
 
   const problems: string[] = [];
 
-  if (env.OTP_DEV_CODE?.trim()) {
+  if (env.OTP_DEV_CODE?.trim() && !isDemoMode(env)) {
     problems.push(
-      'OTP_DEV_CODE is set: anyone could log in as any member with the fixed code. Remove it.',
+      'OTP_DEV_CODE is set: anyone could log in as any member with the fixed code. Remove it (or set DEMO_MODE=true on a test server).',
     );
   }
 

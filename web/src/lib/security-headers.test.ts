@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { securityHeaders, staffPanelHeaders } from "./security-headers";
-import { showSampleHints } from "./sample-hints";
+import { showSampleHints, siteOrigin } from "./sample-hints";
 
 function valueOf(headers: { key: string; value: string }[], key: string) {
   return headers.find((h) => h.key === key)?.value;
@@ -29,8 +29,25 @@ describe("securityHeaders", () => {
 
 describe("showSampleHints", () => {
   it("shows sample accounts locally and hides them on the live build", () => {
-    expect(showSampleHints("development")).toBe(true);
-    expect(showSampleHints("test")).toBe(true);
-    expect(showSampleHints("production")).toBe(false);
+    expect(showSampleHints("development", undefined)).toBe(true);
+    expect(showSampleHints("test", undefined)).toBe(true);
+    expect(showSampleHints("production", undefined)).toBe(false);
+    expect(showSampleHints("production", "false")).toBe(false);
+  });
+
+  it("shows them on a demo server when demo mode is on", () => {
+    expect(showSampleHints("production", "true")).toBe(true);
+    expect(showSampleHints("production", " TRUE ")).toBe(true);
+  });
+});
+
+describe("siteOrigin", () => {
+  it("uses the configured address without a trailing slash", () => {
+    expect(siteOrigin("https://demo.fitclub.ir/")).toBe("https://demo.fitclub.ir");
+  });
+
+  it("falls back to the local address", () => {
+    expect(siteOrigin(undefined)).toBe("http://localhost:3000");
+    expect(siteOrigin("  ")).toBe("http://localhost:3000");
   });
 });

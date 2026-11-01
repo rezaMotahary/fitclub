@@ -32,6 +32,7 @@ import type { AuthUser, PublicAuthUser } from './auth.types.js';
 import { SAMPLE_STAFF_PASSWORD_LIST } from './sample-passwords.js';
 import { SmsService } from '../sms/sms.service.js';
 import { rateLimits } from '../common/rate-limits.js';
+import { isDemoMode } from '../common/demo-mode.js';
 
 type UserWithMember = User & {
   member: {
@@ -178,8 +179,12 @@ export class AuthService {
   }
 
   /** Fixed login code for local testing only; a live server never accepts it. */
+  private isDemo(): boolean {
+    return isDemoMode({ DEMO_MODE: this.config.get<string>('DEMO_MODE') });
+  }
+
   private resolveDevOtpCode(): string | null {
-    if (this.isProduction()) return null;
+    if (this.isProduction() && !this.isDemo()) return null;
     const fromEnv = this.config.get<string>('OTP_DEV_CODE');
     if (fromEnv && fromEnv.trim()) return fromEnv.trim();
     return DEFAULT_OTP_DEV_CODE;
@@ -256,7 +261,7 @@ export class AuthService {
       );
     }
 
-    const sentBySms = this.sms.isConfigured();
+    const sentBySms = !this.isDemo() && this.sms.isConfigured();
     const devCode = sentBySms ? null : this.resolveDevOtpCode();
     if (!sentBySms && !devCode) {
       this.logger.error('[OTP] member login requested but SMS is switched off');

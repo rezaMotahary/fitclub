@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module.js';
 import { AuthService } from './auth/auth.service.js';
+import { isDemoMode } from './common/demo-mode.js';
 import { productionConfigProblems } from './common/production-config.js';
 
 async function bootstrap() {
@@ -46,7 +47,11 @@ async function bootstrap() {
     credentials: true,
   });
 
-  if (process.env.NODE_ENV === 'production') {
+  if (isDemoMode()) {
+    console.warn(
+      '[startup] DEMO_MODE is on: fixed member code and sample staff passwords are accepted. Test / teaching server only.',
+    );
+  } else if (process.env.NODE_ENV === 'production') {
     const weakStaff = await app.get(AuthService).findStaffUsingSamplePasswords();
     if (weakStaff.length > 0) {
       console.error(

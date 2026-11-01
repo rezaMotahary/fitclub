@@ -3,19 +3,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { showSampleHints } from "@/lib/sample-hints";
+import { showSampleHints, siteOrigin } from "@/lib/sample-hints";
 import { tryBuildStaffPaths } from "@/lib/staff-paths";
 
 export const metadata: Metadata = {
   title: "چطور باز کنم؟ | فیت‌کلاب",
 };
 
-const SITE_ORIGIN = "http://localhost:3000";
-
 export default function HowToOpenPage() {
-  // Lists hidden staff links and sample passwords — local testing only.
+  // Lists hidden staff links and sample passwords — local testing or demo server only.
   if (!showSampleHints()) notFound();
 
+  const SITE_ORIGIN = siteOrigin();
   const staffPaths = tryBuildStaffPaths({
     STAFF_PATH_SECRETARY: process.env.STAFF_PATH_SECRETARY,
     STAFF_PATH_ADMIN: process.env.STAFF_PATH_ADMIN,

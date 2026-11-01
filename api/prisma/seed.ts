@@ -4,7 +4,7 @@
  *
  * Sample staff passwords / OTP: see prisma/sample-credentials.ts and docs/.env.example
  *
- * Wipes every table first, so it refuses to run when NODE_ENV=production.
+ * Wipes every table first, so it refuses to run when NODE_ENV=production (unless DEMO_MODE=true).
  */
 import 'dotenv/config';
 import {
@@ -17,6 +17,7 @@ import {
   SubscriptionStatus,
 } from '@prisma/client';
 import { hashSecret } from '../src/auth/auth-crypto.js';
+import { isDemoMode } from '../src/common/demo-mode.js';
 import {
   addIranDays,
   dayStringToUtcNoon,
@@ -48,7 +49,7 @@ function dayFromToday(offsetDays: number): Date {
 }
 
 async function main() {
-  if ((process.env.NODE_ENV ?? 'development') === 'production') {
+  if ((process.env.NODE_ENV ?? 'development') === 'production' && !isDemoMode()) {
     throw new Error(
       'Refusing to seed: NODE_ENV=production. The seed deletes all club data and creates sample accounts.',
     );

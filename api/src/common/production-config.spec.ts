@@ -23,6 +23,20 @@ describe('productionConfigProblems', () => {
     expect(problems.join(' ')).toMatch(/OTP_DEV_CODE/);
   });
 
+  it('allows the fixed member code on a demo server, but keeps the other checks', () => {
+    expect(
+      productionConfigProblems({ ...safeLive, OTP_DEV_CODE: '123456', DEMO_MODE: 'true' }),
+    ).toEqual([]);
+    expect(
+      productionConfigProblems({
+        ...safeLive,
+        OTP_DEV_CODE: '123456',
+        DEMO_MODE: 'true',
+        WEB_ORIGIN: 'http://demo.example',
+      }).join(' '),
+    ).toMatch(/WEB_ORIGIN/);
+  });
+
   it('requires an https site address', () => {
     expect(
       productionConfigProblems({ ...safeLive, WEB_ORIGIN: 'http://fitclub.example' }).join(' '),

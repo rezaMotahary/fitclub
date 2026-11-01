@@ -245,6 +245,32 @@ describe('AuthService', () => {
       expect(prisma.otpChallenge.create).not.toHaveBeenCalled();
     });
 
+    it('accepts the fixed code without SMS on a demo server (Persian and English digits)', async () => {
+      sms = mockSms(true);
+      const config = {
+        get: vi.fn((key: string) => {
+          if (key === 'NODE_ENV') return 'production';
+          if (key === 'DEMO_MODE') return 'true';
+          if (key === 'OTP_DEV_CODE') return '123456';
+          return undefined;
+        }),
+      } as unknown as ConfigService;
+      const demo = new AuthService(prisma as never, config, sms as never);
+      prisma.user.findUnique.mockResolvedValue(activeMember);
+      prisma.otpChallenge.create.mockResolvedValue({ id: 'otp-demo' });
+
+      const result = await demo.requestMemberOtp('۰۹۱۲۱۲۳۴۵۶۷');
+      expect(result.sentBySms).toBe(false);
+      expect(sms.sendText).not.toHaveBeenCalled();
+      const { codeHash } = prisma.otpChallenge.create.mock.calls[0][0].data;
+      expect(await verifySecret('123456', codeHash)).toBe(true);
+
+      prisma.otpChallenge.findFirst.mockResolvedValue({ id: 'otp-demo', codeHash, attempts: 0 });
+      prisma.session.create.mockResolvedValue({});
+      const login = await demo.verifyMemberOtp('09121234567', '۱۲۳۴۵۶');
+      expect(login.user.membershipCode).toBe('FS-1042');
+    });
+
     it('texts a random code (not the fixed one) on a live server with SMS on', async () => {
       const live = productionService(true);
       prisma.user.findUnique.mockResolvedValue(activeMember);
