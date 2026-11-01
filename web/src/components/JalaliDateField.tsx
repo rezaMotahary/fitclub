@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { parseJalaliDateInput } from "@/lib/admin-overview";
 import {
   JALALI_WEEKDAYS,
@@ -9,6 +10,9 @@ import {
   parseJalaliFieldParts,
   shiftJalaliMonth,
 } from "@/lib/jalali-calendar";
+
+const POP_WIDTH = 300;
+const POP_HEIGHT = 360;
 
 export function JalaliDateField({
   label,
@@ -24,8 +28,10 @@ export function JalaliDateField({
   ariaLabel: string;
 }) {
   const id = useId();
-  const rootRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [box, setBox] = useState<{ top: number; left: number } | null>(null);
   const parsed = parseJalaliFieldParts(value);
   const [view, setView] = useState(() =>
     parsed
@@ -41,12 +47,37 @@ export function JalaliDateField({
     }
   }, [open, value]);
 
+  useLayoutEffect(() => {
+    if (!open) return;
+    function place() {
+      const el = inputRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      let left = rect.right - POP_WIDTH;
+      left = Math.max(8, Math.min(left, window.innerWidth - POP_WIDTH - 8));
+      let top = rect.bottom + 8;
+      if (top + POP_HEIGHT > window.innerHeight - 8 && rect.top > POP_HEIGHT + 8) {
+        top = rect.top - POP_HEIGHT - 8;
+      }
+      setBox({ top, left });
+    }
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     function onDoc(ev: MouseEvent) {
-      if (!rootRef.current?.contains(ev.target as Node)) {
-        setOpen(false);
+      const target = ev.target as Node;
+      if (inputRef.current?.contains(target) || popRef.current?.contains(target)) {
+        return;
       }
+      setOpen(false);
     }
     function onKey(ev: KeyboardEvent) {
       if (ev.key === "Escape") setOpen(false);
@@ -65,11 +96,87 @@ export function JalaliDateField({
   );
   const selected = parseJalaliDateInput(value);
 
+  const popup =
+    open && box && typeof document !== "undefined"
+      ? createPortal(
+          <div
+            ref={popRef}
+            className="jalali-pop"
+            role="dialog"
+            aria-label="تقویم شمسی"
+            style={{ top: box.top, left: box.left }}
+            onMouseDown={(ev) => ev.preventDefault()}
+          >
+            <div className="jalali-pop-head">
+              <button
+                type="button"
+                className="jalali-nav"
+                onClick={() =>
+                  setView((v) => shiftJalaliMonth(v.year, v.month, -1))
+                }
+              >
+                ماه قبل
+              </button>
+              <strong className="jalali-month">
+                {jalaliMonthName(view.month)}{" "}
+                <bdi dir="ltr">
+                  {view.year.toLocaleString("fa-IR", { useGrouping: false })}
+                </bdi>
+              </strong>
+              <button
+                type="button"
+                className="jalali-nav"
+                onClick={() =>
+                  setView((v) => shiftJalaliMonth(v.year, v.month, 1))
+                }
+              >
+                ماه بعد
+              </button>
+            </div>
+            <div className="jalali-weekdays">
+              {JALALI_WEEKDAYS.map((d) => (
+                <span key={d}>{d}</span>
+              ))}
+            </div>
+            <div className="jalali-grid">
+              {grid.map((cell, i) =>
+                cell.day == null ? (
+                  <span
+                    key={`e-${i}`}
+                    className="jalali-cell jalali-cell-empty"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <button
+                    key={cell.value}
+                    type="button"
+                    className={
+                      parseJalaliDateInput(cell.value) === selected
+                        ? "jalali-cell jalali-cell-on"
+                        : "jalali-cell"
+                    }
+                    aria-pressed={parseJalaliDateInput(cell.value) === selected}
+                    onClick={() => {
+                      onChange(cell.value);
+                      setOpen(false);
+                    }}
+                  >
+                    {cell.day.toLocaleString("fa-IR")}
+                  </button>
+                ),
+              )}
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
+
   return (
-    <div className="jalali-field" ref={rootRef}>
+    <div className="jalali-field">
       <label className="pay-field" htmlFor={id}>
         {label}
         <input
+          ref={inputRef}
           id={id}
           dir="ltr"
           className="ltr-isolate"
@@ -83,57 +190,7 @@ export function JalaliDateField({
           onClick={() => setOpen(true)}
         />
       </label>
-      {open ? (
-        <div className="jalali-pop" role="dialog" aria-label="تقویم شمسی">
-          <div className="jalali-pop-head">
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={() => setView((v) => shiftJalaliMonth(v.year, v.month, -1))}
-            >
-              ماه قبل
-            </button>
-            <strong>
-              {jalaliMonthName(view.month)} {view.year.toLocaleString("fa-IR")}
-            </strong>
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={() => setView((v) => shiftJalaliMonth(v.year, v.month, 1))}
-            >
-              ماه بعد
-            </button>
-          </div>
-          <div className="jalali-weekdays">
-            {JALALI_WEEKDAYS.map((d) => (
-              <span key={d}>{d}</span>
-            ))}
-          </div>
-          <div className="jalali-grid">
-            {grid.map((cell, i) =>
-              cell.day == null ? (
-                <span key={`e-${i}`} className="jalali-cell jalali-cell-empty" />
-              ) : (
-                <button
-                  key={cell.value}
-                  type="button"
-                  className={
-                    parseJalaliDateInput(cell.value) === selected
-                      ? "jalali-cell jalali-cell-on"
-                      : "jalali-cell"
-                  }
-                  onClick={() => {
-                    onChange(cell.value);
-                    setOpen(false);
-                  }}
-                >
-                  {cell.day.toLocaleString("fa-IR")}
-                </button>
-              ),
-            )}
-          </div>
-        </div>
-      ) : null}
+      {popup}
     </div>
   );
 }

@@ -11,11 +11,13 @@ export function DeskPager({
   busy?: boolean;
   onPage: (page: number) => void;
 }) {
+  if (pageCount <= 1) return null;
+
   return (
     <nav className="desk-pager" aria-label="صفحه‌بندی">
       <button
         type="button"
-        className="btn btn-ghost"
+        className="desk-pager-btn"
         disabled={busy || page <= 1}
         onClick={() => onPage(page - 1)}
       >
@@ -24,7 +26,7 @@ export function DeskPager({
       <span className="desk-pager-status">{formatPageStatus(page, pageCount)}</span>
       <button
         type="button"
-        className="btn btn-ghost"
+        className="desk-pager-btn"
         disabled={busy || page >= pageCount}
         onClick={() => onPage(page + 1)}
       >

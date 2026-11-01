@@ -1662,6 +1662,7 @@ textarea.ltr-isolate {
   gap: 12px;
   align-items: end;
   margin: 16px 0 12px;
+  overflow: visible;
 }
 
 .admin-filter .btn {
@@ -1697,140 +1698,346 @@ textarea.ltr-isolate {
   font-weight: 650;
 }
 
-.admin-chart-plot {
+.admin-chart-head {
   display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  height: 260px;
-  padding: 8px 4px 0;
-  overflow-x: auto;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-.admin-bar-col {
-  flex: 1 1 0;
-  min-width: 42px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
+.admin-chart-head h3 {
+  margin: 0;
 }
 
-.admin-chart-dense .admin-bar-col {
-  flex: 0 0 auto;
-  min-width: 44px;
-}
-
-.admin-bar-amount {
-  margin-bottom: 6px;
-  font-size: 0.68rem;
-  line-height: 1.2;
-  color: var(--text);
-  text-align: center;
+.admin-chart-unit {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
   white-space: nowrap;
 }
 
+.admin-chart-frame {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr);
+  column-gap: 10px;
+  direction: rtl;
+}
+
+.admin-chart-scroll {
+  overflow-x: auto;
+  min-width: 0;
+  padding-bottom: 2px;
+}
+
+.admin-chart-frame.has-values .admin-chart-axis-wrap,
+.admin-chart-frame.has-values .admin-chart-plot-wrap {
+  padding-top: 22px;
+}
+
+.admin-chart-axis-wrap,
+.admin-chart-plot-wrap {
+  min-width: 0;
+}
+
+.admin-chart-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 180px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-chart-axis-foot,
+.admin-bar-label {
+  height: 1.7rem;
+  margin-top: 8px;
+}
+
+.admin-chart-plot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 0 14px;
+  box-sizing: border-box;
+}
+
+.admin-chart-dense .admin-chart-plot {
+  gap: 4px;
+}
+
+.admin-chart-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 180px;
+  pointer-events: none;
+}
+
+.admin-gridline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid color-mix(in srgb, var(--line) 85%, transparent);
+}
+
+.admin-gridline.is-base {
+  border-top-color: var(--line);
+}
+
+.admin-bar-col {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.admin-bar-col:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
 .admin-bar-track {
-  flex: 1 1 auto;
+  position: relative;
   width: 100%;
+  height: 180px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
 }
 
-.admin-bar {
-  width: 70%;
-  min-height: 2px;
-  border-radius: 4px 4px 0 0;
-  background: var(--accent);
-  box-shadow: 0 6px 12px var(--accent-glow);
+.admin-bar-amount {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
-.admin-bar:hover {
-  background: color-mix(in srgb, var(--accent) 80%, var(--text));
+.admin-bar {
+  width: min(72%, 36px);
+  min-height: 0;
+  border-radius: 7px 7px 2px 2px;
+  background: var(--accent);
+  box-shadow: 0 8px 16px var(--accent-glow);
+}
+
+.admin-chart-dense .admin-bar {
+  width: 68%;
+  max-width: 16px;
+}
+
+.admin-bar.is-empty {
+  background: transparent;
+  box-shadow: none;
+}
+
+.admin-bar-col:hover .admin-bar,
+.admin-bar-col:focus-visible .admin-bar {
+  background: color-mix(in srgb, var(--accent) 78%, var(--text));
 }
 
 .admin-bar-label {
-  margin-top: 8px;
-  font-size: 0.72rem;
-  line-height: 1.3;
+  font-size: 0.75rem;
+  line-height: 1.7rem;
   color: var(--muted);
   text-align: center;
   white-space: nowrap;
-  overflow: visible;
 }
 
-.admin-chart-dense .admin-bar-label {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  height: 4.6rem;
-  margin-top: 10px;
-  font-size: 0.78rem;
+.admin-chart:not(.admin-chart-dense) .admin-bar-label {
+  height: auto;
+  min-height: 2.6rem;
+  line-height: 1.25;
+  white-space: normal;
+  max-width: 100%;
 }
 
-.admin-bar-label-spacer {
-  visibility: hidden;
+.admin-chart-tip {
+  position: fixed;
+  z-index: 70;
+  transform: translate(-50%, -100%);
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow:
+    0 12px 28px color-mix(in srgb, #000 28%, transparent),
+    0 2px 6px color-mix(in srgb, #000 12%, transparent);
+  font-size: 0.92rem;
+  white-space: nowrap;
+  pointer-events: none;
+  direction: rtl;
+}
+
+.admin-chart-tip.is-below {
+  transform: translate(-50%, 0);
 }
 
 .desk-pager {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.desk-pager-btn {
+  min-width: 96px;
+  min-height: 44px;
+  padding: 8px 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--text);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.desk-pager-btn:hover:not(:disabled) {
+  border-color: var(--accent-ring);
+  background: var(--accent-soft);
+}
+
+.desk-pager-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.desk-pager-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
 }
 
 .desk-pager-status {
+  min-width: 7.5rem;
+  text-align: center;
   color: var(--muted);
-  font-size: 0.92rem;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .jalali-field {
   position: relative;
   min-width: 0;
+  overflow: visible;
 }
 
 .jalali-pop {
-  position: absolute;
-  z-index: 30;
-  top: calc(100% + 8px);
-  right: 0;
-  min-width: 268px;
+  position: fixed;
+  z-index: 70;
+  width: 300px;
   padding: 12px;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: 14px;
   background: var(--panel);
-  box-shadow: 0 16px 40px color-mix(in srgb, var(--text) 18%, transparent);
   color: var(--text);
+  box-shadow:
+    0 18px 44px color-mix(in srgb, #000 32%, transparent),
+    0 2px 8px color-mix(in srgb, #000 14%, transparent);
 }
 
 .jalali-pop-head {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.jalali-nav {
+  justify-self: start;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--text);
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.jalali-pop-head .jalali-nav:last-child {
+  justify-self: end;
+}
+
+.jalali-nav:hover {
+  border-color: var(--accent-ring);
+  background: var(--accent-soft);
+}
+
+.jalali-nav:focus-visible,
+.jalali-cell:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.jalali-month {
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .jalali-weekdays,
 .jalali-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, 36px);
+  justify-content: center;
   gap: 4px;
-  text-align: center;
 }
 
 .jalali-weekdays {
+  margin-bottom: 6px;
   color: var(--muted);
   font-size: 0.78rem;
-  margin-bottom: 6px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.jalali-weekdays span,
+.jalali-cell {
+  width: 36px;
+  height: 36px;
+}
+
+.jalali-weekdays span {
+  display: grid;
+  place-items: center;
 }
 
 .jalali-cell {
-  min-height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
   border: 0;
   border-radius: 8px;
   background: transparent;
   color: var(--text);
+  font: inherit;
   cursor: pointer;
 }
 
@@ -1840,11 +2047,34 @@ textarea.ltr-isolate {
 
 .jalali-cell-on {
   background: var(--accent);
-  color: var(--bg);
+  color: var(--accent-ink);
+  font-weight: 700;
 }
 
 .jalali-cell-empty {
   visibility: hidden;
+}
+
+@media (max-width: 720px) {
+  .admin-chart-dense .admin-chart-plot {
+    min-width: 560px;
+  }
+}
+
+@media (max-width: 420px) {
+  .desk-pager {
+    gap: 8px;
+  }
+
+  .desk-pager-btn {
+    min-width: 76px;
+    padding-inline: 12px;
+  }
+
+  .desk-pager-status {
+    min-width: 6.5rem;
+    font-size: 0.88rem;
+  }
 }
 
 .admin-split {
