@@ -4,8 +4,11 @@ import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import {
   ApiError,
+  activateMember,
+  archiveMember,
   attendanceCheckIn,
   attendanceCheckOut,
+  createMember,
   fetchAttendanceEligibility,
   fetchAttendanceInside,
   fetchAttendanceToday,
@@ -20,8 +23,22 @@ import {
   formatElapsed,
   resultLabel,
 } from "@/lib/attendance-format";
-import { roleLabel, toAsciiDigits } from "@/lib/auth";
+import {
+  clampIranMobileInput,
+  isValidIranMobile,
+  normalizeIranMobile,
+  roleLabel,
+  toAsciiDigits,
+} from "@/lib/auth";
+import { formatToman } from "@/lib/dashboard-format";
 import { formatJalaliDay } from "@/lib/jalali-date";
+import {
+  RECEPTION_INSIDE_PAGE_SIZE,
+  RECEPTION_LOG_PAGE_SIZE,
+  RECEPTION_MEMBER_PAGE_SIZE,
+  memberSearchNotice,
+  slicePage,
+} from "@/lib/reception-list";
 import type {
   AttendanceEligibilityResponse,
   AttendanceInsideResponse,
@@ -29,11 +46,10 @@ import type {
   MemberSummary,
   PublicAuthUser,
 } from "@/lib/types";
+import { DeskPager } from "./DeskPager";
+import { MemberFinance } from "./MemberFinance";
+import { SectionNotice, type SectionNoticeState } from "./SectionNotice";
 import { ThemeToggle } from "./ThemeToggle";
-
-function formatToman(n: number): string {
-  return `${n.toLocaleString("fa-IR")} تومان`;
-}
 
 function genderLabel(g: "MEN" | "WOMEN"): string {
   return g === "WOMEN" ? "بانوان" : "آقایان";
@@ -42,17 +58,41 @@ function genderLabel(g: "MEN" | "WOMEN"): string {
 export function AttendanceDesk() {
   const [user, setUser] = useState<PublicAuthUser | null>(null);
   const [query, setQuery] = useState("");
+  const [includeArchived, setIncludeArchived] = useState(false);
   const [members, setMembers] = useState<MemberSummary[]>([]);
+  const [memberPage, setMemberPage] = useState(1);
+  const [memberPageCount, setMemberPageCount] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [snapshot, setSnapshot] = useState<AttendanceEligibilityResponse | null>(
     null,
   );
   const [today, setToday] = useState<AttendanceTodayResponse | null>(null);
   const [inside, setInside] = useState<AttendanceInsideResponse | null>(null);
+  const [logPage, setLogPage] = useState(1);
+  const [insidePage, setInsidePage] = useState(1);
   const [tick, setTick] = useState(0);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [note, setNote] = useState<string | null>(null);
+  const [bootError, setBootError] = useState<string | null>(null);
+  const [searchNotice, setSearchNotice] = useState<SectionNoticeState | null>(
+    null,
+  );
+  const [pickNotice, setPickNotice] = useState<SectionNoticeState | null>(null);
+  const [cardNotice, setCardNotice] = useState<SectionNoticeState | null>(null);
+  const [archiveNotice, setArchiveNotice] = useState<SectionNoticeState | null>(
+    null,
+  );
+  const [insideNotice, setInsideNotice] = useState<
+    { id: string; notice: SectionNoticeState } | null
+  >(null);
+  const [voidNotice, setVoidNotice] = useState<
+    { id: string; notice: SectionNoticeState } | null
+  >(null);
+  const [newName, setNewName] = useState("");
+  const [newPhone, setNewPhone] = useState("");
+  const [newGender, setNewGender] = useState<"MEN" | "WOMEN">("WOMEN");
+  const [createNotice, setCreateNotice] = useState<SectionNoticeState | null>(
+    null,
+  );
 
   const isSecretary = user?.role === "SECRETARY";
 
@@ -65,10 +105,27 @@ export function AttendanceDesk() {
     setInside(i);
   }, []);
 
+  const loadMembers = useCallback(
+    async (q: string, page: number, archived: boolean) => {
+      const list = await searchMembers(
+        toAsciiDigits(q.trim()),
+        archived,
+        page,
+        RECEPTION_MEMBER_PAGE_SIZE,
+      );
+      setMembers(list.items);
+      setMemberPage(list.page);
+      setMemberPageCount(list.pageCount);
+      return list;
+    },
+    [],
+  );
+
   const loadEligibility = useCallback(async (memberId: string) => {
     const res = await fetchAttendanceEligibility(memberId);
     setSnapshot(res);
     setSelectedId(memberId);
+    return res;
   }, []);
 
   useEffect(() => {
@@ -83,9 +140,8 @@ export function AttendanceDesk() {
           return;
         }
         setUser(me.user);
-        const list = await searchMembers("");
+        await loadMembers("", 1, false);
         if (cancelled) return;
-        setMembers(list.items);
         await refreshBoards();
       } catch (err) {
         if (cancelled) return;
@@ -93,7 +149,7 @@ export function AttendanceDesk() {
           window.location.href = "/login/staff";
           return;
         }
-        setError("ارتباط با سرور برقرار نشد. کمی بعد دوباره باز کنید.");
+        setBootError("ارتباط با سرور برقرار نشد. کمی بعد دوباره باز کنید.");
       }
     }
 
@@ -101,34 +157,64 @@ export function AttendanceDesk() {
     return () => {
       cancelled = true;
     };
-  }, [refreshBoards]);
+  }, [loadMembers, refreshBoards]);
 
   useEffect(() => {
     const id = window.setInterval(() => setTick((n) => n + 1), 1000);
     return () => window.clearInterval(id);
   }, []);
 
-  // silence unused tick lint — drives timer re-render
   void tick;
 
   async function onSearch(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
-    setError(null);
-    setNote(null);
+    setSearchNotice(null);
+    setPickNotice(null);
     try {
-      const list = await searchMembers(toAsciiDigits(query.trim()));
-      setMembers(list.items);
-      setNote(
-        list.total === 0
-          ? "عضوی پیدا نشد."
-          : `${list.total.toLocaleString("fa-IR")} عضو پیدا شد.`,
-      );
+      const list = await loadMembers(query, 1, includeArchived);
+      setSearchNotice(memberSearchNotice(list.total));
       if (list.items.length === 1) {
+        setCardNotice(null);
+        setArchiveNotice(null);
         await loadEligibility(list.items[0]!.id);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "جستجو ناموفق بود");
+      setSearchNotice({
+        error: err instanceof Error ? err.message : "جستجو ناموفق بود",
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onMemberPage(page: number) {
+    setBusy(true);
+    setSearchNotice(null);
+    try {
+      const list = await loadMembers(query, page, includeArchived);
+      setSearchNotice(memberSearchNotice(list.total));
+    } catch (err) {
+      setSearchNotice({
+        error: err instanceof Error ? err.message : "جستجو ناموفق بود",
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onToggleArchived(next: boolean) {
+    setIncludeArchived(next);
+    setBusy(true);
+    setSearchNotice(null);
+    setPickNotice(null);
+    try {
+      const list = await loadMembers(query, 1, next);
+      setSearchNotice(memberSearchNotice(list.total));
+    } catch (err) {
+      setSearchNotice({
+        error: err instanceof Error ? err.message : "جستجو ناموفق بود",
+      });
     } finally {
       setBusy(false);
     }
@@ -136,12 +222,15 @@ export function AttendanceDesk() {
 
   async function onSelect(m: MemberSummary) {
     setBusy(true);
-    setError(null);
-    setNote(null);
+    setPickNotice(null);
+    setCardNotice(null);
+    setArchiveNotice(null);
     try {
       await loadEligibility(m.id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "وضعیت عضو خوانده نشد");
+      setPickNotice({
+        error: err instanceof Error ? err.message : "وضعیت عضو خوانده نشد",
+      });
     } finally {
       setBusy(false);
     }
@@ -150,36 +239,57 @@ export function AttendanceDesk() {
   async function onCheckIn() {
     if (!selectedId || !isSecretary) return;
     setBusy(true);
-    setError(null);
-    setNote(null);
+    setCardNotice(null);
     try {
       const res = await attendanceCheckIn(selectedId);
       if (res.ok) {
-        setNote(`ورود ${res.member.fullName} ثبت شد.`);
+        setCardNotice({ ok: `ورود ${res.member.fullName} ثبت شد.` });
       } else {
-        setNote(res.eligibility.denyMessage ?? "ورود رد شد.");
+        setCardNotice({
+          error: res.eligibility.denyMessage ?? "ورود رد شد.",
+        });
       }
       await loadEligibility(selectedId);
       await refreshBoards();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "ثبت ورود ناموفق بود");
+      setCardNotice({
+        error: err instanceof Error ? err.message : "ثبت ورود ناموفق بود",
+      });
     } finally {
       setBusy(false);
     }
   }
 
-  async function onCheckOut(memberId?: string, attendanceId?: string) {
+  async function onCheckOut(
+    where: "card" | "inside",
+    memberId?: string,
+    attendanceId?: string,
+  ) {
     if (!isSecretary) return;
     setBusy(true);
-    setError(null);
-    setNote(null);
+    if (where === "card") setCardNotice(null);
+    if (where === "inside" && attendanceId) {
+      setInsideNotice(null);
+    }
     try {
       await attendanceCheckOut({ memberId, attendanceId });
-      setNote("خروج ثبت شد.");
+      const notice = { ok: "خروج ثبت شد." };
+      if (where === "inside" && attendanceId) {
+        setInsideNotice({ id: attendanceId, notice });
+      } else {
+        setCardNotice(notice);
+      }
       if (selectedId) await loadEligibility(selectedId);
       await refreshBoards();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "ثبت خروج ناموفق بود");
+      const notice = {
+        error: err instanceof Error ? err.message : "ثبت خروج ناموفق بود",
+      };
+      if (where === "inside" && attendanceId) {
+        setInsideNotice({ id: attendanceId, notice });
+      } else {
+        setCardNotice(notice);
+      }
     } finally {
       setBusy(false);
     }
@@ -187,17 +297,114 @@ export function AttendanceDesk() {
 
   async function onVoid(attendanceId: string) {
     setBusy(true);
-    setError(null);
-    setNote(null);
+    setVoidNotice(null);
     try {
       await voidAttendance(attendanceId, "ابطال از پنل");
-      setNote("حضور باطل شد؛ رکورد در لاگ می‌ماند.");
+      setVoidNotice({
+        id: attendanceId,
+        notice: { ok: "حضور باطل شد؛ رکورد در لاگ می‌ماند." },
+      });
       if (selectedId) await loadEligibility(selectedId);
       await refreshBoards();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "ابطال ناموفق بود");
+      setVoidNotice({
+        id: attendanceId,
+        notice: {
+          error: err instanceof Error ? err.message : "ابطال ناموفق بود",
+        },
+      });
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function onArchiveToggle() {
+    if (!snapshot) return;
+    const memberId = snapshot.member.id;
+    const archived = snapshot.member.isArchived;
+    setBusy(true);
+    setArchiveNotice(null);
+    try {
+      if (archived) {
+        await activateMember(memberId);
+        setArchiveNotice({ ok: `${snapshot.member.fullName} دوباره فعال شد.` });
+      } else {
+        await archiveMember(memberId);
+        setArchiveNotice({
+          ok: `${snapshot.member.fullName} آرشیو شد. حذف نشده و سوابق مانده.`,
+        });
+      }
+      await loadEligibility(memberId);
+      await loadMembers(query, memberPage, includeArchived);
+    } catch (err) {
+      setArchiveNotice({
+        error: err instanceof Error ? err.message : "تغییر وضعیت عضو ناموفق بود",
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onCreate(e: FormEvent) {
+    e.preventDefault();
+    const fullName = newName.trim();
+    const phone = normalizeIranMobile(newPhone);
+    if (!fullName) {
+      setCreateNotice({ error: "نام عضو را بنویسید." });
+      return;
+    }
+    if (!isValidIranMobile(phone)) {
+      setCreateNotice({
+        error: "موبایل باید ۱۱ رقم و با ۰۹ شروع شود. رقم فارسی هم قبول است.",
+      });
+      return;
+    }
+    setBusy(true);
+    setCreateNotice(null);
+    try {
+      const created = await createMember({
+        fullName,
+        phone,
+        sessionGender: newGender,
+      });
+      setNewName("");
+      setNewPhone("");
+      setCreateNotice({
+        ok: `${created.fullName} ثبت شد. کد عضویت \u2066${created.membershipCode}\u2069`,
+      });
+      setQuery(created.membershipCode);
+      setCardNotice(null);
+      setArchiveNotice(null);
+      await loadMembers(created.membershipCode, 1, includeArchived);
+      setSearchNotice({ ok: "عضو تازه‌ساخته در نتیجهٔ جستجو است." });
+      await loadEligibility(created.id);
+      await refreshBoards();
+    } catch (err) {
+      setCreateNotice({
+        error: err instanceof Error ? err.message : "ثبت عضو ناموفق بود",
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onMoneyChanged() {
+    if (selectedId) {
+      try {
+        await loadEligibility(selectedId);
+      } catch {
+        // payment message stays on its own form
+      }
+    }
+    try {
+      await refreshBoards();
+    } catch {
+      // boards refresh on the next successful action
+    }
+    try {
+      await loadMembers(query, memberPage, includeArchived);
+    } catch {
+      // list refresh is secondary
     }
   }
 
@@ -210,12 +417,12 @@ export function AttendanceDesk() {
     window.location.href = "/login/staff";
   }
 
-  if (!user && !error) {
+  if (!user && !bootError) {
     return (
       <main className="auth-shell">
         <ThemeToggle className="theme-toggle-float" />
         <div className="auth-card">
-          <p className="auth-muted">در حال بارگذاری پنل حضور…</p>
+          <p className="auth-muted">در حال بارگذاری پذیرش…</p>
         </div>
       </main>
     );
@@ -232,17 +439,28 @@ export function AttendanceDesk() {
         )
       : 0;
 
+  const logSlice = slicePage(today?.items ?? [], logPage, RECEPTION_LOG_PAGE_SIZE);
+  const insideSlice = slicePage(
+    inside?.items ?? [],
+    insidePage,
+    RECEPTION_INSIDE_PAGE_SIZE,
+  );
+  const voidOnPage = logSlice.items.some((row) => row.id === voidNotice?.id);
+  const insideOnPage = insideSlice.items.some(
+    (row) => row.attendance.id === insideNotice?.id,
+  );
+
   return (
     <main className="desk-shell desk-shell-wide">
       <header className="desk-top">
         <div>
           <p className="brand-mark">FITCLUB</p>
-          <h1>پنل منشی — حضور</h1>
+          <h1>پنل منشی — پذیرش</h1>
           {user ? (
             <p className="auth-muted">
               {user.fullName} · {roleLabel(user.role)}
               {!isSecretary
-                ? " · مشاهده و ابطال (ثبت ورود/خروج فقط منشی)"
+                ? " · مشاهده و ابطال (ثبت ورود و خروج فقط منشی)"
                 : ""}
             </p>
           ) : null}
@@ -261,8 +479,7 @@ export function AttendanceDesk() {
         </div>
       </header>
 
-      {error ? <p className="auth-error desk-banner">{error}</p> : null}
-      {note ? <p className="desk-ok desk-banner">{note}</p> : null}
+      {bootError ? <p className="auth-error desk-banner">{bootError}</p> : null}
 
       {today ? (
         <div className="att-stats">
@@ -288,49 +505,74 @@ export function AttendanceDesk() {
       ) : null}
 
       <section className="desk-section att-section">
-        <h2>جستجوی عضو و ثبت دستی</h2>
+        <h2>پیدا کردن عضو</h2>
         <p className="auth-muted">
-          نام، کد FS- یا موبایل — رقم فارسی و انگلیسی هر دو درست کار می‌کند.
+          نام، کد FS- یا موبایل. رقم فارسی و انگلیسی هر دو کار می‌کند. برای فروش
+          اول، کیان مرادی (
+          <span className="ltr-isolate" dir="ltr">
+            FS-1050
+          </span>
+          ) اشتراک جاری ندارد.
         </p>
         <form className="desk-search" onSubmit={onSearch}>
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="مثلاً سارا یا FS-1042 یا ۰۹۱۲…"
-            aria-label="جستجوی عضو برای حضور"
+            aria-label="جستجوی عضو برای پذیرش"
           />
+          <label className="desk-check">
+            <input
+              type="checkbox"
+              checked={includeArchived}
+              onChange={(e) => void onToggleArchived(e.target.checked)}
+            />
+            آرشیو هم نشان بده
+          </label>
           <button type="submit" className="btn btn-primary" disabled={busy}>
             جستجو
           </button>
         </form>
+        <SectionNotice notice={searchNotice} />
 
         <div className="att-layout">
-          <div className="att-member-list">
-            {members.length === 0 ? (
-              <p className="auth-muted">عضوی برای نمایش نیست.</p>
-            ) : (
-              members.slice(0, 12).map((m) => (
-                <button
-                  key={m.id}
-                  type="button"
-                  className={`att-member-chip${selectedId === m.id ? " active" : ""}`}
-                  onClick={() => void onSelect(m)}
-                  disabled={busy}
-                >
-                  <strong>{m.fullName}</strong>
-                  <span className="desk-code ltr-isolate" dir="ltr">
-                    {m.membershipCode}
-                  </span>
-                  <span className="auth-muted">
-                    {genderLabel(m.sessionGender)}
-                    {m.debtAmount > 0 ? " · بدهی" : ""}
-                  </span>
-                </button>
-              ))
-            )}
+          <div className="member-pick">
+            <div className="member-pick-list">
+              {members.length === 0 ? (
+                <p className="auth-muted">عضوی برای نمایش نیست.</p>
+              ) : (
+                members.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    className={`att-member-chip${selectedId === m.id ? " active" : ""}`}
+                    onClick={() => void onSelect(m)}
+                    disabled={busy}
+                  >
+                    <strong>{m.fullName}</strong>
+                    <span className="desk-code ltr-isolate" dir="ltr">
+                      {m.membershipCode}
+                    </span>
+                    <span className="auth-muted">
+                      {genderLabel(m.sessionGender)}
+                      {m.isArchived ? " · آرشیو" : ""}
+                      {m.currentPlanName ? ` · ${m.currentPlanName}` : " · بدون اشتراک"}
+                      {m.debtAmount > 0 ? " · بدهی" : ""}
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+            <DeskPager
+              page={memberPage}
+              pageCount={memberPageCount}
+              busy={busy}
+              onPage={(p) => void onMemberPage(p)}
+            />
           </div>
 
           <div className="att-result">
+            <SectionNotice notice={pickNotice} />
             {!snapshot ? (
               <p className="auth-muted">
                 یک عضو را از لیست انتخاب کنید یا جستجو کنید.
@@ -357,6 +599,7 @@ export function AttendanceDesk() {
                       {snapshot.eligibility.remainingSubscriptionDays != null
                         ? ` · مانده اشتراک ${snapshot.eligibility.remainingSubscriptionDays.toLocaleString("fa-IR")} روز`
                         : ""}
+                      {snapshot.member.isArchived ? " · آرشیو" : ""}
                     </p>
                     {snapshot.member.debtAmount > 0 ? (
                       <p className="desk-warn">
@@ -391,6 +634,7 @@ export function AttendanceDesk() {
                           disabled={busy}
                           onClick={() =>
                             void onCheckOut(
+                              "card",
                               snapshot.member.id,
                               snapshot.openAttendance?.id,
                             )
@@ -426,24 +670,107 @@ export function AttendanceDesk() {
                   ) : null}
                   {!isSecretary ? (
                     <p className="auth-muted">
-                      مدیر ورود/خروج ثبت نمی‌کند؛ فقط مشاهده و ابطال همان‌روز.
+                      مدیر ورود و خروج ثبت نمی‌کند؛ فقط مشاهده و ابطال همان‌روز.
                     </p>
                   ) : null}
+                </div>
+                <SectionNotice notice={cardNotice} />
+
+                <div className="reception-archive">
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    disabled={busy}
+                    onClick={() => void onArchiveToggle()}
+                  >
+                    {snapshot.member.isArchived ? "فعال‌سازی دوباره" : "آرشیو عضو"}
+                  </button>
+                  <SectionNotice notice={archiveNotice} />
                 </div>
               </>
             )}
           </div>
         </div>
+
+        {snapshot ? (
+          <div className="reception-work">
+            <h3>
+              فروش، قسط و تمدید — {snapshot.member.fullName}
+            </h3>
+            <MemberFinance
+              key={snapshot.member.id}
+              memberId={snapshot.member.id}
+              busy={busy}
+              onChanged={onMoneyChanged}
+            />
+          </div>
+        ) : null}
+      </section>
+
+      <section className="desk-section att-section">
+        <h2>ثبت عضو جدید</h2>
+        <p className="auth-muted">
+          نام، موبایل و سانس. کد FS- را سیستم می‌سازد. اشتراک را بعد از ثبت،
+          همین‌جا می‌فروشید.
+        </p>
+        <form className="pay-form" onSubmit={onCreate}>
+          <label className="pay-field">
+            <span>نام</span>
+            <input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              aria-label="نام عضو جدید"
+              disabled={busy}
+            />
+          </label>
+          <label className="pay-field">
+            <span>موبایل</span>
+            <input
+              value={newPhone}
+              onChange={(e) => setNewPhone(clampIranMobileInput(e.target.value))}
+              inputMode="numeric"
+              dir="ltr"
+              className="ltr-isolate"
+              placeholder="۰۹۱۲…"
+              aria-label="موبایل عضو جدید"
+              disabled={busy}
+            />
+          </label>
+          <label className="pay-field">
+            <span>سانس</span>
+            <select
+              className="theme-select"
+              value={newGender}
+              onChange={(e) =>
+                setNewGender(e.target.value === "MEN" ? "MEN" : "WOMEN")
+              }
+              disabled={busy}
+              aria-label="سانس عضو جدید"
+            >
+              <option value="WOMEN">بانوان</option>
+              <option value="MEN">آقایان</option>
+            </select>
+          </label>
+          <div className="att-actions">
+            <button type="submit" className="btn btn-primary" disabled={busy}>
+              ثبت عضو
+            </button>
+          </div>
+          <SectionNotice notice={createNotice} />
+        </form>
       </section>
 
       <div className="att-two-col">
         <section className="desk-section att-section">
           <h2>الان داخل سالن</h2>
-          {!inside || inside.items.length === 0 ? (
+          {insideNotice && !insideOnPage ? (
+            <SectionNotice notice={insideNotice.notice} />
+          ) : null}
+          {insideSlice.items.length === 0 ? (
             <p className="auth-muted">کسی داخل نیست.</p>
           ) : (
             <ul className="att-live">
-              {inside.items.map((item) => {
+              {insideSlice.items.map((item) => {
                 const elapsed = Math.max(
                   0,
                   Math.floor(
@@ -461,6 +788,9 @@ export function AttendanceDesk() {
                         {" "}
                         {item.member.membershipCode}
                       </span>
+                      {insideNotice?.id === item.attendance.id ? (
+                        <SectionNotice notice={insideNotice.notice} />
+                      ) : null}
                     </div>
                     <div className="att-live-actions">
                       <strong>{formatElapsed(elapsed)}</strong>
@@ -471,6 +801,7 @@ export function AttendanceDesk() {
                           disabled={busy}
                           onClick={() =>
                             void onCheckOut(
+                              "inside",
                               item.member.id,
                               item.attendance.id,
                             )
@@ -485,6 +816,12 @@ export function AttendanceDesk() {
               })}
             </ul>
           )}
+          <DeskPager
+            page={insideSlice.page}
+            pageCount={insideSlice.pageCount}
+            busy={busy}
+            onPage={setInsidePage}
+          />
         </section>
 
         <section className="desk-section att-section" id="today">
@@ -497,53 +834,65 @@ export function AttendanceDesk() {
               </span>
             ) : null}
           </h2>
-          {!today || today.items.length === 0 ? (
+          {voidNotice && !voidOnPage ? (
+            <SectionNotice notice={voidNotice.notice} />
+          ) : null}
+          {logSlice.items.length === 0 ? (
             <p className="auth-muted">هنوز رکوردی برای امروز نیست.</p>
           ) : (
             <div className="att-log">
-              {today.items.map((row) => {
+              {logSlice.items.map((row) => {
                 const visitMinutes = resolveDurationMinutes({
                   checkInAt: row.checkInAt,
                   checkOutAt: row.checkOutAt,
                   storedMinutes: row.durationMinutes,
                 });
                 return (
-                <article key={row.id} className="att-log-row">
-                  <div>
-                    <strong>
-                      {formatClockFa(row.checkInAt)} · {row.memberName}
-                    </strong>
-                    <p className="auth-muted">
-                      <span className="ltr-isolate" dir="ltr">
-                        {row.membershipCode}
-                      </span>
-                      {" · "}
-                      {resultLabel(row.result, row.isVoided)}
-                      {row.closedAutomatically ? " · بستن خودکار" : ""}
-                      {row.rejectReason ? ` · ${row.rejectReason}` : ""}
-                      {row.isVoided && row.voidReason
-                        ? ` · ${row.voidReason}`
-                        : ""}
-                      {visitMinutes != null && !row.isVoided
-                        ? ` · ${visitMinutes.toLocaleString("fa-IR")} دقیقه`
-                        : ""}
-                    </p>
-                  </div>
-                  {row.result === "SUCCESS" && !row.isVoided ? (
-                    <button
-                      type="button"
-                      className="btn btn-ghost"
-                      disabled={busy}
-                      onClick={() => void onVoid(row.id)}
-                    >
-                      ابطال
-                    </button>
-                  ) : null}
-                </article>
+                  <article key={row.id} className="att-log-row">
+                    <div>
+                      <strong>
+                        {formatClockFa(row.checkInAt)} · {row.memberName}
+                      </strong>
+                      <p className="auth-muted">
+                        <span className="ltr-isolate" dir="ltr">
+                          {row.membershipCode}
+                        </span>
+                        {" · "}
+                        {resultLabel(row.result, row.isVoided)}
+                        {row.closedAutomatically ? " · بستن خودکار" : ""}
+                        {row.rejectReason ? ` · ${row.rejectReason}` : ""}
+                        {row.isVoided && row.voidReason
+                          ? ` · ${row.voidReason}`
+                          : ""}
+                        {visitMinutes != null && !row.isVoided
+                          ? ` · ${visitMinutes.toLocaleString("fa-IR")} دقیقه`
+                          : ""}
+                      </p>
+                      {voidNotice?.id === row.id ? (
+                        <SectionNotice notice={voidNotice.notice} />
+                      ) : null}
+                    </div>
+                    {row.result === "SUCCESS" && !row.isVoided ? (
+                      <button
+                        type="button"
+                        className="btn btn-ghost"
+                        disabled={busy}
+                        onClick={() => void onVoid(row.id)}
+                      >
+                        ابطال
+                      </button>
+                    ) : null}
+                  </article>
                 );
               })}
             </div>
           )}
+          <DeskPager
+            page={logSlice.page}
+            pageCount={logSlice.pageCount}
+            busy={busy}
+            onPage={setLogPage}
+          />
         </section>
       </div>
     </main>

@@ -117,6 +117,8 @@ async function main() {
     debtAmount: number;
     coachName?: string;
     isArchived?: boolean;
+    /** Member exists but has no period — reception first-sale sample. */
+    skipSubscription?: boolean;
   };
 
   const members: MemberSeed[] = [
@@ -199,6 +201,44 @@ async function main() {
       debtAmount: 0,
       isArchived: true,
     },
+    {
+      // بدون اشتراک جاری — فروش اول از خانهٔ پذیرش
+      code: 'FS-1050',
+      fullName: 'کیان مرادی',
+      phone: '09121234580',
+      gender: SessionGender.MEN,
+      daysPerWeek: 3,
+      startsOffsetDays: 0,
+      debtAmount: 0,
+      skipSubscription: true,
+    },
+    {
+      code: 'FS-1051',
+      fullName: 'الینا فرهمند',
+      phone: '09121234581',
+      gender: SessionGender.WOMEN,
+      daysPerWeek: 3,
+      startsOffsetDays: -4,
+      debtAmount: 0,
+    },
+    {
+      code: 'FS-1052',
+      fullName: 'رضا شفیعی',
+      phone: '09121234582',
+      gender: SessionGender.MEN,
+      daysPerWeek: 4,
+      startsOffsetDays: -4,
+      debtAmount: 0,
+    },
+    {
+      code: 'FS-1053',
+      fullName: 'هستی نعمتی',
+      phone: '09121234583',
+      gender: SessionGender.WOMEN,
+      daysPerWeek: 2,
+      startsOffsetDays: -4,
+      debtAmount: 0,
+    },
   ];
 
   const memberIdsByCode: Record<string, string> = {};
@@ -222,19 +262,23 @@ async function main() {
           create: {
             membershipCode: m.code,
             sessionGender: m.gender,
-            debtAmount: m.debtAmount,
+            debtAmount: m.skipSubscription ? 0 : m.debtAmount,
             coachName: m.coachName,
             isArchived: m.isArchived ?? false,
-            subscriptions: {
-              create: {
-                planId: plan.id,
-                status: SubscriptionStatus.ACTIVE,
-                startsAt,
-                endsAt,
-                priceToman: plan.priceToman,
-                amountPaidToman,
-              },
-            },
+            ...(m.skipSubscription
+              ? {}
+              : {
+                  subscriptions: {
+                    create: {
+                      planId: plan.id,
+                      status: SubscriptionStatus.ACTIVE,
+                      startsAt,
+                      endsAt,
+                      priceToman: plan.priceToman,
+                      amountPaidToman,
+                    },
+                  },
+                }),
           },
         },
       },
@@ -464,6 +508,35 @@ async function main() {
         checkInAt: iranWallDateTime(today, '16:20'),
         result: AttendanceResult.REJECTED_DEBT,
         rejectReason: 'از روز ۱۵ ماندهٔ شهریه تسویه نشده؛ ورود بسته است',
+        recordedById: secretary.id,
+      },
+    });
+  }
+
+  // لاگ امروز بلندتر از یک صفحهٔ پذیرش (۸ رکورد) تا صفحه‌بندی دیده شود
+  const extraToday: Array<[string, string, string]> = [
+    ['FS-1051', '09:05', '10:00'],
+    ['FS-1051', '11:10', '11:50'],
+    ['FS-1052', '16:05', '17:00'],
+    ['FS-1052', '18:10', '18:45'],
+    ['FS-1053', '09:40', '10:25'],
+    ['FS-1044', '10:30', '11:15'],
+  ];
+  for (const [code, from, to] of extraToday) {
+    const memberId = memberIdsByCode[code];
+    if (!memberId) continue;
+    const checkInAt = iranWallDateTime(today, from);
+    const checkOutAt = iranWallDateTime(today, to);
+    await prisma.attendance.create({
+      data: {
+        memberId,
+        checkInAt,
+        checkOutAt,
+        durationMinutes: Math.max(
+          1,
+          Math.floor((checkOutAt.getTime() - checkInAt.getTime()) / 60_000),
+        ),
+        result: AttendanceResult.SUCCESS,
         recordedById: secretary.id,
       },
     });

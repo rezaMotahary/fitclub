@@ -455,7 +455,7 @@ export function PaymentDesk({
           </Link>
           {panel === "secretary" ? (
             <Link className="btn btn-ghost" href="/secretary">
-              حضور
+              پذیرش
             </Link>
           ) : null}
           <button type="button" className="btn btn-ghost" onClick={onLogout}>

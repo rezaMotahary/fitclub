@@ -130,6 +130,11 @@ export type RecordPaymentResponse = {
   debtBlocksEntry: boolean;
 };
 
+export type SellSubscriptionResponse = {
+  subscription: RenewSubscriptionResponse["subscription"];
+  member: MemberDetail;
+};
+
 export type RenewSubscriptionResponse = {
   subscription: {
     id: string;

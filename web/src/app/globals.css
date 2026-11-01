@@ -1439,6 +1439,34 @@ textarea.ltr-isolate {
 
 .att-actions {
   margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.reception-work {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+
+.reception-work h3,
+.reception-finance h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.reception-archive {
+  margin-top: 14px;
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+
+.reception-finance {
+  display: grid;
+  gap: 4px;
 }
 
 .att-deny {

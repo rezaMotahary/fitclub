@@ -17,6 +17,7 @@ import type {
   PlanPublic,
   RecordPaymentResponse,
   RenewSubscriptionResponse,
+  SellSubscriptionResponse,
   StaffLoginResponse,
 } from "./types";
 import type { AdminOverviewQuery } from "./admin-overview";
@@ -168,6 +169,14 @@ export function activateMember(id: string) {
   });
 }
 
+export function createMember(body: {
+  fullName: string;
+  phone: string;
+  sessionGender: "MEN" | "WOMEN";
+}) {
+  return apiFetch<MemberDetail>("/members", { method: "POST", body });
+}
+
 export function fetchAttendanceEligibility(memberId: string) {
   return apiFetch<AttendanceEligibilityResponse>(
     `/attendance/eligibility/${memberId}`,
@@ -258,6 +267,19 @@ export function recordReceptionPayment(body: {
   note?: string;
 }) {
   return apiFetch<RecordPaymentResponse>("/payments", {
+    method: "POST",
+    body,
+  });
+}
+
+export function sellSubscription(body: {
+  memberId: string;
+  planId: string;
+  amountPaidToman: number;
+  paymentMethod?: "CASH" | "CARD_READER" | "CARD_TRANSFER";
+  startsOn?: string;
+}) {
+  return apiFetch<SellSubscriptionResponse>("/subscriptions/sell", {
     method: "POST",
     body,
   });

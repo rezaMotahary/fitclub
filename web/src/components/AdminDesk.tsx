@@ -618,8 +618,8 @@ export function AdminDesk() {
       <section className="desk-section">
         <h2>اعضا</h2>
         <p className="auth-muted">
-          جستجو با نام، کد FS- یا موبایل. برای ثبت ورود و خروج به{" "}
-          <Link href="/secretary">صفحه حضور منشی</Link> بروید.
+          جستجو با نام، کد FS- یا موبایل. برای پذیرش روز (ورود، فروش، پرداخت) به{" "}
+          <Link href="/secretary">خانهٔ منشی</Link> بروید.
         </p>
         <form className="desk-search" onSubmit={onSearch}>
           <input
