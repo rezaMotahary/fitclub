@@ -35,6 +35,7 @@
 | [prompts/complete-project-docs.md](./prompts/complete-project-docs.md) | پرامپت تکمیل کامل مستندات منطق |
 | [prompts/project-manager-chat.md](./prompts/project-manager-chat.md) | پرامپت شروع چت اختصاصی مدیر پروژه |
 | [prompts/qa-chat.md](./prompts/qa-chat.md) | پرامپت شروع چت اختصاصی QA |
+| [prompts/pwa.md](./prompts/pwa.md) | پرامپت پیاده‌سازی PWA + بنر نصب |
 
 ## پروتوتایپ مرجع
 
