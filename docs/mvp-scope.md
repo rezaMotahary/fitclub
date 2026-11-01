@@ -6,7 +6,7 @@
 
 مالک باید بتواند نتیجه را در مرورگر باز کند و ببیند؛ فقط API پشت‌صحنه کافی نیست. → `docs/collaboration.md`
 
-ظاهر پنل‌ها و متن‌های فارسی تأیید شده‌اند. مرحلهٔ بعد نصب‌پذیر شدن سایت است. → [product-roadmap.md](./product-roadmap.md) · [pwa.md](./pwa.md)
+ظاهر پنل‌ها و متن‌های فارسی تأیید شده‌اند. اول لینک مخفی منشی و مدیر، بعد نصب‌پذیر شدن سایت. → [product-roadmap.md](./product-roadmap.md) · [prompts/staff-secret-paths.md](./prompts/staff-secret-paths.md)
 
 ## هست
 
