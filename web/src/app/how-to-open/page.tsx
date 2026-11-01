@@ -95,10 +95,7 @@ export default function HowToOpenPage() {
           </p>
           <p>
             <strong>پرداخت پذیرش:</strong> بعد از ورود منشی یا ادمین، از منوی
-            همان پنل باز می‌شود — عضو بدهکار نمونه:{" "}
-            <span className="ltr-isolate" dir="ltr">
-              FS-1046
-            </span>
+            همان پنل باز می‌شود.
           </p>
         </div>
 

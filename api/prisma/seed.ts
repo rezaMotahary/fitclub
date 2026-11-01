@@ -4,7 +4,9 @@
  *
  * Sample staff passwords / OTP: see prisma/sample-credentials.ts and docs/.env.example
  *
- * Wipes every table first, so it refuses to run when NODE_ENV=production (unless DEMO_MODE=true).
+ * Wipes every table first. Local development against localhost only.
+ * NODE_ENV=production always refuses, including when DEMO_MODE=true.
+ * On the server use npm run bootstrap:server.
  */
 import 'dotenv/config';
 import {
@@ -17,7 +19,7 @@ import {
   SubscriptionStatus,
 } from '@prisma/client';
 import { hashSecret } from '../src/auth/auth-crypto.js';
-import { isDemoMode } from '../src/common/demo-mode.js';
+import { localSeedWipeRefusal } from '../src/common/local-seed-guard.js';
 import {
   addIranDays,
   dayStringToUtcNoon,
@@ -49,13 +51,10 @@ function dayFromToday(offsetDays: number): Date {
 }
 
 async function main() {
-  if ((process.env.NODE_ENV ?? 'development') === 'production' && !isDemoMode()) {
-    throw new Error(
-      'Refusing to seed: NODE_ENV=production. The seed deletes all club data and creates sample accounts.',
-    );
-  }
+  const refusal = localSeedWipeRefusal(process.env);
+  if (refusal) throw new Error(refusal);
 
-  // Idempotent: clear domain tables in FK-safe order
+  // Local only: clear domain tables in FK-safe order
   await prisma.otpChallenge.deleteMany();
   await prisma.session.deleteMany();
   await prisma.attendance.deleteMany();

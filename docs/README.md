@@ -21,6 +21,7 @@
 | [copy-review.md](./copy-review.md) | بازبینی متن‌های فارسی قبل از تحویل نهایی |
 | [launch.md](./launch.md) | چه چیزهایی تا لانچ و سرور مانده |
 | [production-data.md](./production-data.md) | قانون دائمی: روی سرور داده پاک نشود؛ بدون فیک لوکال؛ فقط سه حساب تست |
+| [server-update.md](./server-update.md) | مسیر آپدیت سرور: بکاپ، migrate افزایشی، bootstrap، چک‌لیست env |
 | [security.md](./security.md) | گزارش امنیت قبل از لانچ + چک‌لیست امنیتی روز سرور |
 | [open-questions.md](./open-questions.md) | سؤال‌های باز؛ تا جواب نیاید حدس زده نمی‌شود |
 | [known-issues.md](./known-issues.md) | باگ‌های گزارش‌شدهٔ مالک برای فیکس بعدی |

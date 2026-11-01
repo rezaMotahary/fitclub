@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "0.15.1",
+  "version": "0.16.0",
   "description": "",
   "author": "",
   "private": true,
@@ -17,6 +17,9 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "prisma db seed",
+    "prisma:deploy": "prisma migrate deploy",
+    "bootstrap:server": "tsx prisma/bootstrap-server.ts",
+    "backup:db": "tsx scripts/backup-postgres.ts",
     "prisma:studio": "prisma studio",
     "staff:set": "tsx scripts/set-staff-account.ts",
     "lint": "oxlint --type-aware src/ test/",
