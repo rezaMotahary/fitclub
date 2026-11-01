@@ -4,10 +4,14 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
   Min,
 } from 'class-validator';
-import { parseTomanAmount } from '../../payments/dto/toman-amount.js';
+import {
+  MAX_TOMAN_AMOUNT,
+  parseTomanAmount,
+} from '../../payments/dto/toman-amount.js';
 
 export class UpdatePlanDto {
   @IsOptional()
@@ -23,6 +27,7 @@ export class UpdatePlanDto {
   })
   @IsInt()
   @Min(0)
+  @Max(MAX_TOMAN_AMOUNT)
   priceToman?: number;
 
   @IsOptional()
@@ -33,5 +38,6 @@ export class UpdatePlanDto {
   @Type(() => Number)
   @IsInt()
   @Min(0)
+  @Max(10_000)
   sortOrder?: number;
 }

@@ -24,6 +24,7 @@ import {
   SubscriptionRuleError,
   tuitionDebt,
 } from '../common/subscription-period.js';
+import { memberLocks } from '../common/keyed-mutex.js';
 import { MembersService } from '../members/members.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { RenewSubscriptionDto } from './dto/renew-subscription.dto.js';
@@ -89,7 +90,15 @@ export class SubscriptionsService {
     return { current, upcoming };
   }
 
-  async sell(dto: SellSubscriptionDto) {
+  sell(dto: SellSubscriptionDto) {
+    return memberLocks.run(dto.memberId, () => this.sellUnlocked(dto));
+  }
+
+  renew(dto: RenewSubscriptionDto) {
+    return memberLocks.run(dto.memberId, () => this.renewUnlocked(dto));
+  }
+
+  private async sellUnlocked(dto: SellSubscriptionDto) {
     const today = todayIran();
     const startsOn = dto.startsOn ?? today;
     if (!isValidDayString(startsOn)) {
@@ -176,7 +185,7 @@ export class SubscriptionsService {
     };
   }
 
-  async renew(dto: RenewSubscriptionDto) {
+  private async renewUnlocked(dto: RenewSubscriptionDto) {
     const today = todayIran();
     const member = await this.loadMemberOrThrow(dto.memberId);
     if (member.isArchived) {

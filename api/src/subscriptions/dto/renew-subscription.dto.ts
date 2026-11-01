@@ -5,9 +5,11 @@ import {
   IsOptional,
   IsString,
   Matches,
+  Max,
   Min,
 } from 'class-validator';
 import { PaymentMethod } from '@prisma/client';
+import { MAX_TOMAN_AMOUNT } from '../../payments/dto/toman-amount.js';
 
 export class RenewSubscriptionDto {
   @IsString()
@@ -29,6 +31,7 @@ export class RenewSubscriptionDto {
   @Type(() => Number)
   @IsInt()
   @Min(0)
+  @Max(MAX_TOMAN_AMOUNT)
   amountPaidToman!: number;
 
   @IsOptional()

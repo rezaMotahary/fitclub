@@ -11,6 +11,7 @@ import {
   normalizeIranMobile,
   normalizeOtpCode,
 } from "@/lib/auth";
+import { showSampleHints } from "@/lib/sample-hints";
 import { BrandLogo } from "./BrandLogo";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -158,20 +159,22 @@ export function MemberLoginForm() {
           </form>
         )}
 
-        <div className="auth-hint">
-          <p>
-            موبایل نمونه:{" "}
-            <span className="ltr-isolate" dir="ltr">
-              09121234567
-            </span>
-          </p>
-          <p>
-            کد نمونه:{" "}
-            <span className="ltr-isolate" dir="ltr">
-              123456
-            </span>
-          </p>
-        </div>
+        {showSampleHints() ? (
+          <div className="auth-hint">
+            <p>
+              موبایل نمونه:{" "}
+              <span className="ltr-isolate" dir="ltr">
+                09121234567
+              </span>
+            </p>
+            <p>
+              کد نمونه:{" "}
+              <span className="ltr-isolate" dir="ltr">
+                123456
+              </span>
+            </p>
+          </div>
+        ) : null}
 
         <div className="cta-row auth-links">
           <Link className="btn btn-ghost" href="/">

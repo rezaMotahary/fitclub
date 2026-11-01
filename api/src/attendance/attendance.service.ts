@@ -23,6 +23,7 @@ import {
   weekContaining,
 } from '../common/attendance-week.js';
 import { iranDayString } from '../common/iran-date.js';
+import { memberLocks } from '../common/keyed-mutex.js';
 import {
   calendarDayOf,
   classifySubscription,
@@ -230,6 +231,12 @@ export class AttendanceService {
       throw new ForbiddenException('ثبت ورود فقط توسط منشی انجام می‌شود.');
     }
 
+    return memberLocks.run(memberId, () =>
+      this.checkInUnlocked(memberId, staff, now),
+    );
+  }
+
+  private async checkInUnlocked(memberId: string, staff: AuthUser, now: Date) {
     await this.autoCloseOpenAttendances(now);
     const snapshot = await this.evaluateMember(memberId, now);
     const { eligibility, member } = snapshot;

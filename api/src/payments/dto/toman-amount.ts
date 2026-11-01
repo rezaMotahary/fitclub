@@ -1,5 +1,8 @@
 import { toAsciiDigits } from '../../common/iran-mobile.js';
 
+/** Upper bound that still fits the database integer columns (toman). */
+export const MAX_TOMAN_AMOUNT = 2_000_000_000;
+
 /** Parse toman from number or Persian/English digit string. */
 export function parseTomanAmount(value: unknown): number | null {
   if (typeof value === 'number') {

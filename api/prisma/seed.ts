@@ -3,7 +3,10 @@
  * Run: npx prisma db seed
  *
  * Sample staff passwords / OTP: see prisma/sample-credentials.ts and docs/.env.example
+ *
+ * Wipes every table first, so it refuses to run when NODE_ENV=production.
  */
+import 'dotenv/config';
 import {
   AttendanceResult,
   PaymentMethod,
@@ -45,6 +48,12 @@ function dayFromToday(offsetDays: number): Date {
 }
 
 async function main() {
+  if ((process.env.NODE_ENV ?? 'development') === 'production') {
+    throw new Error(
+      'Refusing to seed: NODE_ENV=production. The seed deletes all club data and creates sample accounts.',
+    );
+  }
+
   // Idempotent: clear domain tables in FK-safe order
   await prisma.otpChallenge.deleteMany();
   await prisma.session.deleteMany();

@@ -1,5 +1,7 @@
 import {
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Injectable,
   Logger,
   ServiceUnavailableException,
@@ -27,7 +29,9 @@ import {
   SESSION_TTL_DAYS,
 } from './auth.constants.js';
 import type { AuthUser, PublicAuthUser } from './auth.types.js';
+import { SAMPLE_STAFF_PASSWORD_LIST } from './sample-passwords.js';
 import { SmsService } from '../sms/sms.service.js';
+import { rateLimits } from '../common/rate-limits.js';
 
 type UserWithMember = User & {
   member: {
@@ -40,6 +44,7 @@ type UserWithMember = User & {
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private timingDummyHash: Promise<string> | null = null;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -149,6 +154,9 @@ export class AuthService {
     });
 
     if (!user?.passwordHash || !user.isActive) {
+      // Same hashing cost as a real check, so response time does not reveal which accounts exist.
+      this.timingDummyHash ??= hashSecret('fitclub-timing-equalizer');
+      await verifySecret(password, await this.timingDummyHash);
       throw new UnauthorizedException('ایمیل/موبایل یا رمز عبور اشتباه است');
     }
 
@@ -165,12 +173,63 @@ export class AuthService {
     };
   }
 
+  private isProduction(): boolean {
+    return (this.config.get<string>('NODE_ENV') ?? 'development') === 'production';
+  }
+
+  /** Fixed login code for local testing only; a live server never accepts it. */
   private resolveDevOtpCode(): string | null {
+    if (this.isProduction()) return null;
     const fromEnv = this.config.get<string>('OTP_DEV_CODE');
     if (fromEnv && fromEnv.trim()) return fromEnv.trim();
-    const nodeEnv = this.config.get<string>('NODE_ENV') ?? 'development';
-    if (nodeEnv !== 'production') return DEFAULT_OTP_DEV_CODE;
-    return null;
+    return DEFAULT_OTP_DEV_CODE;
+  }
+
+  /** Staff accounts that still open with a published sample password. */
+  async findStaffUsingSamplePasswords(): Promise<string[]> {
+    const staff = await this.prisma.user.findMany({
+      where: {
+        role: { in: [Role.SECRETARY, Role.ADMIN] },
+        isActive: true,
+        passwordHash: { not: null },
+      },
+      select: { email: true, phone: true, passwordHash: true },
+    });
+
+    const weak: string[] = [];
+    for (const user of staff) {
+      for (const sample of SAMPLE_STAFF_PASSWORD_LIST) {
+        if (await verifySecret(sample, user.passwordHash ?? '')) {
+          weak.push(user.email ?? user.phone ?? 'unknown');
+          break;
+        }
+      }
+    }
+    return weak;
+  }
+
+  private async assertOtpRequestAllowed(phone: string): Promise<void> {
+    const now = Date.now();
+    const recent = await this.prisma.otpChallenge.findMany({
+      where: { phone, createdAt: { gt: new Date(now - 60 * 60 * 1000) } },
+      select: { createdAt: true },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const cooldownMs = rateLimits.otpResendCooldownSec() * 1000;
+    const latest = recent[0];
+    if (latest && now - latest.createdAt.getTime() < cooldownMs) {
+      throw new HttpException(
+        'کد قبلی همین الان فرستاده شد. یک دقیقه صبر کنید و دوباره درخواست بدهید.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+    if (recent.length >= rateLimits.otpMaxPerPhonePerHour()) {
+      throw new HttpException(
+        'برای این شماره کد زیادی درخواست شده است. یک ساعت بعد دوباره تلاش کنید.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
   }
 
   async requestMemberOtp(
@@ -199,6 +258,15 @@ export class AuthService {
 
     const sentBySms = this.sms.isConfigured();
     const devCode = sentBySms ? null : this.resolveDevOtpCode();
+    if (!sentBySms && !devCode) {
+      this.logger.error('[OTP] member login requested but SMS is switched off');
+      throw new ServiceUnavailableException(
+        'ورود اعضا با پیامک فعلاً در دسترس نیست. لطفاً با پذیرش باشگاه تماس بگیرید.',
+      );
+    }
+
+    await this.assertOtpRequestAllowed(phone);
+
     const code = devCode ?? generateOtpCode();
     const codeHash = await hashSecret(code);
     const expiresAt = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000);
@@ -226,10 +294,8 @@ export class AuthService {
         );
       }
       this.logger.log(`[OTP] sms queued phone=${phone}`);
-    } else if (devCode) {
-      this.logger.log(`[OTP:dev] phone=${phone} code=${code}`);
     } else {
-      this.logger.log(`[OTP] code issued for phone=${phone} (SMS provider not wired)`);
+      this.logger.log(`[OTP:dev] phone=${phone} code=${code}`);
     }
 
     return { ok: true, expiresInSec: OTP_TTL_MINUTES * 60, sentBySms };
@@ -271,7 +337,16 @@ export class AuthService {
       );
     }
 
-    if (challenge.attempts >= OTP_MAX_ATTEMPTS) {
+    // Count the attempt before checking, atomically, so parallel guesses cannot exceed the limit.
+    const counted = await this.prisma.otpChallenge.updateMany({
+      where: {
+        id: challenge.id,
+        consumedAt: null,
+        attempts: { lt: OTP_MAX_ATTEMPTS },
+      },
+      data: { attempts: { increment: 1 } },
+    });
+    if (counted.count === 0) {
       throw new UnauthorizedException(
         'تعداد تلاش‌های اشتباه زیاد بود. لطفاً دوباره درخواست کد بدهید.',
       );
@@ -279,17 +354,18 @@ export class AuthService {
 
     const ok = await verifySecret(code, challenge.codeHash);
     if (!ok) {
-      await this.prisma.otpChallenge.update({
-        where: { id: challenge.id },
-        data: { attempts: { increment: 1 } },
-      });
       throw new UnauthorizedException('کد تأیید نادرست است');
     }
 
-    await this.prisma.otpChallenge.update({
-      where: { id: challenge.id },
+    const consumed = await this.prisma.otpChallenge.updateMany({
+      where: { id: challenge.id, consumedAt: null },
       data: { consumedAt: new Date() },
     });
+    if (consumed.count === 0) {
+      throw new UnauthorizedException(
+        'کد تأیید منقضی شده یا معتبر نیست. دوباره درخواست کد بدهید.',
+      );
+    }
 
     const { token, expiresAt } = await this.createSession(user.id);
     return {

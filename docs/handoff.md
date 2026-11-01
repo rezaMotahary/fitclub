@@ -30,7 +30,8 @@
 | هویت | FitClub همه‌جا · RTL · شمسی · سه نقش — `docs/project-identity.md` |
 | تصاویر / لوگو | اختیار کامل جنریت برای عامل — `docs/visual-assets.md` |
 | PWA | ✅ QA تأیید ۱۴۰۴/۰۸/۱۰ — نصب مثل اپ — `docs/pwa.md` |
-| نسخه فعلی | `0.14.0` (نصب مثل اپ — QA تأیید ۱۴۰۴/۰۸/۱۰) |
+| نسخه فعلی | `0.15.0` (بررسی و رفع امنیت قبل از لانچ) |
+| امنیت قبل از لانچ | ✅ ۱۴۰۴/۰۸/۱۰ — ۱۲ مشکل پیدا و رفع شد؛ روی سرور: کد ثابت عضو، `/how-to-open`، seed و رمز نمونه مسدود؛ محدودیت تلاش ورود — `docs/security.md` (چک‌لیست روز سرور) |
 | قوانین کسب‌وکار | کامل برای ساخت هسته: `docs/business-rules.md` |
 | چت مدیر پروژه | فعال — پرامپت: `docs/prompts/project-manager-chat.md` · نقش: `docs/project-manager.md` |
 | چت QA | الزامی از ۱۴۰۴/۰۷/۲۳ — پرامپت: `docs/prompts/qa-chat.md` · نقش: `docs/qa.md`؛ فقط بعد از تأیید QA به PM برای مرحله بعد برگرد |
@@ -128,6 +129,7 @@ fitclub/
 17. ~~لوگوی نهایی~~ ✅ QA ثبت کرد ۱۴۰۴/۰۸/۱۰ — طرح الف؛ ظاهر را خود مالک اوکی گفت — `web/public/brand/`
 18. ~~PWA~~ ✅ QA تأیید ۱۴۰۴/۰۸/۱۰ — نصب مثل اپ، کارت «نصب اپ»، صفحهٔ قطع اینترنت — `docs/pwa.md`
 19. **آماده‌سازی لانچ** — الان — پیامک واقعی، دادهٔ رسمی باشگاه، استقرار سرور — `docs/launch.md`
+    - ~~بررسی امنیت~~ ✅ `0.15.0` — `docs/security.md`؛ موقع استقرار چک‌لیست همان فایل را کامل اجرا کن
 
 «آفر» در این نسخه = فقط تغییر قیمت پلن توسط مدیر (نه کد تخفیف). کد تخفیف = آینده.
 
@@ -172,7 +174,8 @@ npm run dev
 ## Auth پایه (انجام‌شده ۲۰۲۶-۱۰-۱۴)
 
 - پرسنل: `POST /api/auth/staff/login` + cookie httpOnly
-- عضو: `POST /api/auth/member/otp/request` و `.../verify`. تا `KAVENEGAR_ENABLED=true` نشده، کد توسعه `OTP_DEV_CODE` (پیش‌فرض `123456`) است. کد کاوه‌نگار سر جایش مانده.
+- عضو: `POST /api/auth/member/otp/request` و `.../verify`. تا `KAVENEGAR_ENABLED=true` نشده، کد توسعه `OTP_DEV_CODE` (پیش‌فرض `123456`) است — فقط لوکال؛ با `NODE_ENV=production` کد ثابت هرگز قبول نمی‌شود. کد کاوه‌نگار سر جایش مانده.
+- محدودیت تلاش: `@nestjs/throttler` سراسری + سخت‌تر روی ورود؛ هر شماره یک کد در دقیقه (`OTP_RESEND_COOLDOWN_SEC`). تست‌های e2e در `test/disable-live-sms.ts` محدودیت را شل می‌کنند.
 - `GET /api/auth/me` · `POST /api/auth/logout` · RBAC
 - حساب‌های نمونه: `docs/sample-data.md` و `docs/.env.example`
 

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -18,6 +19,7 @@ import {
   tuitionDebt,
 } from '../common/subscription-period.js';
 import { planReceptionPayment } from '../common/reception-payment.js';
+import { memberLocks } from '../common/keyed-mutex.js';
 import { paginatedResult, resolvePage } from '../common/pagination.js';
 import { MembersService } from '../members/members.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -190,7 +192,13 @@ export class PaymentsService {
     return rows.map((p) => this.mapPayment(p));
   }
 
-  async recordReceptionPayment(dto: RecordPaymentDto) {
+  recordReceptionPayment(dto: RecordPaymentDto) {
+    return memberLocks.run(dto.memberId, () =>
+      this.recordReceptionPaymentUnlocked(dto),
+    );
+  }
+
+  private async recordReceptionPaymentUnlocked(dto: RecordPaymentDto) {
     this.assertReceptionMethod(dto.method);
 
     const today = todayIran();
@@ -268,9 +276,18 @@ export class PaymentsService {
       : `قسط شهریه ${target.plan.name}`;
 
     const result = await this.prisma.$transaction(async (tx) => {
-      const updatedSub = await tx.subscription.update({
-        where: { id: target.id },
+      // Only apply if nobody changed the paid amount since we read it.
+      const applied = await tx.subscription.updateMany({
+        where: { id: target.id, amountPaidToman: target.amountPaidToman },
         data: { amountPaidToman: plan.amountPaidAfter },
+      });
+      if (applied.count === 0) {
+        throw new ConflictException(
+          'پرداخت دیگری همزمان برای این اشتراک ثبت شد. صفحه را تازه کنید و دوباره بررسی کنید.',
+        );
+      }
+      const updatedSub = await tx.subscription.findUniqueOrThrow({
+        where: { id: target.id },
         include: { plan: true },
       });
 

@@ -20,6 +20,7 @@
 | [ui-ux-panels.md](./ui-ux-panels.md) | بازنگری ظاهر و دسکتاپ پنل‌ها — تأیید نشده |
 | [copy-review.md](./copy-review.md) | بازبینی متن‌های فارسی قبل از تحویل نهایی |
 | [launch.md](./launch.md) | چه چیزهایی تا لانچ و سرور مانده |
+| [security.md](./security.md) | گزارش امنیت قبل از لانچ + چک‌لیست امنیتی روز سرور |
 | [open-questions.md](./open-questions.md) | سؤال‌های باز؛ تا جواب نیاید حدس زده نمی‌شود |
 | [known-issues.md](./known-issues.md) | باگ‌های گزارش‌شدهٔ مالک برای فیکس بعدی |
 | [dev-environment.md](./dev-environment.md) | وضعیت نصب ابزارها + راهنمای نصب PostgreSQL |

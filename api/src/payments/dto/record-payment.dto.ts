@@ -4,11 +4,12 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
   Min,
 } from 'class-validator';
 import { PaymentMethod } from '@prisma/client';
-import { parseTomanAmount } from './toman-amount.js';
+import { MAX_TOMAN_AMOUNT, parseTomanAmount } from './toman-amount.js';
 
 export class RecordPaymentDto {
   @IsString()
@@ -25,6 +26,7 @@ export class RecordPaymentDto {
   })
   @IsInt()
   @Min(1)
+  @Max(MAX_TOMAN_AMOUNT)
   amountToman!: number;
 
   /** Reception only: cash / card reader / card-to-card (no online). */

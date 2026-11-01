@@ -9,7 +9,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
+import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
+import { rateLimits } from '../common/rate-limits.js';
 import { AuthService } from './auth.service.js';
 import { SESSION_COOKIE_NAME } from './auth.constants.js';
 import { CurrentUser } from './decorators/current-user.decorator.js';
@@ -55,6 +57,13 @@ export class AuthController {
 
   @Post('staff/login')
   @HttpCode(200)
+  @Throttle({
+    default: {
+      limit: rateLimits.staffLoginPerMinute,
+      ttl: 60_000,
+      blockDuration: 5 * 60_000,
+    },
+  })
   async staffLogin(
     @Body() dto: StaffLoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -66,12 +75,22 @@ export class AuthController {
 
   @Post('member/otp/request')
   @HttpCode(200)
+  @Throttle({
+    default: { limit: rateLimits.otpRequestPerMinute, ttl: 60_000 },
+  })
   async requestMemberOtp(@Body() dto: MemberOtpRequestDto) {
     return this.auth.requestMemberOtp(dto.phone);
   }
 
   @Post('member/otp/verify')
   @HttpCode(200)
+  @Throttle({
+    default: {
+      limit: rateLimits.otpVerifyPerMinute,
+      ttl: 60_000,
+      blockDuration: 5 * 60_000,
+    },
+  })
   async verifyMemberOtp(
     @Body() dto: MemberOtpVerifyDto,
     @Res({ passthrough: true }) res: Response,
