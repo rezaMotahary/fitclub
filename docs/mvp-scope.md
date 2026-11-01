@@ -6,7 +6,7 @@
 
 مالک باید بتواند نتیجه را در مرورگر باز کند و ببیند؛ فقط API پشت‌صحنه کافی نیست. → `docs/collaboration.md`
 
-داشبورد مدیر، خانهٔ پذیرش، و ظاهر پنل‌ها تأیید شده‌اند. مرحلهٔ بعد بازبینی متن فارسی است. → [product-roadmap.md](./product-roadmap.md) · [copy-review.md](./copy-review.md)
+ظاهر پنل‌ها و متن‌های فارسی تأیید شده‌اند. مرحلهٔ بعد نصب‌پذیر شدن سایت است. → [product-roadmap.md](./product-roadmap.md) · [pwa.md](./pwa.md)
 
 ## هست
 
