@@ -491,42 +491,44 @@ export function PaymentDesk({
             </button>
           </form>
           <SectionNotice notice={searchNotice} />
-          <div className="att-member-list">
-            {members.length === 0 ? (
-              <p className="auth-muted">عضوی پیدا نشد.</p>
-            ) : (
-              members.map((m) => (
-                <button
-                  key={m.id}
-                  type="button"
-                  className={
-                    selected?.id === m.id
-                      ? "att-member-chip active"
-                      : "att-member-chip"
-                  }
-                  onClick={() => void selectMember(m.id)}
-                >
-                  <strong>
-                    {m.fullName}{" "}
-                    <span className="desk-code">{m.membershipCode}</span>
-                  </strong>
-                  <span className="auth-muted">{memberChipHint(m)}</span>
-                </button>
-              ))
-            )}
-          </div>
-          <DeskPager
-            page={memberPage}
-            pageCount={memberPageCount}
-            busy={busy}
-            onPage={(p) => {
-              void loadMemberPage(p).catch((err: unknown) => {
-                setSearchNotice({
-                  error: err instanceof Error ? err.message : "جستجو ناموفق بود",
+          <div className="member-pick">
+            <div className="member-pick-list">
+              {members.length === 0 ? (
+                <p className="auth-muted">عضوی پیدا نشد.</p>
+              ) : (
+                members.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    className={
+                      selected?.id === m.id
+                        ? "att-member-chip active"
+                        : "att-member-chip"
+                    }
+                    onClick={() => void selectMember(m.id)}
+                  >
+                    <strong>
+                      {m.fullName}{" "}
+                      <span className="desk-code">{m.membershipCode}</span>
+                    </strong>
+                    <span className="auth-muted">{memberChipHint(m)}</span>
+                  </button>
+                ))
+              )}
+            </div>
+            <DeskPager
+              page={memberPage}
+              pageCount={memberPageCount}
+              busy={busy}
+              onPage={(p) => {
+                void loadMemberPage(p).catch((err: unknown) => {
+                  setSearchNotice({
+                    error: err instanceof Error ? err.message : "جستجو ناموفق بود",
+                  });
                 });
-              });
-            }}
-          />
+              }}
+            />
+          </div>
         </section>
 
         <section className="desk-section desk-section-first">
