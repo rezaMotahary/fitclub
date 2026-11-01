@@ -38,6 +38,7 @@ import type {
 } from "@/lib/types";
 import { DeskPager } from "./DeskPager";
 import { JalaliDateField } from "./JalaliDateField";
+import { PanelFrame } from "./PanelFrame";
 import { RevenueChart } from "./RevenueChart";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -358,30 +359,15 @@ export function AdminDesk() {
     iranYear != null && iranMonth != null ? `${iranYear}-${iranMonth}` : "";
 
   return (
-    <main className="desk-shell admin-shell">
-      <header className="desk-top">
-        <div>
-          <p className="brand-mark">FITCLUB</p>
-          <h1>داشبورد مدیریت</h1>
-          {user ? (
-            <p className="auth-muted">
-              {user.fullName} · {roleLabel(user.role)}
-            </p>
-          ) : null}
-        </div>
-        <div className="desk-actions">
-          <ThemeToggle />
-          <Link className="btn btn-ghost" href="/admin/payments">
-            پرداخت پذیرش
-          </Link>
-          <button type="button" className="btn btn-ghost" onClick={onLogout}>
-            خروج
-          </button>
-          <Link className="btn btn-ghost" href="/">
-            سایت
-          </Link>
-        </div>
-      </header>
+    <PanelFrame
+      title="داشبورد مدیریت"
+      lede={user ? `${user.fullName} · ${roleLabel(user.role)}` : null}
+      nav={[
+        { href: "/admin", label: "نمای کلی", exact: true },
+        { href: "/admin/payments", label: "پرداخت پذیرش" },
+      ]}
+      onLogout={onLogout}
+    >
 
       {bootError ? <p className="auth-error desk-banner">{bootError}</p> : null}
 
@@ -718,6 +704,6 @@ export function AdminDesk() {
           onPage={(p) => void onMemberPage(p)}
         />
       </section>
-    </main>
+    </PanelFrame>
   );
 }

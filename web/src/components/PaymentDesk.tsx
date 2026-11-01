@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -51,6 +50,7 @@ import type {
   PlanPublic,
   PublicAuthUser,
 } from "@/lib/types";
+import { PanelFrame } from "./PanelFrame";
 import { ThemeToggle } from "./ThemeToggle";
 
 type PayMethod = "CASH" | "CARD_READER" | "CARD_TRANSFER";
@@ -85,7 +85,6 @@ export function PaymentDesk({
 }: {
   panel: "secretary" | "admin";
 }) {
-  const homeHref = panel === "admin" ? "/admin" : "/secretary";
   const title =
     panel === "admin" ? "پنل مدیریت — پرداخت پذیرش" : "پنل منشی — پرداخت پذیرش";
 
@@ -433,39 +432,34 @@ export function PaymentDesk({
     );
   }
 
+  const nav =
+    panel === "admin"
+      ? [
+          { href: "/admin", label: "نمای کلی", exact: true },
+          { href: "/admin/payments", label: "پرداخت پذیرش", exact: true },
+        ]
+      : [
+          { href: "/secretary", label: "خانه پذیرش", exact: true },
+          { href: "/secretary/payments", label: "پرداخت پذیرش", exact: true },
+        ];
+
   return (
-    <main className="desk-shell desk-shell-wide">
-      <header className="desk-top">
-        <div>
-          <p className="brand-mark">FITCLUB</p>
-          <h1>{title}</h1>
+    <PanelFrame
+      title={title}
+      lede={
+        <>
           {user ? (
-            <p className="auth-muted">
+            <>
               {user.fullName} · {roleLabel(user.role)}
-            </p>
+              {" · "}
+            </>
           ) : null}
-          <p className="auth-muted">
-            قسط بدهی و تمدید اشتراک — فقط نقد / کارت‌خوان / کارت‌به‌کارت.
-          </p>
-        </div>
-        <div className="desk-actions">
-          <ThemeToggle />
-          <Link className="btn btn-ghost" href={homeHref}>
-            بازگشت به پنل
-          </Link>
-          {panel === "secretary" ? (
-            <Link className="btn btn-ghost" href="/secretary">
-              پذیرش
-            </Link>
-          ) : null}
-          <button type="button" className="btn btn-ghost" onClick={onLogout}>
-            خروج
-          </button>
-          <Link className="btn btn-ghost" href="/">
-            سایت
-          </Link>
-        </div>
-      </header>
+          قسط بدهی و تمدید اشتراک — فقط نقد / کارت‌خوان / کارت‌به‌کارت.
+        </>
+      }
+      nav={nav}
+      onLogout={onLogout}
+    >
 
       {bootError ? <p className="auth-error desk-banner">{bootError}</p> : null}
 
@@ -886,6 +880,6 @@ export function PaymentDesk({
           </>
         )}
       </section>
-    </main>
+    </PanelFrame>
   );
 }

@@ -16,6 +16,7 @@ import {
   formatJalaliDay,
 } from "@/lib/jalali-date";
 import type { MemberDashboard as MemberDashboardData } from "@/lib/types";
+import { PanelFrame } from "./PanelFrame";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function MemberDashboard() {
@@ -96,29 +97,20 @@ export function MemberDashboard() {
     data;
 
   return (
-    <main className="desk-shell">
-      <header className="desk-top">
-        <div>
-          <p className="brand-mark">FITCLUB</p>
-          <h1>پنل اعضا</h1>
-          <p className="auth-muted">
-            {profile.fullName}
-            {" · "}
-            <span className="ltr-isolate" dir="ltr">
-              {profile.membershipCode}
-            </span>
-          </p>
-        </div>
-        <div className="desk-actions">
-          <ThemeToggle />
-          <button type="button" className="btn btn-ghost" onClick={onLogout}>
-            خروج
-          </button>
-          <Link className="btn btn-ghost" href="/">
-            سایت
-          </Link>
-        </div>
-      </header>
+    <PanelFrame
+      title="پنل اعضا"
+      lede={
+        <>
+          {profile.fullName}
+          {" · "}
+          <span className="ltr-isolate" dir="ltr">
+            {profile.membershipCode}
+          </span>
+        </>
+      }
+      nav={[{ href: "/member", label: "داشبورد من", exact: true }]}
+      onLogout={() => void onLogout()}
+    >
 
       {notices.length > 0 ? (
         <section className="dash-notices" aria-label="اعلان‌ها">
@@ -137,6 +129,7 @@ export function MemberDashboard() {
         </section>
       ) : null}
 
+      <div className="member-top">
       <section className="desk-section">
         <h2>اشتراک فعلی</h2>
         {subscription ? (
@@ -212,7 +205,9 @@ export function MemberDashboard() {
           ))}
         </div>
       </section>
+      </div>
 
+      <div className="member-split">
       <section className="desk-section">
         <h2>حضورهای اخیر</h2>
         {recentAttendance.length === 0 ? (
@@ -280,6 +275,7 @@ export function MemberDashboard() {
           </ul>
         )}
       </section>
-    </main>
+      </div>
+    </PanelFrame>
   );
 }

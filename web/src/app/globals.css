@@ -817,8 +817,16 @@ textarea.ltr-isolate {
 }
 
 .theme-toggle-icon {
-  font-size: 1.1rem;
+  display: inline-flex;
+  width: 1.15rem;
+  height: 1.15rem;
   line-height: 1;
+}
+
+.theme-toggle-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .theme-toggle-float {
@@ -1698,10 +1706,10 @@ textarea.ltr-isolate {
   }
 }
 
-/* Admin dashboard v2 — desktop-first, still usable on phone */
+/* Admin dashboard v2 — width comes from the panel frame, not a narrow column */
 .admin-shell {
-  max-width: 1280px;
-  padding: 28px 20px 64px;
+  max-width: none;
+  padding: 0;
 }
 
 .admin-kpis {
@@ -2200,48 +2208,340 @@ textarea.ltr-isolate {
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 720px) {
+@media (max-width: 719px) {
+  .admin-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Panel shell — full desktop canvas, phone keeps a compact bar */
+.panel-app {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 252px minmax(0, 1fr);
+  background:
+    radial-gradient(880px 380px at 100% -8%, var(--desk-glow) 0%, transparent 55%),
+    var(--bg);
+  color: var(--text);
+}
+
+.panel-app ::selection {
+  background: color-mix(in srgb, var(--accent) 32%, transparent);
+  color: var(--text);
+}
+
+.panel-side {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 14px 16px;
+  background: var(--bg-2);
+  border-left: 1px solid var(--line);
+  z-index: 30;
+}
+
+.panel-brand {
+  display: grid;
+  gap: 0;
+  padding: 2px 10px 6px;
+}
+
+.panel-brand .brand-mark {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.panel-brand-name {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.panel-nav {
+  display: grid;
+  gap: 6px;
+}
+
+.panel-nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.panel-nav a:hover {
+  background: color-mix(in srgb, var(--panel) 72%, transparent);
+  color: var(--text);
+}
+
+.panel-nav a.is-active {
+  background: var(--accent-soft);
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+}
+
+.panel-side-foot {
+  margin-top: auto;
+  display: grid;
+  gap: 8px;
+}
+
+.panel-side-foot .btn,
+.panel-side-foot .theme-toggle {
+  width: 100%;
+}
+
+.panel-side-foot .btn-ghost {
+  border-color: var(--line);
+  background: var(--panel);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.panel-nav a:focus-visible,
+.panel-side .btn:focus-visible,
+.panel-side .theme-toggle:focus-visible,
+.panel-main .btn:focus-visible,
+.panel-main a:focus-visible,
+.panel-main input:focus-visible,
+.panel-main select:focus-visible,
+.panel-main textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.panel-main {
+  min-width: 0;
+  padding: 28px 32px 64px;
+  container-type: inline-size;
+  container-name: panel;
+}
+
+.panel-main input,
+.panel-main textarea {
+  caret-color: var(--accent);
+}
+
+.panel-head {
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-head h1 {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.panel-lede {
+  margin-top: 6px;
+  color: var(--muted);
+  max-width: 68ch;
+}
+
+.panel-main .desk-section h2 {
+  font-size: 1.22rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.panel-main .att-stat .value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.member-top,
+.member-split,
+.reception-floor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+.member-top > *,
+.member-split > *,
+.reception-floor > *,
+.admin-split > * {
+  min-width: 0;
+}
+
+.reception-floor {
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.reception-floor > .desk-section {
+  margin-top: 22px;
+}
+
+@container panel (min-width: 680px) {
+  .admin-kpis,
+  .admin-members {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-filter {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@container panel (min-width: 840px) {
   .admin-kpis {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .admin-filter {
-    grid-template-columns: minmax(160px, 1fr) minmax(140px, 1fr) minmax(140px, 1fr) auto;
+  .member-top,
+  .member-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px 32px;
   }
 
-  .admin-members {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .member-top > .desk-section,
+  .member-split > .desk-section {
+    margin-top: 22px;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .reception-floor {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px 28px;
+  }
+
+  .reception-create {
+    grid-column: 1 / -1;
   }
 }
 
-@media (min-width: 960px) {
-  .admin-shell {
-    padding: 32px 28px 72px;
+@container panel (min-width: 980px) {
+  .admin-filter {
+    grid-template-columns: minmax(160px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr) auto;
   }
 
   .admin-charts {
-    grid-template-columns: 1.35fr 1fr;
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.85fr);
   }
 
   .admin-split {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-    gap: 24px;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 8px 28px;
     align-items: start;
-  }
-
-  .admin-split-block {
-    margin-top: 28px;
-    padding-top: 18px;
   }
 
   .admin-tariff {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
     align-items: start;
+  }
+
+  .att-layout {
+    grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
+    gap: 22px;
+  }
+
+  .reception-floor {
+    grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1fr) minmax(0, 1.25fr);
+  }
+
+  .reception-create {
+    grid-column: auto;
   }
 }
 
-@media (max-width: 719px) {
-  .admin-kpis {
-    grid-template-columns: 1fr 1fr;
+@container panel (min-width: 1180px) {
+  .admin-members {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .panel-app {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-side {
+    position: sticky;
+    top: 0;
+    height: auto;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "brand foot"
+      "nav nav";
+    align-items: center;
+    gap: 8px 12px;
+    padding: 10px 12px 8px;
+    border-left: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .panel-brand {
+    grid-area: brand;
+    padding: 0 4px;
+  }
+
+  .panel-nav {
+    grid-area: nav;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .panel-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .panel-nav a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    border-color: var(--line);
+    background: var(--panel);
+    border-radius: 999px;
+    padding: 8px 14px;
+  }
+
+  .panel-side-foot {
+    grid-area: foot;
+    margin-top: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .panel-side-foot .btn,
+  .panel-side-foot .theme-toggle {
+    width: auto;
+    padding: 8px 12px;
+  }
+
+  .panel-main {
+    padding: 16px 14px 40px;
+  }
+
+  .panel-head {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+  }
+
+  .panel-head h1 {
+    font-size: 1.4rem;
   }
 }

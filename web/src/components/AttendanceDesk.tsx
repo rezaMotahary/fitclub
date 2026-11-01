@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import {
   ApiError,
@@ -48,6 +47,7 @@ import type {
 } from "@/lib/types";
 import { DeskPager } from "./DeskPager";
 import { MemberFinance } from "./MemberFinance";
+import { PanelFrame } from "./PanelFrame";
 import { SectionNotice, type SectionNoticeState } from "./SectionNotice";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -451,33 +451,24 @@ export function AttendanceDesk() {
   );
 
   return (
-    <main className="desk-shell desk-shell-wide">
-      <header className="desk-top">
-        <div>
-          <p className="brand-mark">FITCLUB</p>
-          <h1>پنل منشی — پذیرش</h1>
-          {user ? (
-            <p className="auth-muted">
-              {user.fullName} · {roleLabel(user.role)}
-              {!isSecretary
-                ? " · مشاهده و ابطال (ثبت ورود و خروج فقط منشی)"
-                : ""}
-            </p>
-          ) : null}
-        </div>
-        <div className="desk-actions">
-          <ThemeToggle />
-          <Link className="btn btn-ghost" href="/secretary/payments">
-            پرداخت پذیرش
-          </Link>
-          <button type="button" className="btn btn-ghost" onClick={onLogout}>
-            خروج
-          </button>
-          <Link className="btn btn-ghost" href="/">
-            سایت
-          </Link>
-        </div>
-      </header>
+    <PanelFrame
+      title="پنل منشی — پذیرش"
+      lede={
+        user ? (
+          <>
+            {user.fullName} · {roleLabel(user.role)}
+            {!isSecretary
+              ? " · مشاهده و ابطال (ثبت ورود و خروج فقط منشی)"
+              : ""}
+          </>
+        ) : null
+      }
+      nav={[
+        { href: "/secretary", label: "خانه پذیرش", exact: true },
+        { href: "/secretary/payments", label: "پرداخت پذیرش" },
+      ]}
+      onLogout={onLogout}
+    >
 
       {bootError ? <p className="auth-error desk-banner">{bootError}</p> : null}
 
@@ -707,7 +698,8 @@ export function AttendanceDesk() {
         ) : null}
       </section>
 
-      <section className="desk-section att-section">
+      <div className="reception-floor">
+      <section className="desk-section att-section reception-create">
         <h2>ثبت عضو جدید</h2>
         <p className="auth-muted">
           نام، موبایل و سانس. کد FS- را سیستم می‌سازد. اشتراک را بعد از ثبت،
@@ -760,7 +752,6 @@ export function AttendanceDesk() {
         </form>
       </section>
 
-      <div className="att-two-col">
         <section className="desk-section att-section">
           <h2>الان داخل سالن</h2>
           {insideNotice && !insideOnPage ? (
@@ -895,6 +886,6 @@ export function AttendanceDesk() {
           />
         </section>
       </div>
-    </main>
+    </PanelFrame>
   );
 }
