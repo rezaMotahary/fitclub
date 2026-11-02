@@ -19,9 +19,9 @@ describe("logout", () => {
   });
 
   it("asks the browser and the cdn not to reuse the account call", async () => {
-    const fetchMock = vi.fn(
-      async () => new Response(JSON.stringify({ ok: true }), { status: 200 }),
-    );
+    const fetchMock = vi.fn<typeof fetch>(async () => {
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    });
     vi.stubGlobal("fetch", fetchMock);
 
     await logout();
@@ -34,9 +34,8 @@ describe("logout", () => {
         cache: "no-store",
       }),
     );
-    const init = fetchMock.mock.calls[0]?.[1] as RequestInit;
-    const headers = init.headers as Record<string, string>;
-    expect(headers["Cache-Control"]).toBe("no-cache");
+    const headers = new Headers(fetchMock.mock.calls[0]?.[1]?.headers);
+    expect(headers.get("Cache-Control")).toBe("no-cache");
   });
 });
 
