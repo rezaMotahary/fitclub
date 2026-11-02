@@ -42,6 +42,7 @@
 | [prompts/pwa.md](./prompts/pwa.md) | پرامپت پیاده‌سازی PWA + بنر نصب |
 | [prompts/production-deploy.md](./prompts/production-deploy.md) | پرامپت آماده‌سازی سرور بدون پاک شدن داده |
 | [prompts/go-live.md](./prompts/go-live.md) | پرامپت بالا آوردن سایت روی fitclubapp.shop |
+| [prompts/fix-logout-howto.md](./prompts/fix-logout-howto.md) | پرامپت فیکس خروج + ظاهر صفحهٔ راهنما + آپدیت سرور |
 
 ## پروتوتایپ مرجع
 
