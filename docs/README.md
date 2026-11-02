@@ -23,6 +23,7 @@
 | [hosting.md](./hosting.md) | چه دامنه و سروری بخریم (اوبونتو، VPS کوچک آموزشی) |
 | [production-data.md](./production-data.md) | قانون دائمی: روی سرور داده پاک نشود؛ بدون فیک لوکال؛ فقط سه حساب تست |
 | [server-update.md](./server-update.md) | مسیر آپدیت سرور: بکاپ، migrate افزایشی، bootstrap، چک‌لیست env |
+| [live-updates.md](./live-updates.md) | قانون دائمی: اول لوکال، اگر اوکی بود حتماً سرور زنده |
 | [security.md](./security.md) | گزارش امنیت قبل از لانچ + چک‌لیست امنیتی روز سرور |
 | [open-questions.md](./open-questions.md) | سؤال‌های باز؛ تا جواب نیاید حدس زده نمی‌شود |
 | [known-issues.md](./known-issues.md) | باگ‌های گزارش‌شدهٔ مالک برای فیکس بعدی |

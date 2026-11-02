@@ -89,4 +89,5 @@ BACKUP_DIR=<پوشهٔ مطلق بیرون از پروژه> npm run backup:db
 - امنیت: `docs/security.md`  
 - لانچ: `docs/launch.md`  
 - آپدیت سرور: `docs/server-update.md`  
+- لوکال بعد سرور: `docs/live-updates.md`  
 - پرامپت استقرار: `docs/prompts/production-deploy.md`  

@@ -9,4 +9,4 @@ alwaysApply: true
 - مالک مجبور نیست در هر پرامپت بگوید «داک را بخوان» یا مسیر پروژه را بنویسد؛ workspace همین پروژه فیت‌کلاب است.
 - داک‌ها برای همین نوشته شده‌اند که تکرار نشوند — اول بخوان، بعد عمل کن یا سؤال بپرس.
 - اگر داک با درخواست جدید تعارض داشت، از مالک بپرس و بعد داک را به‌روز کن.
-- فهرست ورودی: `docs/README.md` سپس `handoff`، `project-identity`، `collaboration`، `decision-policy`، `production-data` و بقیهٔ مرتبط با همان کار.
+- فهرست ورودی: `docs/README.md` سپس `handoff`، `project-identity`، `collaboration`، `decision-policy`، `production-data`، `live-updates` و بقیهٔ مرتبط با همان کار.
