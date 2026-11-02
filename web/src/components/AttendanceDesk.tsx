@@ -12,10 +12,10 @@ import {
   fetchAttendanceInside,
   fetchAttendanceToday,
   fetchMe,
-  logout,
   searchMembers,
   voidAttendance,
 } from "@/lib/api";
+import { logoutAndLeave } from "@/lib/logout-and-leave";
 import { resolveDurationMinutes } from "@/lib/attendance-duration";
 import {
   formatClockFa,
@@ -411,13 +411,8 @@ export function AttendanceDesk({ paths }: { paths: StaffPanelPaths }) {
     }
   }
 
-  async function onLogout() {
-    try {
-      await logout();
-    } catch {
-      // ignore
-    }
-    window.location.href = paths.home;
+  function onLogout() {
+    void logoutAndLeave(paths.home);
   }
 
   if (!user && !bootError) {

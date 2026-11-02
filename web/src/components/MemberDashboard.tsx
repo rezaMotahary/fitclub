@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ApiError, fetchMemberDashboard, logout } from "@/lib/api";
+import { ApiError, fetchMemberDashboard } from "@/lib/api";
+import { logoutAndLeave } from "@/lib/logout-and-leave";
 import { resolveDurationMinutes } from "@/lib/attendance-duration";
 import {
   formatDurationMinutes,
@@ -53,13 +54,8 @@ export function MemberDashboard() {
     };
   }, [router]);
 
-  async function onLogout() {
-    try {
-      await logout();
-    } catch {
-      // still leave
-    }
-    router.replace("/login/member");
+  function onLogout() {
+    void logoutAndLeave("/login/member");
   }
 
   if (status === "loading") {

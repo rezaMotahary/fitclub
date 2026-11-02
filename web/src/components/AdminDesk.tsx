@@ -10,11 +10,11 @@ import {
   fetchClubSettings,
   fetchMe,
   fetchPlans,
-  logout,
   searchMembers,
   updateClubSettings,
   updatePlan,
 } from "@/lib/api";
+import { logoutAndLeave } from "@/lib/logout-and-leave";
 import {
   buildAdminOverviewQuery,
   parsePercentInput,
@@ -334,13 +334,8 @@ export function AdminDesk({ paths }: { paths: StaffPanelPaths }) {
     }
   }
 
-  async function onLogout() {
-    try {
-      await logout();
-    } catch {
-      // ignore
-    }
-    window.location.href = paths.home;
+  function onLogout() {
+    void logoutAndLeave(paths.home);
   }
 
   if (!user && !bootError) {

@@ -15,11 +15,11 @@ import {
   fetchMember,
   fetchPlans,
   listPayments,
-  logout,
   recordReceptionPayment,
   renewSubscription,
   searchMembers,
 } from "@/lib/api";
+import { logoutAndLeave } from "@/lib/logout-and-leave";
 import {
   formatTomanGrouped,
   formatTomanInputLive,
@@ -412,13 +412,8 @@ export function PaymentDesk({
     }
   }
 
-  async function onLogout() {
-    try {
-      await logout();
-    } catch {
-      // ignore
-    }
-    window.location.href = paths.home;
+  function onLogout() {
+    void logoutAndLeave(paths.home);
   }
 
   if (!user && !bootError) {

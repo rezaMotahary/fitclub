@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { ApiError, fetchMe, logout } from "@/lib/api";
+import { ApiError, fetchMe } from "@/lib/api";
+import { logoutAndLeave } from "@/lib/logout-and-leave";
 import { canAccessPanel, loginPathForPanel, roleLabel } from "@/lib/auth";
 import type { PublicAuthUser } from "@/lib/types";
 import { BrandLogo } from "./BrandLogo";
@@ -54,13 +55,8 @@ export function AuthGate({ panel, title, children }: AuthGateProps) {
     };
   }, [loginHref, panel, router]);
 
-  async function onLogout() {
-    try {
-      await logout();
-    } catch {
-      // still leave the panel
-    }
-    router.replace(loginHref);
+  function onLogout() {
+    void logoutAndLeave(loginHref);
   }
 
   if (status === "loading") {

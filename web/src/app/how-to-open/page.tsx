@@ -25,7 +25,7 @@ export default function HowToOpenPage() {
   return (
     <main className="auth-shell">
       <ThemeToggle className="theme-toggle-float" />
-      <div className="auth-card" style={{ width: "min(560px, 100%)" }}>
+      <div className="auth-card howto-card">
         <BrandLogo size="md" wordmark />
         <h1>چطور پروژه را باز کنم؟</h1>
         <p className="auth-lead">
@@ -36,88 +36,99 @@ export default function HowToOpenPage() {
         <ol className="howto-list">
           <li>
             این آدرس را در مرورگر باز کن:{" "}
-            <a href={SITE_ORIGIN}>
-              <code className="ltr-isolate" dir="ltr">
-                {SITE_ORIGIN}
-              </code>
+            <a className="url-break" href={SITE_ORIGIN} dir="ltr">
+              {SITE_ORIGIN}
             </a>
           </li>
-          <li>برای ورود، از حساب‌های نمونه و لینک‌های زیر استفاده کن.</li>
+          <li>برای ورود، از کارت همان نقش استفاده کن. دکمهٔ ورود کافی است.</li>
           <li>
             دکمهٔ <strong>روز / شب</strong> بالای صفحه را بزن تا تم عوض شود؛
             انتخابت برای دفعهٔ بعد یادت می‌ماند.
           </li>
         </ol>
 
-        <div className="sample-box">
-          <p>
-            <strong>پنل منشی:</strong>{" "}
-            {secretaryHref ? (
-              <Link href={secretaryHref} className="ltr-isolate" dir="ltr">
-                {`${SITE_ORIGIN}${secretaryHref}`}
-              </Link>
-            ) : (
-              "لینک هنوز آماده نیست"
-            )}
-          </p>
-          <p>
-            حساب منشی:{" "}
-            <span className="ltr-isolate" dir="ltr">
-              secretary@fitclub.local / FitClubSecretary1!
-            </span>
-          </p>
-          <p>
-            <strong>پنل ادمین:</strong>{" "}
-            {adminHref ? (
-              <Link href={adminHref} className="ltr-isolate" dir="ltr">
-                {`${SITE_ORIGIN}${adminHref}`}
-              </Link>
-            ) : (
-              "لینک هنوز آماده نیست"
-            )}
-          </p>
-          <p>
-            حساب ادمین:{" "}
-            <span className="ltr-isolate" dir="ltr">
-              admin@fitclub.local / FitClubAdmin1!
-            </span>
-          </p>
-          <p>
-            <strong>عضو:</strong>{" "}
-            <span className="ltr-isolate" dir="ltr">
-              09121234567
-            </span>{" "}
-            (کد یک‌بارمصرف:{" "}
-            <span className="ltr-isolate" dir="ltr">
-              123456
-            </span>
-            )
-          </p>
-          <p>
-            <strong>پرداخت پذیرش:</strong> بعد از ورود منشی یا ادمین، از منوی
-            همان پنل باز می‌شود.
-          </p>
+        <div className="role-grid">
+          <RoleCard
+            title="پنل منشی"
+            account="secretary@fitclub.local / FitClubSecretary1!"
+            href={secretaryHref}
+            url={secretaryHref ? `${SITE_ORIGIN}${secretaryHref}` : null}
+            action="ورود منشی"
+          />
+          <RoleCard
+            title="پنل ادمین"
+            account="admin@fitclub.local / FitClubAdmin1!"
+            href={adminHref}
+            url={adminHref ? `${SITE_ORIGIN}${adminHref}` : null}
+            action="ورود ادمین"
+          />
+          <section className="role-card">
+            <h2>عضو</h2>
+            <p>
+              موبایل:{" "}
+              <span className="ltr-isolate" dir="ltr">
+                09121234567
+              </span>
+            </p>
+            <p>
+              کد یک‌بارمصرف:{" "}
+              <span className="ltr-isolate" dir="ltr">
+                123456
+              </span>
+            </p>
+            <Link className="btn btn-primary" href="/login/member">
+              ورود عضو
+            </Link>
+          </section>
         </div>
 
-        <div className="cta-row auth-links">
-          <Link className="btn btn-primary" href="/">
+        <p className="auth-note">
+          پرداخت پذیرش بعد از ورود منشی یا ادمین، از منوی همان پنل باز می‌شود.
+        </p>
+        <div className="cta-row">
+          <Link className="btn btn-ghost" href="/">
             رفتن به سایت
           </Link>
-          <Link className="btn btn-ghost" href="/login/member">
-            ورود عضو
-          </Link>
-          {secretaryHref ? (
-            <Link className="btn btn-ghost" href={secretaryHref}>
-              ورود منشی
-            </Link>
-          ) : null}
-          {adminHref ? (
-            <Link className="btn btn-ghost" href={adminHref}>
-              ورود ادمین
-            </Link>
-          ) : null}
         </div>
       </div>
     </main>
+  );
+}
+
+function RoleCard({
+  title,
+  account,
+  href,
+  url,
+  action,
+}: {
+  title: string;
+  account: string;
+  href: string | null;
+  url: string | null;
+  action: string;
+}) {
+  return (
+    <section className="role-card">
+      <h2>{title}</h2>
+      <p>
+        حساب:{" "}
+        <span className="ltr-isolate" dir="ltr">
+          {account}
+        </span>
+      </p>
+      {url && href ? (
+        <Link className="url-break" href={href} dir="ltr">
+          {url}
+        </Link>
+      ) : (
+        <p>لینک هنوز آماده نیست</p>
+      )}
+      {href ? (
+        <Link className="btn btn-primary" href={href}>
+          {action}
+        </Link>
+      ) : null}
+    </section>
   );
 }

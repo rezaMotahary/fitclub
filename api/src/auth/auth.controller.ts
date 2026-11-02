@@ -21,6 +21,10 @@ import { StaffLoginDto } from './dto/staff-login.dto.js';
 import { RolesGuard } from './guards/roles.guard.js';
 import { SessionAuthGuard } from './guards/session-auth.guard.js';
 import type { AuthUser } from './auth.types.js';
+import {
+  SESSION_COOKIE_CLEAR_PATHS,
+  sessionCookieOptions,
+} from './session-cookie.js';
 
 @Controller('auth')
 export class AuthController {
@@ -35,24 +39,18 @@ export class AuthController {
     token: string,
     expiresAt: Date,
   ): void {
-    const isProd = (process.env.NODE_ENV ?? 'development') === 'production';
-    res.cookie(this.cookieName(), token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: isProd,
-      path: '/',
-      expires: expiresAt,
-    });
+    res.cookie(
+      this.cookieName(),
+      token,
+      sessionCookieOptions('/', process.env.NODE_ENV, expiresAt),
+    );
   }
 
   private clearSessionCookie(res: Response): void {
-    const isProd = (process.env.NODE_ENV ?? 'development') === 'production';
-    res.clearCookie(this.cookieName(), {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: isProd,
-      path: '/',
-    });
+    const name = this.cookieName();
+    for (const path of SESSION_COOKIE_CLEAR_PATHS) {
+      res.clearCookie(name, sessionCookieOptions(path, process.env.NODE_ENV));
+    }
   }
 
   @Post('staff/login')

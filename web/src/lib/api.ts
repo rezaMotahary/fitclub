@@ -65,9 +65,19 @@ export async function apiFetch<T>(
   const res = await fetch(url, {
     method: options.method ?? (options.body ? "POST" : "GET"),
     credentials: "include",
+    cache: "no-store",
     headers: options.body
-      ? { "Content-Type": "application/json", Accept: "application/json" }
-      : { Accept: "application/json" },
+      ? {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        }
+      : {
+          Accept: "application/json",
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
 

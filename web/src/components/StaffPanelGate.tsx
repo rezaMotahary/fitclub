@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { ApiError, fetchMe, logout } from "@/lib/api";
+import { ApiError, fetchMe } from "@/lib/api";
+import { logoutAndLeave } from "@/lib/logout-and-leave";
 import { canAccessPanel } from "@/lib/auth";
 import type { StaffPanel, StaffPanelPaths } from "@/lib/staff-paths";
 import { StaffLoginForm } from "./StaffLoginForm";
@@ -46,13 +47,8 @@ export function StaffPanelGate({ panel, paths, children }: StaffPanelGateProps) 
     };
   }, [panel]);
 
-  async function onLogout() {
-    try {
-      await logout();
-    } catch {
-      // still return to this same door
-    }
-    window.location.href = paths.home;
+  function onLogout() {
+    void logoutAndLeave(paths.home);
   }
 
   if (status === "loading") {

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -16,6 +16,8 @@ import { PaymentsModule } from './payments/payments.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { ClubSettingsModule } from './club-settings/club-settings.module.js';
 import { SmsModule } from './sms/sms.module.js';
+import { DisableEtagService } from './common/disable-etag.service.js';
+import { NoStoreMiddleware } from './common/no-store.middleware.js';
 
 @Module({
   imports: [
@@ -39,6 +41,14 @@ import { SmsModule } from './sms/sms.module.js';
     SmsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [
+    AppService,
+    DisableEtagService,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(NoStoreMiddleware).forRoutes('{*splat}');
+  }
+}

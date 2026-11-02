@@ -25,6 +25,7 @@ async function bootstrap() {
   if (trustProxy) {
     app.set('trust proxy', /^\d+$/.test(trustProxy) ? Number(trustProxy) : trustProxy);
   }
+  app.set('etag', false);
 
   app.setGlobalPrefix('api');
   app.use(
